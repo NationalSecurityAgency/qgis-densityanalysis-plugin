@@ -2,10 +2,11 @@
 
 from qgis.PyQt.QtCore import QUrl, Qt
 from qgis.PyQt.QtGui import QIcon
-from qgis.PyQt.QtWidgets import QAction
+from qgis.PyQt.QtWidgets import QAction, QMessageBox
 from qgis.core import QgsApplication
 import processing
 from .provider import DensityAnalysisProvider
+from .utils import H3_INSTALLED
 
 import os
 
@@ -23,10 +24,22 @@ class DensityAnalysis(object):
         self.toolbar.setToolTip('Density Analysis Toolbar')
 
         icon = QIcon(os.path.dirname(__file__) + '/icons/densitygrid.svg')
-        self.densityGridAction = QAction(icon, "Create a kernel density grid", self.iface.mainWindow())
+        self.densityGridAction = QAction(icon, "Create a density map grid", self.iface.mainWindow())
         self.densityGridAction.triggered.connect(self.densityGridAlgorithm)
         self.toolbar.addAction(self.densityGridAction)
         self.iface.addPluginToMenu("Density analysis", self.densityGridAction)
+
+        icon = QIcon(os.path.dirname(__file__) + '/icons/geohash.png')
+        self.geohashAction = QAction(icon, "Create geohash density map", self.iface.mainWindow())
+        self.geohashAction.triggered.connect(self.geohashAlgorithm)
+        self.toolbar.addAction(self.geohashAction)
+        self.iface.addPluginToMenu("Density analysis", self.geohashAction)
+
+        icon = QIcon(os.path.dirname(__file__) + '/icons/h3.png')
+        self.h3Action = QAction(icon, "Create H3 density map", self.iface.mainWindow())
+        self.h3Action.triggered.connect(self.h3Algorithm)
+        self.toolbar.addAction(self.h3Action)
+        self.iface.addPluginToMenu("Density analysis", self.h3Action)
         
         icon = QIcon(os.path.dirname(__file__) + '/icons/densityexplorer.svg')
         self.heatmapAction = QAction(icon, "Heatmap density analysis", self.iface.mainWindow())
@@ -64,6 +77,8 @@ class DensityAnalysis(object):
 
     def unload(self):
         self.iface.removePluginMenu('Density analysis', self.densityGridAction)
+        self.iface.removePluginMenu('Density analysis', self.geohashAction)
+        self.iface.removePluginMenu('Density analysis', self.h3Action)
         self.iface.removePluginMenu('Density analysis', self.graduatedStyleAction)
         self.iface.removePluginMenu('Density analysis', self.randomStyleAction)
         self.iface.removePluginMenu('Density analysis', self.heatmapAction)
@@ -73,6 +88,8 @@ class DensityAnalysis(object):
             self.iface.removeDockWidget(self.heatmap_dialog)
         # Remove Toolbar Icons
         self.iface.removeToolBarIcon(self.densityGridAction)
+        self.iface.removeToolBarIcon(self.geohashAction)
+        self.iface.removeToolBarIcon(self.h3Action)
         self.iface.removeToolBarIcon(self.heatmapAction)
         self.iface.removeToolBarIcon(self.style2layersAction)
         self.iface.removeToolBarIcon(self.graduatedStyleAction)
@@ -88,13 +105,34 @@ class DensityAnalysis(object):
             self.heatmap_dialog = HeatmapAnalysis(self.iface, self.iface.mainWindow())
             self.iface.addDockWidget(Qt.RightDockWidgetArea, self.heatmap_dialog)
         self.heatmap_dialog.show()
-        
+
     def densityGridAlgorithm(self):
-         processing.execAlgorithmDialog('densityanalysis:kerneldensity', {})
- 
+        processing.execAlgorithmDialog('densityanalysis:kerneldensity', {})
+
+    def geohashAlgorithm(self):
+        processing.execAlgorithmDialog('densityanalysis:geohashdensity', {})
+
+    def h3Algorithm(self):
+        if H3_INSTALLED:
+            processing.execAlgorithmDialog('densityanalysis:h3density', {})
+            return
+        helpString = '''
+            <p>
+              To create H3 density maps you will need to install the H3 Python Library (<a href="https://h3geo.org/">https://h3geo.org/</a>).<br><br>
+              The H3 package can be installed by running the OSGeo4W shell as system administrator and running 'pip install h3' or whatever method you use to install python packages.
+            </p>
+            <p>
+              Please refer to the H3 installation documentation: <a href="https://h3geo.org/docs/installation">https://h3geo.org/docs/installation</a>
+            </p>
+            <p>
+              Once H3 is installed, please restart QGIS.
+            </p>
+            '''
+        QMessageBox.information(self.iface.mainWindow(), 'H3 Install Instructions', helpString)
+
     def graduatedStyleAlgorithm(self):
-         processing.execAlgorithmDialog('densityanalysis:gratuatedstyle', {})
-   
+        processing.execAlgorithmDialog('densityanalysis:gratuatedstyle', {})
+
     def showRandomStyleDialog(self):
         processing.execAlgorithmDialog('densityanalysis:randomstyle', {})
 

@@ -4,6 +4,10 @@ from qgis.PyQt.QtGui import QIcon
 from .randomstyle import RandomStyleAlgorithm
 from .graduatedstyle import GraduatedStyleAlgorithm
 from .densitygrid import KernelDensityAlgorithm
+from .geohashdensity import GeohashDensityAlgorithm
+from .utils import H3_INSTALLED
+if H3_INSTALLED:
+    from .h3density import H3DensityAlgorithm
 
 class DensityAnalysisProvider(QgsProcessingProvider):
 
@@ -14,6 +18,9 @@ class DensityAnalysisProvider(QgsProcessingProvider):
         self.addAlgorithm(RandomStyleAlgorithm())
         self.addAlgorithm(GraduatedStyleAlgorithm())
         self.addAlgorithm(KernelDensityAlgorithm())
+        self.addAlgorithm(GeohashDensityAlgorithm())
+        if H3_INSTALLED:
+            self.addAlgorithm(H3DensityAlgorithm())
 
     def icon(self):
         return QIcon(os.path.dirname(__file__) + '/icons/densitygrid.svg')
