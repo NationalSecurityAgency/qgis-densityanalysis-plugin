@@ -247,7 +247,7 @@ class KernelDensityAlgorithm(QgsProcessingAlgorithm):
         return 'kerneldensity'
 
     def displayName(self):
-        return 'Create kernel density grid'
+        return 'Create a density map grid'
 
     def icon(self):
         return QIcon(os.path.join(os.path.dirname(__file__), 'icons/densitygrid.svg'))

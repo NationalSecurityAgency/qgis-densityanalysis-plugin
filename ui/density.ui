@@ -85,6 +85,9 @@
       </property>
       <item>
        <widget class="QComboBox" name="zoomComboBox">
+        <property name="currentIndex">
+         <number>1</number>
+        </property>
         <item>
          <property name="text">
           <string>No action</string>
