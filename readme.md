@@ -1,10 +1,12 @@
 # QGIS Density Analysis Plugin
 
-This plugin automates the creation of vector density heatmaps in QGIS with a heatmap explorer to examine the areas of greatest concentrations. Once installed, the plugin is located under ***Plugins->Density analysis*** in the QGIS menu. Some algorithms can also be found in the *Processing Toolbox*.
+This plugin automates the creation of vector density heatmaps in QGIS with a heatmap explorer to examine the areas of greatest concentrations. This also has two algorithms to create a gradient style and random style so that they can be used in QGIS models. Another tools allows a copied style or a .qml file to be pasted onto all selected layers.  Once installed, the plugin is located under ***Plugins->Density analysis*** in the QGIS menu. Some algorithms can be found in the *Processing Toolbox*.
 
-## <img src="help/densitygrid.png" alt="Random style" width="25" height="24"> Create Kernel Density Grid
+## <img src="help/densitygrid.png" alt="Random style" width="25" height="24"> Create Density Map Grid
 
-Given point features this will create a rectangle, diamond, or hexagon grid histogram of points that occur in each polygon grid cell. Here is an example of crime in Chicago. Each point on the left is some criminal event. On the right is a hexagon heatmap counting the number of events in each cell and displaying it as a heatmap. The darker the red, the more crime is in that area.
+Given point features this will create a rectangle, diamond, or hexagon grid histogram of points that occur in each polygon grid cell. This algorithm uses the QGIS ***Count points in polygon*** algorithm which is fairly time intensive even though it has been masterfully implemented in core QGIS and will significantly beat the speed implemented in commercial software. To optimize the speed make sure your input data is spatially indexed; otherwise, this algorithm will be painfully slow. The advantage to this algorithm is that it gives the most control over the size of the polygon grid cells. If speed is more important then use either the ***Create geohash density map*** or ***Create H3 density map***. Both of these use geohash indexing to count points in each geohash grid cell and they are very fast. The former creates a square or rectangular grid and H3 creates a hexagon grid. For H3 support the H3 library needs to be installed in QGIS. The disadvantages of these geohash density maps is that they have fixed resolutions and you cannot choose anything in between, but this is also what makes them fast.
+
+Here is an example of crime in Chicago. Each point on the left is a criminal event. On the right is a hexagon heatmap counting the number of events in each cell and displaying it as a heatmap. The darker the red, the more crime is in that area. 
 
 <div style="text-align:center"><img src="help/chicago_crime.jpg" alt="Chicago crime" width="1000"></div>
 
@@ -15,11 +17,12 @@ This shows the parameters used in the algorithm.
 These are the input parameters:
 
 * ***Input point vector layer*** - Select one of your point feature layers. Note that counting features in polygons is a time consuming process. If you have a large data set, make sure your input point vector layer has a spatial index; otherwise, this will be very slow.
-* ***Grid extent*** - Select a grid extent. In this case the extent comes fom the extent of the input vector layer.
-* ***Minimum cell histogram count*** - This is minimum number of features that need to be found within each cell for the cell to be created. A value of 0 will display the entire grid. A value of 1 means that at least one event was within the cell boundaries.
+* ***Grid extent*** - Select a grid extent. In this case the extent comes from the extent of the input vector layer.
+* ***Minimum cell histogram count*** - This is minimum number of features required to be within each cell for a cell to be created. A value of 0 will display the entire grid. A value of 1 means that at least one event was within the cell boundaries.
 * ***Grid type*** - This is the grid type that is created. It can either be a rectangle, diamond, or hexagon. 
-* ***Grid cell width*** - This is the width of the grid cell in the coordinate reference system (CRS) of the layer. This could be in degrees, meters, or feet so you will need to make sure it is set appropriately.
-* ***Grid cell height*** - This is the height of the grid cell in the coordinate reference system (CRS) of the layer. This could be in degrees, meters, or feet so you will need to make sure it is set appropriately.
+* ***Grid cell width*** - This is the width of the grid cell as defined by ***Grid measurement unit***.
+* ***Grid cell height*** - This is the height of the grid cell as defined by ***Grid measurement unit***.
+* ***Grid measurement unit*** - The unit of measure for the Grid cell width and heights. Choices are Kilometers, Meters, Miles, Yards, Feet, Nautical Miles, and Degrees.
 * ***Maximum grid width or height*** - This prevents a grid of huge proportions from being created and allows the user to correct the input parameters. If the width or height of the grid is exceeded, then it generates an error with a message of the grid size that would be created by the current settings and the cell width or height that needs to be used to fit within this grid size. You can always increase this number if you want a denser grid.
 * ***Number of gradient colors*** - This specifies the number of categories that are going to be used. In this example we used 15. When we look at the output layer, it shows each category and the number of events that can occur within the category.
 
@@ -29,15 +32,178 @@ These are the input parameters:
 * ***Color ramp mode*** - Select one of Equal Count (Quantile), Equal Interval, Logarithmic scale ,Natural Breaks (Jenks), Pretty Breaks, or Standard Deviation.
 * ***No feature outlines*** - If checked, it will not draw grid cell outlines.
 
+## <img src="icons/geohash.png" alt="Geohash map" width="24" height="24"> Create Geohash Density Map
+
+This algorithm iterates through every point indexing them using a geohash with a count of the number of times each geohash has been seen. The bounds of each geohash cell is then created as a polygon. Depending on the resolution these polygon are either a square or rectangle. Here is an example.
+
+<div style="text-align:center"><img src="help/geohash_example.png" alt="Geohash Density Map"></div>
+
+This shows the algorithm dialog.
+
+<div style="text-align:center"><img src="help/geohash_alg.png" alt="Geohash Density Map Algorithm"></div>
+
+The styling parameters are the same as the above algorithm. The resolution is determined by ***Geohash resolution*** and is as follows:
+
+<table style="margin-left: auto; margin-right: auto;">
+<tr>
+<th>Resolution<br>Level</th>
+<th>Approximate<br>Dimensions</th>
+</tr>
+<tr>
+<td style="text-align: center">1</td>
+<td style="text-align: center">≤ 5,000km X 5,000km</td>
+</tr>
+<tr>
+<td style="text-align: center">2</td>
+<td style="text-align: center">≤ 1,250km X 625km</td>
+</tr>
+<tr>
+<td style="text-align: center">3</td>
+<td style="text-align: center">≤ 156km X 156km</td>
+</tr>
+<tr>
+<td style="text-align: center">4</td>
+<td style="text-align: center">≤ 39.1km X 19.5km</td>
+</tr>
+<tr>
+<td style="text-align: center">5</td>
+<td style="text-align: center">≤ 4.89km X 4.89km</td>
+</tr>
+<tr>
+<td style="text-align: center">6</td>
+<td style="text-align: center">≤ 1.22km X 0.61km</td>
+</tr>
+<tr>
+<td style="text-align: center">7</td>
+<td style="text-align: center">≤ 153m X 153m</td>
+</tr>
+<tr>
+<td style="text-align: center">8</td>
+<td style="text-align: center">≤ 38.2m X 19.1m</td>
+</tr>
+<tr>
+<td style="text-align: center">9</td>
+<td style="text-align: center">≤ 4.77m X 4.77m</td>
+</tr>
+<tr>
+<td style="text-align: center">10</td>
+<td style="text-align: center">≤ 1.19m X 0.596m</td>
+</tr>
+<tr>
+<td style="text-align: center">11</td>
+<td style="text-align: center">≤ 149mm X 149mm</td>
+</tr>
+<tr>
+<td style="text-align: center">12</td>
+<td style="text-align: center">≤ 37.2mm X 18.6mm</td>
+</tr>
+</table>
+
+## <img src="icons/h3.png" alt="H3 density map" width="24" height="24"> Create H3 Density Map
+
+This algorithm uses the H3 (Hexagonal hierarchical geospatial indexing system) library for fast density map generation. It iterates through every point using H3 indexing with a count of the number of times each H3 index has been seen. Each H3 cell is then created as a polygon. The polygons are in a hexagon shape. 
+
+To create H3 density maps you will need to install the H3 Library (<a href="https://h3geo.org/">https://h3geo.org/</a>).
+The H3 package can be installed by running the OSGeo4W shell as system administrator and running 'pip install h3' or whatever method you use to install python packages. If you don't see the H3 algorithms in the plugin, then H3 has not been installed.
+
+Here is an example.
+
+<div style="text-align:center"><img src="help/h3_example.png" alt="H3 Density Map"></div>
+
+This shows the algorithm dialog.
+
+<div style="text-align:center"><img src="help/h3_alg.png" alt="H3 Density Map Algorithm"></div>
+
+The styling parameters are the same as the ***Create Density Map Grid*** algorithm. The resolution is determined by ***H3 resolution*** and is as follows:
+
+<table style="margin-left: auto; margin-right: auto;">
+<tr>
+<th>Resolution<br>Level</th>
+<th>Average Hexagon<br>Edge Length</th>
+</tr>
+<tr>
+<td style="text-align: center">0</td>
+<td style="text-align: center">1107.71 km</td>
+</tr>
+<tr>
+<td style="text-align: center">1</td>
+<td style="text-align: center">418.68 km</td>
+</tr>
+<tr>
+<td style="text-align: center">2</td>
+<td style="text-align: center">158.24 km</td>
+</tr>
+<tr>
+<td style="text-align: center">3</td>
+<td style="text-align: center">59.81 km</td>
+</tr>
+<tr>
+<td style="text-align: center">4</td>
+<td style="text-align: center">22.61 km</td>
+</tr>
+<tr>
+<td style="text-align: center">5</td>
+<td style="text-align: center">8.54 km</td>
+</tr>
+<tr>
+<td style="text-align: center">6</td>
+<td style="text-align: center">3.23 km</td>
+</tr>
+<tr>
+<td style="text-align: center">7</td>
+<td style="text-align: center">1.22 km</td>
+</tr>
+<tr>
+<td style="text-align: center">8</td>
+<td style="text-align: center">461.35 m</td>
+</tr>
+<tr>
+<td style="text-align: center">9</td>
+<td style="text-align: center">174.38 m</td>
+</tr>
+<tr>
+<td style="text-align: center">10</td>
+<td style="text-align: center">65.91 m</td>
+</tr>
+<tr>
+<td style="text-align: center">11</td>
+<td style="text-align: center">24.91 m</td>
+</tr>
+<tr>
+<td style="text-align: center">12</td>
+<td style="text-align: center">9.42 m</td>
+</tr>
+<tr>
+<td style="text-align: center">13</td>
+<td style="text-align: center">3.56 m</td>
+</tr>
+<tr>
+<td style="text-align: center">14</td>
+<td style="text-align: center">1.35 m</td>
+</tr>
+<tr>
+<td style="text-align: center">15</td>
+<td style="text-align: center">0.51 m</td>
+</tr>
+</table>
+
 ## <img src="help/densityexplorer.png" alt="Density explorer tool" width="25" height="24"> Heatmap density analysis tool
 
 With this tool you can quickly look at the top scoring values. Select the original point layer and the density heatmap polygon layer generated by the above algorithm. ID and Count will probably automatically select the right attribute, but ID should be set to a unique identifier, and count should be set to the histogram count attribute which is **NUMPOINTS**.
 
 <div style="text-align:center"><img src="help/densityanalysis.png" alt="Heatmap density analysis"></div>
 
-Once the parameters have been set, click on ***Display Density Values*** and the top scores will be listed. If you click on any of entries only that grid cell will be display and if ***Auto zoom*** is checked, QGIS will zoom into that feature. You can then see what features are within it. You can also click and drag to select more than one, or Ctrl-click to add or subtract from the selection. Here is an example view.
+Once the parameters have been set, click on ***Display Density Values*** and the top scores will be listed. If you click on any of entries only that grid cell will be display. A drop down set of actions specifies whether QGIS will ***Auto pan*** or ***Auto zoom*** to the selected feature or ***No action*** taken. You can then examine the features within the grid cell. You can also click and drag to select more than one, or Ctrl-click to add or subtract from the selection. Here is an example view.
 
 <div style="text-align:center"><img src="help/example.png" alt="Example"></div>
+
+## <img src="help/applystyles.png" alt="Density explorer tool" width="28" height="28"> Apply Style to Selected Layers
+
+QGIS lacks a function to paste a style to more than one layer so this tool was developed to fix that lack in capability. If you have a .qml style or have a style copied on the clipboard you can apply it to all the selected layers. 
+
+<div style="text-align:center"><img src="help/applystyle.png" alt="Apply style to selected layers"></div>
+
+When pasting a graduated style the symbol class values are preserved unless ***Automatically reclassify graduated layers*** is checked. When checked, each layer's minimum and maximum are evaluated along with the graduated mode to reclassify the values.
 
 ## Applying Graduated and Random Categorized Styles
 
@@ -54,4 +220,3 @@ The purpose of these two algorithms, is to set random and graduated styles using
     <div style="text-align:center"><img src="help/random.png" alt="Random categorized style algorithm"></div>
     
     Specify the input layer and the field to distinguish between different categories. If ***No feature outlines*** is checked, then the features will not have outlines.
-
