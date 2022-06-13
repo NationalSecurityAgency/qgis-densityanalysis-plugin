@@ -180,6 +180,8 @@ class H3DensityAlgorithm(QgsProcessingAlgorithm):
                 if src_crs != epsg4326:
                     pt = transform.transform(pt)
                 h = h3.geo_to_h3(pt.y(), pt.x(), resolution)
+                if h == '0': # Check to see if the input coordinates were invalid
+                    continue
                 if h in ghash:
                     ghash[h] += 1
                 else:
@@ -194,7 +196,11 @@ class H3DensityAlgorithm(QgsProcessingAlgorithm):
         total = 15 / len(ghash)
         for cnt, key in enumerate(ghash.keys()):
             val = ghash[key]
-            coords = h3.h3_to_geo_boundary(key)
+            try:
+                coords = h3.h3_to_geo_boundary(key)
+            except:
+                continue
+
             pts = []
             for p in coords:
                 pt = QgsPointXY(p[1], p[0])
