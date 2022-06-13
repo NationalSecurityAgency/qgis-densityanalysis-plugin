@@ -34,7 +34,7 @@ class GeohashDensityAlgorithm(QgsProcessingAlgorithm):
             QgsProcessingParameterFeatureSource(self.PrmInput, 'Input point vector layer', defaultValue=None,
             types=[QgsProcessing.TypeVectorPoint])
         )
-        param = QgsProcessingParameterNumber(self.PrmGeohashResolution, 'Geohash Resolution',
+        param = QgsProcessingParameterNumber(self.PrmGeohashResolution, 'Geohash resolution',
                 type=QgsProcessingParameterNumber.Integer, minValue=1, defaultValue=6, maxValue=12, optional=False)
         param.setHelp(
             '''
