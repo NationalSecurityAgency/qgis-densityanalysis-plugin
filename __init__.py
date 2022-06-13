@@ -1,5 +1,6 @@
 try:
     import h3
+    utils.H3_INSTALLED = True
 except Exception:
     import os
     import site
