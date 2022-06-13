@@ -2,10 +2,10 @@
 name=Density Analysis
 qgisMinimumVersion=3.10
 description=This plugin automates the creation of vector density heatmaps in QGIS with a heatmap explorer to examine the areas of greatest concentrations.
-version=2022.06.03
+version=2022.06.13
 author=C Hamilton
 email=adenaculture@gmail.com
-about=This plugin automates the creation of vector density heatmaps in QGIS with a heatmap explorer to examine the areas of greatest concentrations.
+about=This plugin automates the creation of vector density heatmaps in QGIS with a heatmap explorer to examine the areas of greatest concentrations. This also has two algorithms to create a gradient style and random style so that they can be used in QGIS models. Another tools allows a copied style or a .qml file to be pasted onto all selected layers.
 tracker=https://github.com/NationalSecurityAgency/qgis-densityanalysis-plugin/issues
 repository=https://github.com/NationalSecurityAgency/qgis-densityanalysis-plugin
 tags=density,analysis,kernel,heatmap, heat map
