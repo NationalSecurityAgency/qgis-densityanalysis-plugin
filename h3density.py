@@ -1,7 +1,7 @@
 import os
 from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtCore import QVariant
-from qgis.core import QgsWkbTypes, QgsStyle, QgsUnitTypes, QgsFields, QgsField, QgsCoordinateTransform, QgsCoordinateReferenceSystem, QgsRectangle, QgsFeature, QgsGeometry, QgsPointXY
+from qgis.core import QgsWkbTypes, QgsStyle, QgsUnitTypes, QgsFields, QgsField, QgsCoordinateTransform, QgsCoordinateReferenceSystem, QgsRectangle, QgsFeature, QgsGeometry, QgsPointXY, QgsProject
 
 from qgis.core import (
     QgsProcessing,
@@ -18,7 +18,8 @@ from qgis.core import (
     )
 import processing
 
-import h3
+# import h3
+# import h3.api.basic_int as h3
 
 class H3DensityAlgorithm(QgsProcessingAlgorithm):
     PrmInput = 'INPUT'
@@ -148,6 +149,12 @@ class H3DensityAlgorithm(QgsProcessingAlgorithm):
         )
 
     def processAlgorithm(self, parameters, context, feedback):
+        try:
+            import h3.api.basic_int as h3
+        except Exception:
+            from .utils import h3InstallString
+            feedback.reportError(h3InstallString)
+            return {}
         source = self.parameterAsSource(parameters, self.PrmInput, context)
         num_classes = self.parameterAsInt(parameters, self.PrmClasses, context)
         resolution = self.parameterAsInt(parameters, self.PrmH3Resolution, context)
@@ -158,7 +165,7 @@ class H3DensityAlgorithm(QgsProcessingAlgorithm):
         epsg4326 = QgsCoordinateReferenceSystem("EPSG:4326")
         fields = QgsFields()
         fields.append(QgsField('ID', QVariant.Int))
-        fields.append(QgsField('H3HASH', QVariant.String))
+        fields.append(QgsField('H3HASH', QVariant.UInt))
         fields.append(QgsField('NUMPOINTS', QVariant.Int))
         (sink, dest_id) = self.parameterAsSink(
             parameters, self.PrmOutput,
@@ -180,7 +187,7 @@ class H3DensityAlgorithm(QgsProcessingAlgorithm):
                 if src_crs != epsg4326:
                     pt = transform.transform(pt)
                 h = h3.geo_to_h3(pt.y(), pt.x(), resolution)
-                if h == '0': # Check to see if the input coordinates were invalid
+                if h == 0: # Check to see if the input coordinates were invalid
                     continue
                 if h in ghash:
                     ghash[h] += 1
