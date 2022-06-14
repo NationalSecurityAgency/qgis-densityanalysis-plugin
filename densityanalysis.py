@@ -6,7 +6,6 @@ from qgis.PyQt.QtWidgets import QAction, QMessageBox
 from qgis.core import QgsApplication
 import processing
 from .provider import DensityAnalysisProvider
-from .utils import H3_INSTALLED
 
 import os
 
@@ -113,22 +112,12 @@ class DensityAnalysis(object):
         processing.execAlgorithmDialog('densityanalysis:geohashdensity', {})
 
     def h3Algorithm(self):
-        if H3_INSTALLED:
+        try:
+            import h3
             processing.execAlgorithmDialog('densityanalysis:h3density', {})
-            return
-        helpString = '''
-            <p>
-              To create H3 density maps you will need to install the H3 Python Library (<a href="https://h3geo.org/">https://h3geo.org/</a>).<br><br>
-              The H3 package can be installed by running the OSGeo4W shell as system administrator and running 'pip install h3' or whatever method you use to install python packages.
-            </p>
-            <p>
-              Please refer to the H3 installation documentation: <a href="https://h3geo.org/docs/installation">https://h3geo.org/docs/installation</a>
-            </p>
-            <p>
-              Once H3 is installed, please restart QGIS.
-            </p>
-            '''
-        QMessageBox.information(self.iface.mainWindow(), 'H3 Install Instructions', helpString)
+        except Exception:
+            from .utils import h3InstallString
+            QMessageBox.information(self.iface.mainWindow(), 'H3 Install Instructions', h3InstallString)
 
     def graduatedStyleAlgorithm(self):
         processing.execAlgorithmDialog('densityanalysis:gratuatedstyle', {})
