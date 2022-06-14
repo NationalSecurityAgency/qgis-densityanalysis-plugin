@@ -1,7 +1,7 @@
 import os
 from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtCore import QVariant
-from qgis.core import QgsWkbTypes, QgsStyle, QgsUnitTypes, QgsFields, QgsField, QgsCoordinateTransform, QgsCoordinateReferenceSystem, QgsRectangle, QgsFeature, QgsGeometry
+from qgis.core import QgsWkbTypes, QgsStyle, QgsUnitTypes, QgsFields, QgsField, QgsCoordinateTransform, QgsCoordinateReferenceSystem, QgsRectangle, QgsFeature, QgsGeometry, QgsProject
 
 from qgis.core import (
     QgsProcessing,
