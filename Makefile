@@ -1,6 +1,6 @@
 PLUGINNAME = densityanalysis
 PLUGINS = "$(HOME)"/AppData/Roaming/QGIS/QGIS3/profiles/default/python/plugins/$(PLUGINNAME)
-PY_FILES = densityanalysis.py __init__.py densitygrid.py graduatedstyle.py heatmap.py provider.py randomstyle.py style2layers.py
+PY_FILES = __init__.py densityanalysis.py densitygrid.py geohash.py geohashdensity.py graduatedstyle.py h3density.py heatmap.py provider.py randomstyle.py style2layers.py utils.py
 EXTRAS = metadata.txt icon.png
 
 deploy:

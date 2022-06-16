@@ -1,10 +1,14 @@
 # QGIS Density Analysis Plugin
 
-This plugin automates the creation of vector density heatmaps in QGIS with a heatmap explorer to examine the areas of greatest concentrations. This also has two algorithms to create a gradient style and random style so that they can be used in QGIS models. Another tools allows a copied style or a .qml file to be pasted onto all selected layers.  Once installed, the plugin is located under ***Plugins->Density analysis*** in the QGIS menu. Some algorithms can be found in the *Processing Toolbox*.
+This plugin automates the creation of vector density heatmaps in QGIS with a heatmap explorer to examine the areas of greatest concentrations. It has two processing algorithms to create a gradient style and random style so that they can be used in QGIS models. Another tools allows a copied style or a .qml file to be pasted onto all selected layers.  Once installed, the plugin is located under ***Plugins->Density analysis*** in the QGIS menu or on the toolbar. Some algorithms can be found in the *Processing Toolbox*.
+
+<div style="text-align:center"><img src="help/menu.jpg" alt="Density Analysis"></div>
+
+Note that one of the algorithms used in this plugin makes use of H3 (Hexagonal hierarchical geospatial indexing system). This is an increadiby fast algorithm, but requires installation of the H3 python library. The H3 package can be installed by running the OSGeo4W shell as system administrator and running 'pip install h3' or whatever method you use to install python packages. After spending some time working with it, I think it would be beneficial to include it as one of the QGIS libraries in the future. In one test using the QGIS ***Create grid*** processing algorithm, followed by ***Count points in a polygon*** algorithm took 63.18 seconds to process spatially indexed point data. To do the same thing with H3 only took 3.79 seconds.
 
 ## <img src="help/densitygrid.png" alt="Random style" width="25" height="24"> Create Density Map Grid
 
-Given point features this will create a rectangle, diamond, or hexagon grid histogram of points that occur in each polygon grid cell. This algorithm uses the QGIS ***Count points in polygon*** algorithm which is fairly time intensive even though it has been masterfully implemented in core QGIS and will significantly beat the speed implemented in commercial software. To optimize the speed make sure your input data is spatially indexed; otherwise, this algorithm will be painfully slow. The advantage to this algorithm is that it gives the most control over the size of the polygon grid cells. If speed is more important then use either the ***Create geohash density map*** or ***Create H3 density map***. Both of these use geohash indexing to count points in each geohash grid cell and they are very fast. The former creates a square or rectangular grid and H3 creates a hexagon grid. For H3 support the H3 library needs to be installed in QGIS. The disadvantages of these geohash density maps is that they have fixed resolutions and you cannot choose anything in between, but this is also what makes them fast.
+Given point features this will create a rectangle, diamond, or hexagon grid histogram of points that occur in each polygon grid cell. This algorithm uses the QGIS ***Count points in polygon*** algorithm which is fairly time intensive even though it has been masterfully implemented in core QGIS and significantly beats the speed implemented in commercial software. To optimize the speed make sure your input data is spatially indexed; otherwise, this algorithm will be painfully slow. The advantage to this algorithm is that it gives the most control over the size of the polygon grid cells. If speed is more important then use either the ***Create geohash density map*** or ***Create H3 density map***. Both of these use geohash indexing to count points in each geohash grid cell and they are very fast. The former creates a square or rectangular grid and H3 creates a hexagon grid. For H3 support the H3 library needs to be installed in QGIS. The disadvantages of these geohash density maps is that they have fixed resolutions and you cannot choose anything in between, but this is also what makes them fast.
 
 Here is an example of crime in Chicago. Each point on the left is a criminal event. On the right is a hexagon heatmap counting the number of events in each cell and displaying it as a heatmap. The darker the red, the more crime is in that area. 
 
@@ -22,7 +26,7 @@ These are the input parameters:
 * ***Grid type*** - This is the grid type that is created. It can either be a rectangle, diamond, or hexagon. 
 * ***Grid cell width*** - This is the width of the grid cell as defined by ***Grid measurement unit***.
 * ***Grid cell height*** - This is the height of the grid cell as defined by ***Grid measurement unit***.
-* ***Grid measurement unit*** - The unit of measure for the Grid cell width and heights. Choices are Kilometers, Meters, Miles, Yards, Feet, Nautical Miles, and Degrees.
+* ***Grid measurement unit*** - The unit of measure for the grid cell width and heights. Choices are Kilometers, Meters, Miles, Yards, Feet, Nautical Miles, and Degrees.
 * ***Maximum grid width or height*** - This prevents a grid of huge proportions from being created and allows the user to correct the input parameters. If the width or height of the grid is exceeded, then it generates an error with a message of the grid size that would be created by the current settings and the cell width or height that needs to be used to fit within this grid size. You can always increase this number if you want a denser grid.
 * ***Number of gradient colors*** - This specifies the number of categories that are going to be used. In this example we used 15. When we look at the output layer, it shows each category and the number of events that can occur within the category.
 
@@ -104,7 +108,7 @@ The styling parameters are the same as the above algorithm. The resolution is de
 This algorithm uses the H3 (Hexagonal hierarchical geospatial indexing system) library for fast density map generation. It iterates through every point using H3 indexing with a count of the number of times each H3 index has been seen. Each H3 cell is then created as a polygon. The polygons are in a hexagon shape. 
 
 To create H3 density maps you will need to install the H3 Library (<a href="https://h3geo.org/">https://h3geo.org/</a>).
-The H3 package can be installed by running the OSGeo4W shell as system administrator and running 'pip install h3' or whatever method you use to install python packages. If you don't see the H3 algorithms in the plugin, then H3 has not been installed.
+The H3 package can be installed by running the OSGeo4W shell as system administrator and running 'pip install h3' or whatever method you use to install python packages. The H3 algorithms will give a warning message if H3 has not been installed.
 
 Here is an example.
 
@@ -189,7 +193,7 @@ The styling parameters are the same as the ***Create Density Map Grid*** algorit
 
 ## <img src="help/densityexplorer.png" alt="Density explorer tool" width="25" height="24"> Heatmap density analysis tool
 
-With this tool you can quickly look at the top scoring values. Select the original point layer and the density heatmap polygon layer generated by the above algorithm. ID and Count will probably automatically select the right attribute, but ID should be set to a unique identifier, and count should be set to the histogram count attribute which is **NUMPOINTS**.
+With this tool you can quickly look at the top scoring values. Select the original point layer and the density heatmap polygon layer generated by the above algorithms. ID and Count will probably automatically select the right attribute, but ID should be set to a unique identifier, and count should be set to the histogram count attribute which is **NUMPOINTS**.
 
 <div style="text-align:center"><img src="help/densityanalysis.png" alt="Heatmap density analysis"></div>
 
@@ -213,7 +217,7 @@ The purpose of these two algorithms, is to set random and graduated styles using
 
     <div style="text-align:center"><img src="help/graduated.png" alt="Graduated algorithm"></div>
 
-    This parallels the layer styling panel. It does not include all the styling parameters, but focuses on those which are important for heatmap styling. Select your input layer, the style field, select one of the color ramp names, mode and number of classes. Mode can be Equal Count (Quantile), Equal Interval, Logarithmic scale ,Natural Breaks (Jenks), Pretty Breaks, or Standard Deviation. If ***No feature outlines*** is checked, then the features will not have outlines.
+    This parallels the layer styling panel. It does not include all the styling parameters, but focuses on those which are important for heatmap styling. Select your input layer, the style field, select one of the color ramp names, mode and number of classes. Mode can be Equal Count (Quantile), Equal Interval, Logarithmic scale, Natural Breaks (Jenks), Pretty Breaks, or Standard Deviation. If ***No feature outlines*** is checked, then the features will not have outlines.
 
 * <img src="icons/random.png" alt="Random style" width="24" height="24"> ***Apply a random categorized style*** - This applies a random categorized style to a layer.
 
