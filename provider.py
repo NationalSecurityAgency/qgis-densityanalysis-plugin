@@ -6,6 +6,8 @@ from .graduatedstyle import GraduatedStyleAlgorithm
 from .densitygrid import KernelDensityAlgorithm
 from .geohashdensity import GeohashDensityAlgorithm
 from .h3density import H3DensityAlgorithm
+from .polygondensity import PolygonRasterDensityAlgorithm
+from .rasterstyle import RasterStyleAlgorithm
 
 class DensityAnalysisProvider(QgsProcessingProvider):
 
@@ -18,6 +20,8 @@ class DensityAnalysisProvider(QgsProcessingProvider):
         self.addAlgorithm(KernelDensityAlgorithm())
         self.addAlgorithm(GeohashDensityAlgorithm())
         self.addAlgorithm(H3DensityAlgorithm())
+        self.addAlgorithm(RasterStyleAlgorithm())
+        self.addAlgorithm(PolygonRasterDensityAlgorithm())
 
     def icon(self):
         return QIcon(os.path.dirname(__file__) + '/icons/densitygrid.svg')

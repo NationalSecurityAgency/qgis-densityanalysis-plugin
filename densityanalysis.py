@@ -63,7 +63,18 @@ class DensityAnalysis(object):
         self.randomStyleAction.triggered.connect(self.showRandomStyleDialog)
         self.toolbar.addAction(self.randomStyleAction)
         self.iface.addPluginToMenu("Density analysis", self.randomStyleAction)
-        # self.toolbar.addAction(self.heatmapAction)
+        
+        icon = QIcon(os.path.dirname(__file__) + '/icons/polydensity.png')
+        self.polyDensityAction = QAction(icon, "Create a polygon raster density map", self.iface.mainWindow())
+        self.polyDensityAction.triggered.connect(self.polyDensityDialog)
+        self.toolbar.addAction(self.polyDensityAction)
+        self.iface.addPluginToMenu("Density analysis", self.polyDensityAction)
+        
+        icon = QIcon(os.path.dirname(__file__) + '/icons/styleraster.png')
+        self.rasterStyleAction = QAction(icon, "Apply a pseudocolor raster style", self.iface.mainWindow())
+        self.rasterStyleAction.triggered.connect(self.rasterStyleDialog)
+        self.toolbar.addAction(self.rasterStyleAction)
+        self.iface.addPluginToMenu("Density analysis", self.rasterStyleAction)
         
         # Help
         icon = QIcon(os.path.dirname(__file__) + '/icons/help.svg')
@@ -80,8 +91,10 @@ class DensityAnalysis(object):
         self.iface.removePluginMenu('Density analysis', self.h3Action)
         self.iface.removePluginMenu('Density analysis', self.graduatedStyleAction)
         self.iface.removePluginMenu('Density analysis', self.randomStyleAction)
+        self.iface.removePluginMenu('Density analysis', self.polyDensityAction)
         self.iface.removePluginMenu('Density analysis', self.heatmapAction)
         self.iface.removePluginMenu('Density analysis', self.style2layersAction)
+        self.iface.removePluginMenu('Density analysis', self.rasterStyleAction)
         self.iface.removePluginMenu("Density analysis", self.helpAction)
         if self.heatmap_dialog:
             self.iface.removeDockWidget(self.heatmap_dialog)
@@ -93,6 +106,8 @@ class DensityAnalysis(object):
         self.iface.removeToolBarIcon(self.style2layersAction)
         self.iface.removeToolBarIcon(self.graduatedStyleAction)
         self.iface.removeToolBarIcon(self.randomStyleAction)
+        self.iface.removeToolBarIcon(self.polyDensityAction)
+        self.iface.removeToolBarIcon(self.rasterStyleAction)
         del self.toolbar
         """Remove the provider."""
         QgsApplication.processingRegistry().removeProvider(self.provider)
@@ -124,6 +139,12 @@ class DensityAnalysis(object):
 
     def showRandomStyleDialog(self):
         processing.execAlgorithmDialog('densityanalysis:randomstyle', {})
+
+    def polyDensityDialog(self):
+        processing.execAlgorithmDialog('densityanalysis:polygondensity', {})
+
+    def rasterStyleDialog(self):
+        processing.execAlgorithmDialog('densityanalysis:rasterstyle', {})
 
     def style2layers(self):
         if not self.style_Layers_dialog:

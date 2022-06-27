@@ -1,10 +1,10 @@
 # QGIS Density Analysis Plugin
 
-This plugin automates the creation of vector density heatmaps in QGIS with a heatmap explorer to examine the areas of greatest concentrations. It has two processing algorithms to create a gradient style and random style so that they can be used in QGIS models. Another tools allows a copied style or a .qml file to be pasted onto all selected layers.  Once installed, the plugin is located under ***Plugins->Density analysis*** in the QGIS menu or on the toolbar. Some algorithms can be found in the *Processing Toolbox*.
+This plugin automates the creation of vector density heatmaps in QGIS with a heatmap explorer to examine the areas of greatest concentrations. It has two processing algorithms to create a gradient style and random style so that they can be used in QGIS models. Another tool allows a copied style or a .qml file to be pasted onto all selected layers. It provides an algorithm to create a raster density map of polygons and a pseudocolor processing algorithm to style the results. Once installed, the plugin is located under ***Plugins->Density analysis*** in the QGIS menu or on the toolbar. Some algorithms can be found in the *Processing Toolbox*.
 
 <div style="text-align:center"><img src="help/menu.jpg" alt="Density Analysis"></div>
 
-Note that one of the algorithms used in this plugin makes use of H3 (Hexagonal hierarchical geospatial indexing system). This is an increadiby fast algorithm, but requires installation of the H3 python library. The H3 package can be installed by running the OSGeo4W shell as system administrator and running 'pip install h3' or whatever method you use to install python packages. After spending some time working with it, I think it would be beneficial to include it as one of the QGIS libraries in the future. In one test using the QGIS ***Create grid*** processing algorithm, followed by ***Count points in a polygon*** algorithm took 63.18 seconds to process spatially indexed point data. To do the same thing with H3 only took 3.79 seconds.
+Note that one of the algorithms used in this plugin makes use of **H3** (Hexagonal hierarchical geospatial indexing system). This is an incredibly fast algorithm for generating hexagon density maps, but requires installation of the **H3 python library**. The H3 package can be installed by running the OSGeo4W shell as system administrator and running 'pip install h3' or whatever method you use to install python packages. After spending some time working with it, I think it would be beneficial to include it as one of the QGIS libraries in the future. In one test using the QGIS ***Create grid*** processing algorithm, followed by ***Count points in a polygon*** algorithm took 63.18 seconds to process spatially indexed point data. To do the same thing with H3 only took 3.79 seconds.
 
 ## <img src="help/densitygrid.png" alt="Random style" width="25" height="24"> Create Density Map Grid
 
@@ -46,7 +46,7 @@ This shows the algorithm dialog.
 
 <div style="text-align:center"><img src="help/geohash_alg.png" alt="Geohash Density Map Algorithm"></div>
 
-The styling parameters are the same as the above algorithm. The resolution is determined by ***Geohash resolution*** and is as follows:
+The styling parameters are the same as the above algorithm. The resolution is determined by ***Geohash resolution*** as follows:
 
 <table style="margin-left: auto; margin-right: auto;">
 <tr>
@@ -118,7 +118,7 @@ This shows the algorithm dialog.
 
 <div style="text-align:center"><img src="help/h3_alg.png" alt="H3 Density Map Algorithm"></div>
 
-The styling parameters are the same as the ***Create Density Map Grid*** algorithm. The resolution is determined by ***H3 resolution*** and is as follows:
+The styling parameters are the same as the ***Create Density Map Grid*** algorithm. The resolution is determined by ***H3 resolution*** as follows:
 
 <table style="margin-left: auto; margin-right: auto;">
 <tr>
@@ -224,3 +224,28 @@ The purpose of these two algorithms, is to set random and graduated styles using
     <div style="text-align:center"><img src="help/random.png" alt="Random categorized style algorithm"></div>
     
     Specify the input layer and the field to distinguish between different categories. If ***No feature outlines*** is checked, then the features will not have outlines.
+
+## <img src="icons/polydensity.png" alt="Create a polygon density map" width="28" height="28"> Create a Polygon Raster Density Map
+
+This routine differs from the previous density map algorithms because it uses a raster image to accumulate the summation of rasterized polygon layers. Here is an example of the result of summing a cluster of polygons.
+
+<div style="text-align:center"><img src="help/polygondensity.jpg" alt="Polygon density map"></div>
+
+The parameters in dialog box are as follows:
+
+<div style="text-align:center"><img src="help/polygondensitymap.png" alt="Polygon density map"></div>
+
+* ***Grid extent*** - Select a grid extent. In this case it is not set and defaults to the extent of the input layer.
+* ***Pixel width or grid cell width*** - If ***Grid measurement unit*** is set to **Size in pixels** then this represents the width of the output image that will be created to span the extent of the polygon data; otherwise, each pixel represents the width value defined by ***Grid measurement unit***. For example if ***Grid measurement unit*** is set to Kilometers and this value is set to 2, then every pixel represents a width of 2 kilometers.
+* ***Pixel height or grid cell height*** - If ***Grid measurement unit*** is set to **Size in pixels** then this represents the height of the output image that will be created to span the extent of the polygon data; otherwise, each pixel represents the height value defined by ***Grid measurement unit***. For example if ***Grid measurement unit*** is set to Meters and this value is set to 20, then every pixel represents a height of 20 meters.
+* ***Grid measurement unit*** - This specifies what the values represent in ***Pixel width or grid cell width*** and ***Pixel height or grid cell height***. The values are **Size in pixels**, **Kilometers**, **Meters**, **Miles**, **Yards**, **Feet**, **Nautical Miles**, and **Degrees**.
+* ***Maximum width or height dimensions for output image*** - Because it would be easy to create an astronomically large image if inappropriate values are used above, this provides a check to make sure they are reasonable. It will error out if the width or height of the resulting output image were to exceed this value.
+
+## <img src="icons/styleraster.png" alt="Create a polygon density map" width="28" height="28"> Apply a Pseudocolor Raster Style
+
+<div style="text-align:center"><img src="help/pseudocolorstyle.png" alt="Pseudocolor raster style dialog"></div>
+
+This achieves some of the functionality you get from right-mouse clicking on a single band image and selecting properties and selecting the *Symbology* tab and choosing ***Singleband pseudocolor*** for the ***Render type**. For more information on the parameters visit the QGIS documentation.
+
+
+
