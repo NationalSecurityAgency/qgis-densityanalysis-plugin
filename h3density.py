@@ -165,7 +165,7 @@ class H3DensityAlgorithm(QgsProcessingAlgorithm):
         epsg4326 = QgsCoordinateReferenceSystem("EPSG:4326")
         fields = QgsFields()
         fields.append(QgsField('ID', QVariant.Int))
-        fields.append(QgsField('H3HASH', QVariant.UInt))
+        fields.append(QgsField('H3HASH', QVariant.String))
         fields.append(QgsField('NUMPOINTS', QVariant.Int))
         (sink, dest_id) = self.parameterAsSink(
             parameters, self.PrmOutput,
@@ -215,7 +215,7 @@ class H3DensityAlgorithm(QgsProcessingAlgorithm):
             # pts.append(pts[0])
             f = QgsFeature()
             f.setGeometry(QgsGeometry.fromPolygonXY([pts]))
-            f.setAttributes([cnt, key, val])
+            f.setAttributes([cnt, h3.h3_to_string(key), val])
             sink.addFeature(f)
             if cnt % 100 == 0:
                 feedback.setProgress(int(cnt * total)+85)
