@@ -1,19 +1,20 @@
 import os
 from qgis.PyQt.QtGui import QIcon
-from qgis.PyQt.QtCore import QVariant
-from qgis.core import QgsWkbTypes, QgsFields, QgsField, QgsCoordinateTransform, QgsCoordinateReferenceSystem,  QgsFeature, QgsGeometry, QgsPointXY, QgsProject
+from qgis.core import QgsStyle
 
 from qgis.core import (
     QgsProcessing,
     QgsProcessingAlgorithm,
+    QgsProcessingParameterBoolean,
+    QgsProcessingParameterEnum,
     QgsProcessingParameterFeatureSource,
     QgsProcessingParameterNumber,
+    QgsProcessingParameterString,
     QgsProcessingParameterFeatureSink
     )
 import processing
 
-class H3DensityAlgorithm(QgsProcessingAlgorithm):
-
+class H3DensityMapAlgorithm(QgsProcessingAlgorithm):
     def initAlgorithm(self, config=None):
         self.addParameter(
             QgsProcessingParameterFeatureSource('INPUT', 'Input point vector layer', defaultValue=None,
@@ -99,6 +100,35 @@ class H3DensityAlgorithm(QgsProcessingAlgorithm):
         )
         self.addParameter(param)
         self.addParameter(
+            QgsProcessingParameterNumber(
+                'CLASSES',
+                'Number of gradient colors',
+                QgsProcessingParameterNumber.Integer,
+                defaultValue=15,
+                minValue=2,
+                optional=False)
+        )
+        style = QgsStyle.defaultStyle()
+        ramp_names = style.colorRampNames()
+        ramp_name_param = QgsProcessingParameterString('RAMP_NAMES', 'Select a color ramp', defaultValue='Reds')
+        ramp_name_param.setMetadata( {'widget_wrapper': {'value_hints': ramp_names } } )
+        self.addParameter(ramp_name_param)
+        self.addParameter(
+            QgsProcessingParameterEnum(
+                'COLOR_RAMP_MODE',
+                'Color ramp mode',
+                options=['Equal Count (Quantile)','Equal Interval','Logrithmic scale','Natural Breaks (Jenks)','Pretty Breaks','Standard Deviation'],
+                defaultValue=0,
+                optional=False)
+        )
+        self.addParameter(
+            QgsProcessingParameterBoolean(
+                'NO_OUTLINE',
+                'No feature outlines',
+                True,
+                optional=False)
+        )
+        self.addParameter(
             QgsProcessingParameterFeatureSink('OUTPUT', 'Output H3 density map',
                 type=QgsProcessing.TypeVectorPolygon, createByDefault=True, defaultValue=None)
         )
@@ -110,75 +140,46 @@ class H3DensityAlgorithm(QgsProcessingAlgorithm):
             from .utils import h3InstallString
             feedback.reportError(h3InstallString)
             return {}
-        source = self.parameterAsSource(parameters, 'INPUT', context)
         resolution = self.parameterAsInt(parameters, 'RESOLUTION', context)
+        num_classes = self.parameterAsInt(parameters, 'CLASSES', context)
+        ramp_name = self.parameterAsString(parameters, 'RAMP_NAMES', context)
+        ramp_mode = self.parameterAsInt(parameters, 'COLOR_RAMP_MODE', context)
+        no_outline = self.parameterAsBool(parameters, 'NO_OUTLINE', context)
         
-        epsg4326 = QgsCoordinateReferenceSystem("EPSG:4326")
-        fields = QgsFields()
-        fields.append(QgsField('ID', QVariant.Int))
-        fields.append(QgsField('H3HASH', QVariant.String))
-        fields.append(QgsField('NUMPOINTS', QVariant.Int))
-        (sink, dest_id) = self.parameterAsSink(
-            parameters, 'OUTPUT',
-            context, fields, QgsWkbTypes.Polygon, epsg4326)
-        src_crs = source.sourceCrs()
+        results = {}
+        outputs = {}
         
-        if src_crs != epsg4326:
-            transform = QgsCoordinateTransform(src_crs, epsg4326, QgsProject.instance())
+        alg_params = {
+            'INPUT':  parameters['INPUT'],
+            'RESOLUTION': resolution,
+            'OUTPUT': parameters['OUTPUT']
+        }
+        outputs['CreateGrid'] = processing.run('densityanalysis:h3density', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
+        results['OUTPUT'] = outputs['CreateGrid']['OUTPUT']
 
-        total = 85.0 / source.featureCount() if source.featureCount() else 0
-        ghash = {}
-
-        iterator = source.getFeatures()
-        for cnt, feature in enumerate(iterator):
-            if feedback.isCanceled():
-                break
-            try:
-                pt = feature.geometry().asPoint()
-                if src_crs != epsg4326:
-                    pt = transform.transform(pt)
-                h = h3.geo_to_h3(pt.y(), pt.x(), resolution)
-                if h == 0: # Check to see if the input coordinates were invalid
-                    continue
-                if h in ghash:
-                    ghash[h] += 1
-                else:
-                    ghash[h] = 1
-            except Exception:
-                pass
-            if cnt % 1000 == 0:
-                feedback.setProgress(int(cnt * total))
-
-        if len(ghash) == 0:
+        if feedback.isCanceled():
             return {}
-        total = 15 / len(ghash)
-        for cnt, key in enumerate(ghash.keys()):
-            val = ghash[key]
-            try:
-                coords = h3.h3_to_geo_boundary(key)
-            except:
-                continue
-            pts = []
-            for p in coords:
-                pt = QgsPointXY(p[1], p[0])
-                pts.append(pt)
-            # pts.append(pts[0])
-            f = QgsFeature()
-            f.setGeometry(QgsGeometry.fromPolygonXY([pts]))
-            f.setAttributes([cnt, h3.h3_to_string(key), val])
-            sink.addFeature(f)
-            if cnt % 100 == 0:
-                feedback.setProgress(int(cnt * total)+85)
-        return {'OUTPUT': dest_id}
+
+        # Apply a graduated style
+        alg_params = {
+            'NO_OUTLINE': no_outline,
+            'CLASSES': num_classes,
+            'GROUP_FIELD': 'NUMPOINTS',
+            'INPUT': outputs['CreateGrid']['OUTPUT'],
+            'MODE': ramp_mode,
+            'RAMP_NAMES': ramp_name
+        }
+        processing.run('densityanalysis:gratuatedstyle', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
+        return results
 
     def name(self):
-        return 'h3density'
+        return 'h3densitymap'
 
     def displayName(self):
-        return 'Create H3 density grid'
+        return 'Create styled H3 density map'
 
-    '''def icon(self):
-        return QIcon(os.path.join(os.path.dirname(__file__), 'icons/h3.png'))'''
+    def icon(self):
+        return QIcon(os.path.join(os.path.dirname(__file__), 'icons/h3.png'))
 
     def createInstance(self):
-        return H3DensityAlgorithm()
+        return H3DensityMapAlgorithm()

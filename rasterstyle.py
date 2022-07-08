@@ -1,7 +1,6 @@
 import os
 from qgis.PyQt.QtGui import QIcon
-from qgis.PyQt.QtCore import Qt
-from qgis.core import QgsStyle, QgsSymbol, QgsMapLayerType, QgsRasterBandStats, QgsColorRampShader, QgsRasterShader, QgsSingleBandPseudoColorRenderer
+from qgis.core import QgsStyle, QgsMapLayerType, QgsRasterBandStats, QgsColorRampShader, QgsRasterShader, QgsSingleBandPseudoColorRenderer
 from qgis.core import (
     QgsProcessing,
     QgsProcessingAlgorithm,
@@ -15,24 +14,19 @@ import processing
 
 
 class RasterStyleAlgorithm(QgsProcessingAlgorithm):
-    PrmInput = 'INPUT'
-    PrmRampName = 'RAMPNAME'
-    PrmInterpolation = 'INTERPOLATION'
-    PrmMode = 'MODE'
-    PrmClasses = 'CLASSES'
     def initAlgorithm(self, config=None):
         self.addParameter(
             QgsProcessingParameterRasterLayer(
-                self.PrmInput, 'Input raster layer')
+                'INPUT', 'Input raster layer')
         )
         style = QgsStyle.defaultStyle()
         ramp_names = style.colorRampNames()
-        ramp_name_param = QgsProcessingParameterString(self.PrmRampName, 'Color ramp name', defaultValue='Reds')
+        ramp_name_param = QgsProcessingParameterString('RAMP_NAME', 'Color ramp name', defaultValue='Reds')
         ramp_name_param.setMetadata( {'widget_wrapper': {'value_hints': ramp_names } } )
         self.addParameter(ramp_name_param)
         self.addParameter(
             QgsProcessingParameterEnum(
-                self.PrmInterpolation,
+                'INTERPOLATION',
                 'Interpolation',
                 options=['Discrete','Linear','Exact'],
                 defaultValue=1,
@@ -40,7 +34,7 @@ class RasterStyleAlgorithm(QgsProcessingAlgorithm):
         )
         self.addParameter(
             QgsProcessingParameterEnum(
-                self.PrmMode,
+                'MODE',
                 'Mode',
                 options=['Continuous','Equal Interval','Quantile'],
                 defaultValue=0,
@@ -48,20 +42,20 @@ class RasterStyleAlgorithm(QgsProcessingAlgorithm):
         )
         self.addParameter(
             QgsProcessingParameterNumber(
-                self.PrmClasses,
+                'CLASSES',
                 'Number of classes',
                 QgsProcessingParameterNumber.Integer,
-                defaultValue=10,
+                defaultValue=15,
                 minValue=2,
                 optional=False)
         )
 
     def processAlgorithm(self, parameters, context, feedback):
-        layer = self.parameterAsRasterLayer(parameters, self.PrmInput, context)
-        ramp_name = self.parameterAsString(parameters, self.PrmRampName, context)
-        interp = self.parameterAsInt(parameters, self.PrmInterpolation, context)
-        mode = self.parameterAsInt(parameters, self.PrmMode, context)
-        num_classes = self.parameterAsInt(parameters, self.PrmClasses, context)
+        layer = self.parameterAsRasterLayer(parameters, 'INPUT', context)
+        ramp_name = self.parameterAsString(parameters, 'RAMP_NAME', context)
+        interp = self.parameterAsInt(parameters, 'INTERPOLATION', context)
+        mode = self.parameterAsInt(parameters, 'MODE', context)
+        num_classes = self.parameterAsInt(parameters, 'CLASSES', context)
         
         rnd = layer.renderer()
         if layer.type() != QgsMapLayerType.RasterLayer or rnd.bandCount() != 1:

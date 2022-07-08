@@ -15,34 +15,30 @@ import processing
 
 
 class GraduatedStyleAlgorithm(QgsProcessingAlgorithm):
-    PrmMapLyaer = 'maplayer'
-    PrmGroupField = 'groupfield'
-    PrmRampNames = 'rampnames'
-    PrmMode = 'mode'
-    PrmClasses = 'classes'
-    PrmNoOutline = 'NoOutline'
+    PrmNoOutline = 'NO_OUTLINE'
     def initAlgorithm(self, config=None):
         self.addParameter(
             QgsProcessingParameterMapLayer(
-                self.PrmMapLyaer, 'Input map layer', defaultValue=None,
+                'INPUT', 'Input map layer', defaultValue=None,
                 types=[QgsProcessing.TypeVectorAnyGeometry ])
         )
         self.addParameter(
             QgsProcessingParameterField(
-                self.PrmGroupField,
+                'GROUP_FIELD',
                 'Field used for styling',
-                parentLayerParameterName=self.PrmMapLyaer,
+                parentLayerParameterName='INPUT',
                 type=QgsProcessingParameterField.Any,
+                defaultValue='NUMPOINTS',
                 optional=False)
         )
         style = QgsStyle.defaultStyle()
         ramp_names = style.colorRampNames()
-        ramp_name_param = QgsProcessingParameterString(self.PrmRampNames, 'Graduated color ramp name', defaultValue='Reds')
+        ramp_name_param = QgsProcessingParameterString('RAMP_NAMES', 'Graduated color ramp name', defaultValue='Reds')
         ramp_name_param.setMetadata( {'widget_wrapper': {'value_hints': ramp_names } } )
         self.addParameter(ramp_name_param)
         self.addParameter(
             QgsProcessingParameterEnum(
-                self.PrmMode,
+                'MODE',
                 'Mode',
                 options=['Equal Count (Quantile)','Equal Interval','Logrithmic scale','Natural Breaks (Jenks)','Pretty Breaks','Standard Deviation'],
                 defaultValue=0,
@@ -50,28 +46,28 @@ class GraduatedStyleAlgorithm(QgsProcessingAlgorithm):
         )
         self.addParameter(
             QgsProcessingParameterNumber(
-                self.PrmClasses,
+                'CLASSES',
                 'Number of classes',
                 QgsProcessingParameterNumber.Integer,
-                defaultValue=10,
+                defaultValue=15,
                 minValue=2,
                 optional=False)
         )
         self.addParameter(
             QgsProcessingParameterBoolean(
-                self.PrmNoOutline,
+                'NO_OUTLINE',
                 'No feature outlines',
                 True,
                 optional=False)
         )
 
     def processAlgorithm(self, parameters, context, feedback):
-        layer = self.parameterAsVectorLayer(parameters, self.PrmMapLyaer, context)
-        attr = self.parameterAsString(parameters, self.PrmGroupField, context)
-        ramp_name = self.parameterAsString(parameters, self.PrmRampNames, context)
-        mode = self.parameterAsInt(parameters, self.PrmMode, context)
-        num_classes = self.parameterAsInt(parameters, self.PrmClasses, context)
-        no_outline = self.parameterAsBool(parameters, self.PrmNoOutline, context)
+        layer = self.parameterAsVectorLayer(parameters, 'INPUT', context)
+        attr = self.parameterAsString(parameters, 'GROUP_FIELD', context)
+        ramp_name = self.parameterAsString(parameters, 'RAMP_NAMES', context)
+        mode = self.parameterAsInt(parameters, 'MODE', context)
+        num_classes = self.parameterAsInt(parameters, 'CLASSES', context)
+        no_outline = self.parameterAsBool(parameters, 'NO_OUTLINE', context)
         
         if mode == 0: # Quantile
             grad_mode = QgsGraduatedSymbolRenderer.Quantile
@@ -103,6 +99,8 @@ class GraduatedStyleAlgorithm(QgsProcessingAlgorithm):
         if mode == 2:
             new_renderer.setClassificationMethod(QgsClassificationLogarithmic())
         layer.setRenderer(new_renderer)
+        # feedback.pushInfo('dump: {}'.format(new_renderer.dump()))
+        # new_renderer.updateClasses(layer, num_classes)
         layer.triggerRepaint()
         return({})
 

@@ -1,20 +1,22 @@
 import os
 from qgis.PyQt.QtGui import QIcon
-from qgis.PyQt.QtCore import QVariant
-from qgis.core import QgsWkbTypes, QgsFields, QgsField, QgsCoordinateTransform, QgsCoordinateReferenceSystem, QgsRectangle, QgsFeature, QgsGeometry, QgsProject
+from qgis.core import QgsStyle
 
 from qgis.core import (
     QgsProcessing,
     QgsProcessingAlgorithm,
+    QgsProcessingParameterBoolean,
+    QgsProcessingParameterEnum,
     QgsProcessingParameterFeatureSource,
     QgsProcessingParameterNumber,
+    QgsProcessingParameterString,
     QgsProcessingParameterFeatureSink
     )
 import processing
 
 from . import geohash
 
-class GeohashDensityAlgorithm(QgsProcessingAlgorithm):
+class GeohashDensityMapAlgorithm(QgsProcessingAlgorithm):
 
     def initAlgorithm(self, config=None):
         self.addParameter(
@@ -85,70 +87,77 @@ class GeohashDensityAlgorithm(QgsProcessingAlgorithm):
         )
         self.addParameter(param)
         self.addParameter(
+            QgsProcessingParameterNumber(
+                'CLASSES',
+                'Number of gradient colors',
+                QgsProcessingParameterNumber.Integer,
+                defaultValue=15,
+                minValue=2,
+                optional=False)
+        )
+        style = QgsStyle.defaultStyle()
+        ramp_names = style.colorRampNames()
+        ramp_name_param = QgsProcessingParameterString('RAMP_NAMES', 'Select a color ramp', defaultValue='Reds')
+        ramp_name_param.setMetadata( {'widget_wrapper': {'value_hints': ramp_names } } )
+        self.addParameter(ramp_name_param)
+        self.addParameter(
+            QgsProcessingParameterEnum(
+                'COLOR_RAMP_MODE',
+                'Color ramp mode',
+                options=['Equal Count (Quantile)','Equal Interval','Logrithmic scale','Natural Breaks (Jenks)','Pretty Breaks','Standard Deviation'],
+                defaultValue=0,
+                optional=False)
+        )
+        self.addParameter(
+            QgsProcessingParameterBoolean(
+                'NO_OUTLINE',
+                'No feature outlines',
+                True,
+                optional=False)
+        )
+        self.addParameter(
             QgsProcessingParameterFeatureSink('OUTPUT', 'Output geohash density map',
                 type=QgsProcessing.TypeVectorPolygon, createByDefault=True, defaultValue=None)
         )
 
     def processAlgorithm(self, parameters, context, feedback):
-        source = self.parameterAsSource(parameters, 'INPUT', context)
         resolution = self.parameterAsInt(parameters, 'RESOLUTION', context)
+        num_classes = self.parameterAsInt(parameters, 'CLASSES', context)
+        ramp_name = self.parameterAsString(parameters, 'RAMP_NAMES', context)
+        ramp_mode = self.parameterAsInt(parameters, 'COLOR_RAMP_MODE', context)
+        no_outline = self.parameterAsBool(parameters, 'NO_OUTLINE', context)
         
-        epsg4326 = QgsCoordinateReferenceSystem("EPSG:4326")
-        fields = QgsFields()
-        fields.append(QgsField('ID', QVariant.Int))
-        fields.append(QgsField('GEOHASH', QVariant.String))
-        fields.append(QgsField('NUMPOINTS', QVariant.Int))
-        (sink, dest_id) = self.parameterAsSink(
-            parameters, 'OUTPUT',
-            context, fields, QgsWkbTypes.Polygon, epsg4326)
-        src_crs = source.sourceCrs()
-        
-        if src_crs != epsg4326:
-            transform = QgsCoordinateTransform(src_crs, epsg4326, QgsProject.instance())
+        results = {}
+        outputs = {}
 
-        total = 85.0 / source.featureCount() if source.featureCount() else 0
-        ghash = {}
+        alg_params = {
+            'INPUT':  parameters['INPUT'],
+            'RESOLUTION': resolution,
+            'OUTPUT': parameters['OUTPUT']
+        }
+        outputs['CreateGrid'] = processing.run('densityanalysis:geohashdensity', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
+        results['OUTPUT'] = outputs['CreateGrid']['OUTPUT']
 
-        iterator = source.getFeatures()
-        for cnt, feature in enumerate(iterator):
-            if feedback.isCanceled():
-                break
-            try:
-                pt = feature.geometry().asPoint()
-                if src_crs != epsg4326:
-                    pt = transform.transform(pt)
-                h = geohash.encode(pt.y(), pt.x(), resolution)
-                if h in ghash:
-                    ghash[h] += 1
-                else:
-                    ghash[h] = 1
-            except Exception:
-                pass
-            if cnt % 1000 == 0:
-                feedback.setProgress(int(cnt * total))
-        if len(ghash) == 0:
-            return {}
-        total = 15 / len(ghash)
-        for cnt, key in enumerate(ghash.keys()):
-            val = ghash[key]
-            lat1, lat2, lon1, lon2 = geohash.decode_extent(key)
-            rect = QgsRectangle(lon1, lat1, lon2, lat2)
-            f = QgsFeature()
-            f.setGeometry(QgsGeometry.fromRect(rect))
-            f.setAttributes([cnt, key, val])
-            sink.addFeature(f)
-            if cnt % 100 == 0:
-                feedback.setProgress(int(cnt * total)+85)
-        return {'OUTPUT': dest_id}
+        # Apply a graduated style
+        alg_params = {
+            'NO_OUTLINE': no_outline,
+            'CLASSES': num_classes,
+            'GROUP_FIELD': 'NUMPOINTS',
+            'INPUT': outputs['CreateGrid']['OUTPUT'],
+            'MODE': ramp_mode,
+            'RAMP_NAMES': ramp_name
+        }
+        processing.run('densityanalysis:gratuatedstyle', alg_params, context=context, feedback=feedback, is_child_algorithm=False)
+        return results
 
     def name(self):
-        return 'geohashdensity'
+        return 'geohashdensitymap'
 
     def displayName(self):
-        return 'Create geohash density grid'
+        return 'Create styled geohash density map'
 
-    '''def icon(self):
-        return QIcon(os.path.join(os.path.dirname(__file__), 'icons/geohash.png'))'''
+    def icon(self):
+        return QIcon(os.path.join(os.path.dirname(__file__), 'icons/geohash.png'))
 
     def createInstance(self):
-        return GeohashDensityAlgorithm()
+        return GeohashDensityMapAlgorithm()

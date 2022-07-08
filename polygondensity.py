@@ -1,23 +1,20 @@
 import os
 from qgis.PyQt.QtGui import QIcon
-from qgis.core import QgsStyle, QgsUnitTypes, QgsCoordinateTransform, QgsProject
+from qgis.core import QgsUnitTypes, QgsCoordinateTransform, QgsProject
 
 from qgis.core import (
     QgsProcessing,
     QgsProcessingAlgorithm,
     QgsProcessingException,
-    QgsProcessingParameterBoolean,
-    QgsProcessingMultiStepFeedback,
     QgsProcessingParameterExtent,
     QgsProcessingParameterEnum,
     QgsProcessingParameterVectorLayer,
     QgsProcessingParameterNumber,
-    QgsProcessingParameterString,
     QgsProcessingParameterRasterDestination
     )
 import processing
 
-DISTANCE_LABELS = ["Size in pixels", "Kilometers", "Meters", "Miles", 'Yards', "Feet", "Nautical Miles", "Degrees"]
+DISTANCE_LABELS = ["Dimensions in pixels", "Kilometers", "Meters", "Miles", 'Yards', "Feet", "Nautical Miles", "Degrees"]
 
 def conversionToCrsUnits(selected_unit, crs_unit, value):
     if selected_unit == 1:  # Kilometers
@@ -54,106 +51,44 @@ def conversionFromCrsUnits(selected_unit, crs_unit, value):
     return(measureFactor * value)
 
 class PolygonRasterDensityAlgorithm(QgsProcessingAlgorithm):
-    PrmInput = 'INPUT'
-    PrmExtent = 'EXTENT'
-    PrmGridCellWidth = 'GRIDCELLWIDTH'
-    PrmGridCellHeight = 'GRIDCELLHEIGHT'
-    PrmUnits = 'UNITS'
-    PrmMaximumImageDimension = 'MAXIMUMIMAGEDIMENSION'
-    PrmRampNames = 'RAMPNAMES'
-    PrmColorRampMode = 'COLORRAMPMODE'
-    PrmAutoStyle = 'AUTOSTYLE'
-    PrmRampName = 'RAMPNAME'
-    PrmInterpolation = 'INTERPOLATION'
-    PrmMode = 'MODE'
-    PrmClasses = 'CLASSES'
-    PrmOutput = 'OUTPUT'
 
     def initAlgorithm(self, config=None):
         self.addParameter(
-            QgsProcessingParameterVectorLayer(self.PrmInput, 'Input polygon vector layer',
+            QgsProcessingParameterVectorLayer('INPUT', 'Input polygon vector layer',
             types=[QgsProcessing.TypeVectorPolygon])
         )
         self.addParameter(
-            QgsProcessingParameterExtent(self.PrmExtent, 'Grid extent', optional=True)
+            QgsProcessingParameterExtent('EXTENT', 'Grid extent', optional=True)
         )
         self.addParameter(
-            QgsProcessingParameterNumber(self.PrmGridCellWidth, 'Pixel width or grid cell width',
+            QgsProcessingParameterNumber('GRID_CELL_WIDTH', 'Grid cell width or image width in pixels',
                 type=QgsProcessingParameterNumber.Double, defaultValue=1, optional=False)
         )
         self.addParameter(
-            QgsProcessingParameterNumber(self.PrmGridCellHeight, 'Pixel height or grid cell height',
+            QgsProcessingParameterNumber('GRID_CELL_HEIGHT', 'Grid cell height or image height in pixels',
                 type=QgsProcessingParameterNumber.Double, defaultValue=1, optional=False)
         )
         self.addParameter(
-            QgsProcessingParameterEnum(self.PrmUnits, 'Grid measurement unit',
+            QgsProcessingParameterEnum('UNITS', 'Grid measurement unit',
                 options=DISTANCE_LABELS, defaultValue=1, optional=False)
         )
         self.addParameter(
-            QgsProcessingParameterNumber(self.PrmMaximumImageDimension, 'Maximum width or height dimensions for output image',
+            QgsProcessingParameterNumber('MAX_IMAGE_DIMENSION', 'Maximum width or height dimensions for output image',
                 type=QgsProcessingParameterNumber.Integer, minValue=1, defaultValue=5000, optional=False)
         )
-        '''self.addParameter(
-            QgsProcessingParameterBoolean(
-                self.PrmAutoStyle,
-                'Automatically apply the following style',
-                True,
-                optional=False)
-        )
-        style = QgsStyle.defaultStyle()
-        ramp_names = style.colorRampNames()
-        ramp_name_param = QgsProcessingParameterString(self.PrmRampName, 'Color ramp name', defaultValue='Reds')
-        ramp_name_param.setMetadata( {'widget_wrapper': {'value_hints': ramp_names } } )
-        self.addParameter(ramp_name_param)
         self.addParameter(
-            QgsProcessingParameterEnum(
-                self.PrmInterpolation,
-                'Interpolation',
-                options=['Discrete','Linear','Exact'],
-                defaultValue=1,
-                optional=False)
-        )
-        self.addParameter(
-            QgsProcessingParameterEnum(
-                self.PrmMode,
-                'Mode',
-                options=['Continuous','Equal Interval','Quantile'],
-                defaultValue=0,
-                optional=False)
-        )
-        self.addParameter(
-            QgsProcessingParameterNumber(
-                self.PrmClasses,
-                'Number of classes',
-                QgsProcessingParameterNumber.Integer,
-                defaultValue=10,
-                minValue=2,
-                optional=False)
-        )'''
-
-        self.addParameter(
-            QgsProcessingParameterRasterDestination(self.PrmOutput, 'Output polygon density heatmap',
+            QgsProcessingParameterRasterDestination('OUTPUT', 'Output polygon density heatmap',
                 createByDefault=True, defaultValue=None)
         )
 
     def processAlgorithm(self, parameters, context, feedback):
-        layer = self.parameterAsLayer(parameters, self.PrmInput, context)
-        extent = self.parameterAsExtent(parameters, self.PrmExtent, context)
-        feedback.pushInfo("{}".format(extent))
-        extent_crs = self.parameterAsExtentCrs(parameters, self.PrmExtent, context)
-        feedback.pushInfo("{}".format(extent_crs))
-        # ramp_name = self.parameterAsString(parameters, self.PrmRampNames, context)
-        # ramp_mode = self.parameterAsInt(parameters, self.PrmColorRampMode, context)
-        cell_width = self.parameterAsDouble(parameters, self.PrmGridCellWidth, context)
-        cell_height = self.parameterAsDouble(parameters, self.PrmGridCellHeight, context)
-        selected_units = self.parameterAsInt(parameters, self.PrmUnits, context)
-        max_dimension = self.parameterAsInt(parameters, self.PrmMaximumImageDimension, context)
-
-        '''auto_style = self.parameterAsBool(parameters, self.PrmAutoStyle, context)
-        ramp_name = self.parameterAsString(parameters, self.PrmRampName, context)
-        interp = self.parameterAsInt(parameters, self.PrmInterpolation, context)
-        mode = self.parameterAsInt(parameters, self.PrmMode, context)
-        num_classes = self.parameterAsInt(parameters, self.PrmClasses, context)'''
+        layer = self.parameterAsLayer(parameters, 'INPUT', context)
+        extent = self.parameterAsExtent(parameters, 'EXTENT', context)
+        extent_crs = self.parameterAsExtentCrs(parameters, 'EXTENT', context)
+        cell_width = self.parameterAsDouble(parameters, 'GRID_CELL_WIDTH', context)
+        cell_height = self.parameterAsDouble(parameters, 'GRID_CELL_HEIGHT', context)
+        selected_units = self.parameterAsInt(parameters, 'UNITS', context)
+        max_dimension = self.parameterAsInt(parameters, 'MAX_IMAGE_DIMENSION', context)
 
         layer_crs = layer.sourceCrs()
         if extent.isNull():
@@ -188,6 +123,10 @@ class PolygonRasterDensityAlgorithm(QgsProcessingAlgorithm):
                     conversionFromCrsUnits(selected_units, extent_units, max_cell_height)))
                 feedback.reportError('or increase the maximum grid width and height.')
                 raise QgsProcessingException()
+        if width == 0 or height == 0:
+            feedback.reportError('Cell dimensions are too large and return an image dimenson of 0.')
+            raise QgsProcessingException()
+                
         feedback.pushInfo('Output image width: {}'.format(width))
         feedback.pushInfo('Output image height: {}'.format(height))
         
@@ -202,29 +141,18 @@ class PolygonRasterDensityAlgorithm(QgsProcessingAlgorithm):
             'FIELD': '',
             'HEIGHT': height,
             'INIT': 0,
-            'INPUT': parameters[self.PrmInput],
+            'INPUT': parameters['INPUT'],
             'INVERT': False,
             'NODATA': 0,
             'OPTIONS': '',
             'UNITS': 0,  # Pixels
             'USE_Z': False,
             'WIDTH': width,
-            'OUTPUT': parameters[self.PrmOutput]
+            'OUTPUT': parameters['OUTPUT']
         }
         outputs['Rasterize'] = processing.run('gdal:rasterize', alg_params, context=context, feedback=feedback, is_child_algorithm=False)
-        
-        '''if auto_style:
-            # Apply a pseudocolor style
-            alg_params = {
-                'INTERPOLATION': interp,
-                'CLASSES': num_classes,
-                'MAPLAYER': outputs['Rasterize']['OUTPUT'],
-                'MODE': mode,
-                'RAMPNAME': ramp_name
-            }
-            outputs['RasterStyle'] = processing.run('densityanalysis:rasterstyle', alg_params, context=context, feedback=feedback, is_child_algorithm=False)'''
 
-        results[self.PrmOutput] = outputs['Rasterize']['OUTPUT']
+        results['OUTPUT'] = outputs['Rasterize']['OUTPUT']
         return results
 
     def name(self):

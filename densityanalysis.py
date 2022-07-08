@@ -23,25 +23,25 @@ class DensityAnalysis(object):
         self.toolbar.setToolTip('Density Analysis Toolbar')
 
         icon = QIcon(os.path.dirname(__file__) + '/icons/densitygrid.svg')
-        self.densityGridAction = QAction(icon, "Create a density map grid", self.iface.mainWindow())
+        self.densityGridAction = QAction(icon, "Create styled density map", self.iface.mainWindow())
         self.densityGridAction.triggered.connect(self.densityGridAlgorithm)
         self.toolbar.addAction(self.densityGridAction)
         self.iface.addPluginToMenu("Density analysis", self.densityGridAction)
 
         icon = QIcon(os.path.dirname(__file__) + '/icons/geohash.png')
-        self.geohashAction = QAction(icon, "Create geohash density map", self.iface.mainWindow())
+        self.geohashAction = QAction(icon, "Create styled geohash density map", self.iface.mainWindow())
         self.geohashAction.triggered.connect(self.geohashAlgorithm)
         self.toolbar.addAction(self.geohashAction)
         self.iface.addPluginToMenu("Density analysis", self.geohashAction)
 
         icon = QIcon(os.path.dirname(__file__) + '/icons/h3.png')
-        self.h3Action = QAction(icon, "Create H3 density map", self.iface.mainWindow())
+        self.h3Action = QAction(icon, "Create styled H3 density map", self.iface.mainWindow())
         self.h3Action.triggered.connect(self.h3Algorithm)
         self.toolbar.addAction(self.h3Action)
         self.iface.addPluginToMenu("Density analysis", self.h3Action)
         
         icon = QIcon(os.path.dirname(__file__) + '/icons/densityexplorer.svg')
-        self.heatmapAction = QAction(icon, "Heatmap density analysis", self.iface.mainWindow())
+        self.heatmapAction = QAction(icon, "Density map analysis tool", self.iface.mainWindow())
         self.heatmapAction.triggered.connect(self.showHeatmapDialog)
         self.toolbar.addAction(self.heatmapAction)
         self.iface.addPluginToMenu("Density analysis", self.heatmapAction)
@@ -121,15 +121,15 @@ class DensityAnalysis(object):
         self.heatmap_dialog.show()
 
     def densityGridAlgorithm(self):
-        processing.execAlgorithmDialog('densityanalysis:kerneldensity', {})
+        processing.execAlgorithmDialog('densityanalysis:densitymap', {})
 
     def geohashAlgorithm(self):
-        processing.execAlgorithmDialog('densityanalysis:geohashdensity', {})
+        processing.execAlgorithmDialog('densityanalysis:geohashdensitymap', {})
 
     def h3Algorithm(self):
         try:
             import h3
-            processing.execAlgorithmDialog('densityanalysis:h3density', {})
+            processing.execAlgorithmDialog('densityanalysis:h3densitymap', {})
         except Exception:
             from .utils import h3InstallString
             QMessageBox.information(self.iface.mainWindow(), 'H3 Install Instructions', h3InstallString)

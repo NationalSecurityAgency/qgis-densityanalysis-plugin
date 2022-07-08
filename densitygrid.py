@@ -54,70 +54,57 @@ def conversionFromCrsUnits(selected_unit, crs_unit, value):
     return(measureFactor * value)
 
 class KernelDensityAlgorithm(QgsProcessingAlgorithm):
-    PrmInput = 'INPUT'
-    PrmExtent = 'EXTENT'
-    PrmGridType = 'GRIDTYPE'
-    PrmMinGridCount = 'MINGRIDCOUNT'
-    PrmGridCellWidth = 'GRIDCELLWIDTH'
-    PrmGridCellHeight = 'GRIDCELLHEIGHT'
-    PrmUnits = 'Units'
-    PrmMaximumGridSize = 'MAXIMUMGRIDSIZE'
-    PrmClasses = 'CLASSES'
-    PrmRampNames = 'RAMPNAMES'
-    PrmColorRampMode = 'COLORRAMPMODE'
-    PrmOutput = 'OUTPUT'
-    PrmNoOutline = 'NOOUTLINE'
 
     def initAlgorithm(self, config=None):
         self.addParameter(
-            QgsProcessingParameterMapLayer(self.PrmInput, 'Input point vector layer', defaultValue=None,
+            QgsProcessingParameterMapLayer('INPUT', 'Input point vector layer', defaultValue=None,
             types=[QgsProcessing.TypeVectorPoint])
         )
         self.addParameter(
-            QgsProcessingParameterExtent(self.PrmExtent, 'Grid extent', optional=False)
+            QgsProcessingParameterExtent('EXTENT', 'Grid extent', optional=False)
         )
         self.addParameter(
-            QgsProcessingParameterNumber(self.PrmMinGridCount, 'Minimum cell histogram count',
+            QgsProcessingParameterNumber('MIN_GRID_COUNT', 'Minimum cell histogram count',
                 type=QgsProcessingParameterNumber.Integer, minValue=0, defaultValue=1)
         )
         self.addParameter(
-            QgsProcessingParameterEnum(self.PrmGridType, 'Grid type',
+            QgsProcessingParameterEnum('GRID_TYPE', 'Grid type',
                 options=['Rectangle','Diamond','Hexagon'],
                 defaultValue=2, optional=False)
         )
         self.addParameter(
-            QgsProcessingParameterNumber(self.PrmGridCellWidth, 'Grid cell width',
+            QgsProcessingParameterNumber('GRID_CELL_WIDTH', 'Grid cell width',
                 type=QgsProcessingParameterNumber.Double, defaultValue=1, optional=False)
         )
         self.addParameter(
-            QgsProcessingParameterNumber(self.PrmGridCellHeight, 'Grid cell height',
+            QgsProcessingParameterNumber('GRID_CELL_HEIGHT', 'Grid cell height',
                 type=QgsProcessingParameterNumber.Double, defaultValue=1, optional=False)
         )
         self.addParameter(
-            QgsProcessingParameterEnum(self.PrmUnits, 'Grid measurement unit',
+            QgsProcessingParameterEnum('UNITS', 'Grid measurement unit',
                 options=DISTANCE_LABELS, defaultValue=0, optional=False)
         )
         self.addParameter(
-            QgsProcessingParameterNumber(self.PrmMaximumGridSize, 'Maximum grid width or height',
+            QgsProcessingParameterNumber('MAX_GRID_SIZE', 'Maximum grid width or height',
                 type=QgsProcessingParameterNumber.Integer, minValue=1, defaultValue=500, optional=False)
         )
         self.addParameter(
             QgsProcessingParameterNumber(
-                self.PrmClasses,
+                'CLASSES',
                 'Number of gradient colors',
                 QgsProcessingParameterNumber.Integer,
-                defaultValue=10,
+                defaultValue=15,
                 minValue=2,
                 optional=False)
         )
         style = QgsStyle.defaultStyle()
         ramp_names = style.colorRampNames()
-        ramp_name_param = QgsProcessingParameterString(self.PrmRampNames, 'Select a color ramp', defaultValue='Reds')
+        ramp_name_param = QgsProcessingParameterString('RAMP_NAMES', 'Select a color ramp', defaultValue='Reds')
         ramp_name_param.setMetadata( {'widget_wrapper': {'value_hints': ramp_names } } )
         self.addParameter(ramp_name_param)
         self.addParameter(
             QgsProcessingParameterEnum(
-                self.PrmColorRampMode,
+                'COLOR_RAMP_MODE',
                 'Color ramp mode',
                 options=['Equal Count (Quantile)','Equal Interval','Logrithmic scale','Natural Breaks (Jenks)','Pretty Breaks','Standard Deviation'],
                 defaultValue=0,
@@ -125,29 +112,29 @@ class KernelDensityAlgorithm(QgsProcessingAlgorithm):
         )
         self.addParameter(
             QgsProcessingParameterBoolean(
-                self.PrmNoOutline,
+                'NO_OUTLINE',
                 'No feature outlines',
                 True,
                 optional=False)
         )
         self.addParameter(
-            QgsProcessingParameterFeatureSink(self.PrmOutput, 'Output density heatmap',
+            QgsProcessingParameterFeatureSink('OUTPUT', 'Output density heatmap',
                 type=QgsProcessing.TypeVectorPolygon, createByDefault=True, defaultValue=None)
         )
 
     def processAlgorithm(self, parameters, context, model_feedback):
-        grid_type = self.parameterAsInt(parameters, self.PrmGridType, context) + 2
-        min_grid_cnt = self.parameterAsInt(parameters, self.PrmMinGridCount, context)
-        extent = self.parameterAsExtent(parameters, self.PrmExtent, context)
-        extent_crs = self.parameterAsExtentCrs(parameters, self.PrmExtent, context)
-        num_classes = self.parameterAsInt(parameters, self.PrmClasses, context)
-        ramp_name = self.parameterAsString(parameters, self.PrmRampNames, context)
-        ramp_mode = self.parameterAsInt(parameters, self.PrmColorRampMode, context)
-        no_outline = self.parameterAsBool(parameters, self.PrmNoOutline, context)
-        cell_width = self.parameterAsDouble(parameters, self.PrmGridCellWidth, context)
-        cell_height = self.parameterAsDouble(parameters, self.PrmGridCellHeight, context)
-        selected_units = self.parameterAsInt(parameters, self.PrmUnits, context)
-        max_dimension = self.parameterAsInt(parameters, self.PrmMaximumGridSize, context)
+        grid_type = self.parameterAsInt(parameters, 'GRID_TYPE', context) + 2
+        min_grid_cnt = self.parameterAsInt(parameters, 'MIN_GRID_COUNT', context)
+        extent = self.parameterAsExtent(parameters, 'EXTENT', context)
+        extent_crs = self.parameterAsExtentCrs(parameters, 'EXTENT', context)
+        num_classes = self.parameterAsInt(parameters, 'CLASSES', context)
+        ramp_name = self.parameterAsString(parameters, 'RAMP_NAMES', context)
+        ramp_mode = self.parameterAsInt(parameters, 'COLOR_RAMP_MODE', context)
+        no_outline = self.parameterAsBool(parameters, 'NO_OUTLINE', context)
+        cell_width = self.parameterAsDouble(parameters, 'GRID_CELL_WIDTH', context)
+        cell_height = self.parameterAsDouble(parameters, 'GRID_CELL_HEIGHT', context)
+        selected_units = self.parameterAsInt(parameters, 'UNITS', context)
+        max_dimension = self.parameterAsInt(parameters, 'MAX_GRID_SIZE', context)
         
         # Determine the width and height in extent units
         extent_units = extent_crs.mapUnits()
@@ -205,7 +192,7 @@ class KernelDensityAlgorithm(QgsProcessingAlgorithm):
         alg_params = {
             'CLASSFIELD': '',
             'FIELD': 'NUMPOINTS',
-            'POINTS': parameters[self.PrmInput],
+            'POINTS': parameters['INPUT'],
             'POLYGONS': outputs['CreateGrid']['OUTPUT'],
             'WEIGHT': '',
             'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
@@ -222,10 +209,10 @@ class KernelDensityAlgorithm(QgsProcessingAlgorithm):
             'INPUT': outputs['CountPointsInPolygon']['OUTPUT'],
             'OPERATOR': 3,  # ≥
             'VALUE': min_grid_cnt,
-            'OUTPUT': parameters[self.PrmOutput]
+            'OUTPUT': parameters['OUTPUT']
         }
         outputs['ExtractByAttribute'] = processing.run('native:extractbyattribute', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
-        results[self.PrmOutput] = outputs['ExtractByAttribute']['OUTPUT']
+        results['OUTPUT'] = outputs['ExtractByAttribute']['OUTPUT']
 
         feedback.setCurrentStep(3)
         if feedback.isCanceled():
@@ -233,21 +220,21 @@ class KernelDensityAlgorithm(QgsProcessingAlgorithm):
 
         # Apply a graduated style
         alg_params = {
-            'NoOutline': no_outline,
-            'classes': num_classes,
-            'groupfield': 'NUMPOINTS',
-            'maplayer': outputs['ExtractByAttribute']['OUTPUT'],
-            'mode': ramp_mode,  # Equal Count (Quantile)
-            'rampnames': ramp_name
+            'NO_OUTLINE': no_outline,
+            'CLASSES': num_classes,
+            'GROUP_FIELD': 'NUMPOINTS',
+            'INPUT': outputs['ExtractByAttribute']['OUTPUT'],
+            'MODE': ramp_mode,  # Equal Count (Quantile)
+            'RAMP_NAMES': ramp_name
         }
         outputs['ApplyAGraduatedStyle'] = processing.run('densityanalysis:gratuatedstyle', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
         return results
 
     def name(self):
-        return 'kerneldensity'
+        return 'densitymap'
 
     def displayName(self):
-        return 'Create a density map grid'
+        return 'Create styled density map'
 
     def icon(self):
         return QIcon(os.path.join(os.path.dirname(__file__), 'icons/densitygrid.svg'))
