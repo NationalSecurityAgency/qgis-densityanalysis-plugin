@@ -6,41 +6,37 @@ from qgis.core import (
     QgsProcessing,
     QgsProcessingAlgorithm,
     QgsProcessingParameterBoolean,
-    QgsProcessingParameterMapLayer,
+    QgsProcessingParameterVectorLayer,
     QgsProcessingParameterField)
 import processing
 
 
 class RandomStyleAlgorithm(QgsProcessingAlgorithm):
-    PrmMapLyaer = 'maplayer'
-    PrmGroupField = 'groupfield'
-    PrmNoOutline = 'NoOutline'
     def initAlgorithm(self, config=None):
         self.addParameter(
-            QgsProcessingParameterMapLayer(
-                self.PrmMapLyaer, 'Input map layer', defaultValue=None,
-                types=[QgsProcessing.TypeVectorAnyGeometry ])
+            QgsProcessingParameterVectorLayer(
+                'INPUT', 'Input map layer', [QgsProcessing.TypeVectorAnyGeometry])
         )
         self.addParameter(
             QgsProcessingParameterField(
-                self.PrmGroupField,
+                'GROUP_FIELD',
                 'Field used for styling',
-                parentLayerParameterName=self.PrmMapLyaer,
+                parentLayerParameterName='INPUT',
                 type=QgsProcessingParameterField.Any,
                 optional=False)
         )
         self.addParameter(
             QgsProcessingParameterBoolean(
-                self.PrmNoOutline,
+                'NO_OUTLINE',
                 'No feature outlines',
                 True,
                 optional=False)
         )
 
     def processAlgorithm(self, parameters, context, feedback):
-        layer = self.parameterAsVectorLayer(parameters, self.PrmMapLyaer, context)
-        attr = self.parameterAsString(parameters, self.PrmGroupField, context)
-        no_outline = self.parameterAsBool(parameters, self.PrmNoOutline, context)
+        layer = self.parameterAsVectorLayer(parameters, 'INPUT', context)
+        attr = self.parameterAsString(parameters, 'GROUP_FIELD', context)
+        no_outline = self.parameterAsBool(parameters, 'NO_OUTLINE', context)
         renderer = layer.renderer()
         geomtype = layer.geometryType()
         idx = layer.fields().indexOf(attr)
