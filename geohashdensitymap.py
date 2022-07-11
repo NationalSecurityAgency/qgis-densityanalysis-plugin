@@ -20,8 +20,7 @@ class GeohashDensityMapAlgorithm(QgsProcessingAlgorithm):
 
     def initAlgorithm(self, config=None):
         self.addParameter(
-            QgsProcessingParameterFeatureSource('INPUT', 'Input point vector layer', defaultValue=None,
-            types=[QgsProcessing.TypeVectorPoint])
+            QgsProcessingParameterFeatureSource('INPUT', 'Input point vector layer', [QgsProcessing.TypeVectorPoint])
         )
         param = QgsProcessingParameterNumber('RESOLUTION', 'Geohash resolution',
                 type=QgsProcessingParameterNumber.Integer, minValue=1, defaultValue=6, maxValue=12, optional=False)

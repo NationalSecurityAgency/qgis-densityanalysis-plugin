@@ -10,7 +10,7 @@ from qgis.core import (
     QgsProcessingMultiStepFeedback,
     QgsProcessingParameterExtent,
     QgsProcessingParameterEnum,
-    QgsProcessingParameterMapLayer,
+    QgsProcessingParameterVectorLayer,
     QgsProcessingParameterNumber,
     QgsProcessingParameterString,
     QgsProcessingParameterFeatureSink
@@ -57,8 +57,8 @@ class KernelDensityAlgorithm(QgsProcessingAlgorithm):
 
     def initAlgorithm(self, config=None):
         self.addParameter(
-            QgsProcessingParameterMapLayer('INPUT', 'Input point vector layer', defaultValue=None,
-            types=[QgsProcessing.TypeVectorPoint])
+            QgsProcessingParameterVectorLayer('INPUT', 'Input point vector layer', 
+            [QgsProcessing.TypeVectorPoint])
         )
         self.addParameter(
             QgsProcessingParameterExtent('EXTENT', 'Grid extent', optional=False)

@@ -17,8 +17,7 @@ import processing
 class H3DensityMapAlgorithm(QgsProcessingAlgorithm):
     def initAlgorithm(self, config=None):
         self.addParameter(
-            QgsProcessingParameterFeatureSource('INPUT', 'Input point vector layer', defaultValue=None,
-            types=[QgsProcessing.TypeVectorPoint])
+            QgsProcessingParameterFeatureSource('INPUT', 'Input point vector layer', [QgsProcessing.TypeVectorPoint])
         )
         param = QgsProcessingParameterNumber('RESOLUTION', 'H3 Resolution',
                 type=QgsProcessingParameterNumber.Integer, minValue=0, defaultValue=9, maxValue=15, optional=False)

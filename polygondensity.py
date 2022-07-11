@@ -55,7 +55,7 @@ class PolygonRasterDensityAlgorithm(QgsProcessingAlgorithm):
     def initAlgorithm(self, config=None):
         self.addParameter(
             QgsProcessingParameterVectorLayer('INPUT', 'Input polygon vector layer',
-            types=[QgsProcessing.TypeVectorPolygon])
+            [QgsProcessing.TypeVectorPolygon])
         )
         self.addParameter(
             QgsProcessingParameterExtent('EXTENT', 'Grid extent', optional=True)

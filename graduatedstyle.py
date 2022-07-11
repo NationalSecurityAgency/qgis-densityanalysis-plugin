@@ -9,7 +9,7 @@ from qgis.core import (
     QgsProcessingParameterEnum,
     QgsProcessingParameterNumber,
     QgsProcessingParameterString,
-    QgsProcessingParameterMapLayer,
+    QgsProcessingParameterVectorLayer,
     QgsProcessingParameterField)
 import processing
 
@@ -18,9 +18,8 @@ class GraduatedStyleAlgorithm(QgsProcessingAlgorithm):
     PrmNoOutline = 'NO_OUTLINE'
     def initAlgorithm(self, config=None):
         self.addParameter(
-            QgsProcessingParameterMapLayer(
-                'INPUT', 'Input map layer', defaultValue=None,
-                types=[QgsProcessing.TypeVectorAnyGeometry ])
+            QgsProcessingParameterVectorLayer(
+                'INPUT', 'Input map layer', [QgsProcessing.TypeVectorAnyGeometry ])
         )
         self.addParameter(
             QgsProcessingParameterField(
