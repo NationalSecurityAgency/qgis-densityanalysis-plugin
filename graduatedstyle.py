@@ -1,7 +1,7 @@
 import os
 from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtCore import Qt
-from qgis.core import QgsStyle, QgsSymbol, QgsGraduatedSymbolRenderer, QgsClassificationLogarithmic
+from qgis.core import Qgis, QgsStyle, QgsSymbol, QgsGraduatedSymbolRenderer, QgsClassificationLogarithmic
 from qgis.core import (
     QgsProcessing,
     QgsProcessingAlgorithm,
@@ -15,7 +15,6 @@ import processing
 
 
 class GraduatedStyleAlgorithm(QgsProcessingAlgorithm):
-    PrmNoOutline = 'NO_OUTLINE'
     def initAlgorithm(self, config=None):
         self.addParameter(
             QgsProcessingParameterVectorLayer(
@@ -31,15 +30,28 @@ class GraduatedStyleAlgorithm(QgsProcessingAlgorithm):
                 optional=False)
         )
         style = QgsStyle.defaultStyle()
-        ramp_names = style.colorRampNames()
-        ramp_name_param = QgsProcessingParameterString('RAMP_NAMES', 'Graduated color ramp name', defaultValue='Reds')
-        ramp_name_param.setMetadata( {'widget_wrapper': {'value_hints': ramp_names } } )
+        self.ramp_names = style.colorRampNames()
+        if Qgis.QGIS_VERSION_INT >= 32200:
+            ramp_name_param = QgsProcessingParameterString('RAMP_NAMES', 'Graduated color ramp name', defaultValue='Reds')
+            ramp_name_param.setMetadata( {'widget_wrapper': {'value_hints': self.ramp_names } } )
+        else:
+            try:
+                index = self.ramp_names.index('Reds')
+            except Exception:
+                index = 0
+            ramp_name_param = QgsProcessingParameterEnum(
+                'RAMP_NAMES',
+                'Graduated color ramp name',
+                options=self.ramp_names,
+                defaultValue=index,
+                optional=False)
+
         self.addParameter(ramp_name_param)
         self.addParameter(
             QgsProcessingParameterEnum(
                 'MODE',
                 'Mode',
-                options=['Equal Count (Quantile)','Equal Interval','Logrithmic scale','Natural Breaks (Jenks)','Pretty Breaks','Standard Deviation'],
+                options=['Equal Count (Quantile)','Equal Interval','Logarithmic scale','Natural Breaks (Jenks)','Pretty Breaks','Standard Deviation'],
                 defaultValue=0,
                 optional=False)
         )
@@ -63,7 +75,10 @@ class GraduatedStyleAlgorithm(QgsProcessingAlgorithm):
     def processAlgorithm(self, parameters, context, feedback):
         layer = self.parameterAsVectorLayer(parameters, 'INPUT', context)
         attr = self.parameterAsString(parameters, 'GROUP_FIELD', context)
-        ramp_name = self.parameterAsString(parameters, 'RAMP_NAMES', context)
+        if Qgis.QGIS_VERSION_INT >= 32200:
+            ramp_name = self.parameterAsString(parameters, 'RAMP_NAMES', context)
+        else:
+            ramp_name = self.ramp_names[self.parameterAsEnum(parameters, 'RAMP_NAMES', context)]
         mode = self.parameterAsInt(parameters, 'MODE', context)
         num_classes = self.parameterAsInt(parameters, 'CLASSES', context)
         no_outline = self.parameterAsBool(parameters, 'NO_OUTLINE', context)
@@ -72,7 +87,7 @@ class GraduatedStyleAlgorithm(QgsProcessingAlgorithm):
             grad_mode = QgsGraduatedSymbolRenderer.Quantile
         elif mode == 1: # Equal Interval
             grad_mode = QgsGraduatedSymbolRenderer.EqualInterval
-        elif mode == 2: # Logrithmic scale
+        elif mode == 2: # Logarithmic scale
             grad_mode = QgsGraduatedSymbolRenderer.Quantile
         elif mode == 3: # Natural Breaks (Jenks)
             grad_mode = QgsGraduatedSymbolRenderer.Jenks
@@ -97,6 +112,7 @@ class GraduatedStyleAlgorithm(QgsProcessingAlgorithm):
         )
         if mode == 2:
             new_renderer.setClassificationMethod(QgsClassificationLogarithmic())
+            new_renderer.updateClasses(layer, num_classes)
         layer.setRenderer(new_renderer)
         # feedback.pushInfo('dump: {}'.format(new_renderer.dump()))
         # new_renderer.updateClasses(layer, num_classes)

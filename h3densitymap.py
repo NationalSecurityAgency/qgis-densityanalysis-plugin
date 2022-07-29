@@ -1,6 +1,6 @@
 import os
 from qgis.PyQt.QtGui import QIcon
-from qgis.core import QgsStyle
+from qgis.core import Qgis, QgsStyle
 
 from qgis.core import (
     QgsProcessing,
@@ -21,82 +21,83 @@ class H3DensityMapAlgorithm(QgsProcessingAlgorithm):
         )
         param = QgsProcessingParameterNumber('RESOLUTION', 'H3 Resolution',
                 type=QgsProcessingParameterNumber.Integer, minValue=0, defaultValue=9, maxValue=15, optional=False)
-        param.setHelp(
-            '''
-            The resolution level of the grid, as defined in the H3 standard.
-            <br>
-            <table>
-              <tr>
-                <th>Resolution<br>Level</th>
-                <th>Avg. Hexagon<br>Edge Length</th>
-              </tr>
-              <tr>
-                <td style="text-align: center">0</td>
-                <td style="text-align: center">1107.71 km</td>
-              </tr>
-              <tr>
-                <td style="text-align: center">1</td>
-                <td style="text-align: center">418.68 km</td>
-              </tr>
-              <tr>
-                <td style="text-align: center">2</td>
-                <td style="text-align: center">158.24 km</td>
-              </tr>
-              <tr>
-                <td style="text-align: center">3</td>
-                <td style="text-align: center">59.81 km</td>
-              </tr>
-              <tr>
-                <td style="text-align: center">4</td>
-                <td style="text-align: center">22.61 km</td>
-              </tr>
-              <tr>
-                <td style="text-align: center">5</td>
-                <td style="text-align: center">8.54 km</td>
-              </tr>
-              <tr>
-                <td style="text-align: center">6</td>
-                <td style="text-align: center">3.23 km</td>
-              </tr>
-              <tr>
-                <td style="text-align: center">7</td>
-                <td style="text-align: center">1.22 km</td>
-              </tr>
-              <tr>
-                <td style="text-align: center">8</td>
-                <td style="text-align: center">461.35 m</td>
-              </tr>
-              <tr>
-                <td style="text-align: center">9</td>
-                <td style="text-align: center">174.38 m</td>
-              </tr>
-              <tr>
-                <td style="text-align: center">10</td>
-                <td style="text-align: center">65.91 m</td>
-              </tr>
-              <tr>
-                <td style="text-align: center">11</td>
-                <td style="text-align: center">24.91 m</td>
-              </tr>
-              <tr>
-                <td style="text-align: center">12</td>
-                <td style="text-align: center">9.42 m</td>
-              </tr>
-              <tr>
-                <td style="text-align: center">13</td>
-                <td style="text-align: center">3.56 m</td>
-              </tr>
-              <tr>
-                <td style="text-align: center">14</td>
-                <td style="text-align: center">1.35 m</td>
-              </tr>
-              <tr>
-                <td style="text-align: center">15</td>
-                <td style="text-align: center">0.51 m</td>
-              </tr>
-            </table>
-            '''
-        )
+        if Qgis.QGIS_VERSION_INT >= 31600:
+            param.setHelp(
+                '''
+                The resolution level of the grid, as defined in the H3 standard.
+                <br>
+                <table>
+                  <tr>
+                    <th>Resolution<br>Level</th>
+                    <th>Avg. Hexagon<br>Edge Length</th>
+                  </tr>
+                  <tr>
+                    <td style="text-align: center">0</td>
+                    <td style="text-align: center">1107.71 km</td>
+                  </tr>
+                  <tr>
+                    <td style="text-align: center">1</td>
+                    <td style="text-align: center">418.68 km</td>
+                  </tr>
+                  <tr>
+                    <td style="text-align: center">2</td>
+                    <td style="text-align: center">158.24 km</td>
+                  </tr>
+                  <tr>
+                    <td style="text-align: center">3</td>
+                    <td style="text-align: center">59.81 km</td>
+                  </tr>
+                  <tr>
+                    <td style="text-align: center">4</td>
+                    <td style="text-align: center">22.61 km</td>
+                  </tr>
+                  <tr>
+                    <td style="text-align: center">5</td>
+                    <td style="text-align: center">8.54 km</td>
+                  </tr>
+                  <tr>
+                    <td style="text-align: center">6</td>
+                    <td style="text-align: center">3.23 km</td>
+                  </tr>
+                  <tr>
+                    <td style="text-align: center">7</td>
+                    <td style="text-align: center">1.22 km</td>
+                  </tr>
+                  <tr>
+                    <td style="text-align: center">8</td>
+                    <td style="text-align: center">461.35 m</td>
+                  </tr>
+                  <tr>
+                    <td style="text-align: center">9</td>
+                    <td style="text-align: center">174.38 m</td>
+                  </tr>
+                  <tr>
+                    <td style="text-align: center">10</td>
+                    <td style="text-align: center">65.91 m</td>
+                  </tr>
+                  <tr>
+                    <td style="text-align: center">11</td>
+                    <td style="text-align: center">24.91 m</td>
+                  </tr>
+                  <tr>
+                    <td style="text-align: center">12</td>
+                    <td style="text-align: center">9.42 m</td>
+                  </tr>
+                  <tr>
+                    <td style="text-align: center">13</td>
+                    <td style="text-align: center">3.56 m</td>
+                  </tr>
+                  <tr>
+                    <td style="text-align: center">14</td>
+                    <td style="text-align: center">1.35 m</td>
+                  </tr>
+                  <tr>
+                    <td style="text-align: center">15</td>
+                    <td style="text-align: center">0.51 m</td>
+                  </tr>
+                </table>
+                '''
+            )
         self.addParameter(param)
         self.addParameter(
             QgsProcessingParameterNumber(
@@ -109,14 +110,26 @@ class H3DensityMapAlgorithm(QgsProcessingAlgorithm):
         )
         style = QgsStyle.defaultStyle()
         ramp_names = style.colorRampNames()
-        ramp_name_param = QgsProcessingParameterString('RAMP_NAMES', 'Select a color ramp', defaultValue='Reds')
-        ramp_name_param.setMetadata( {'widget_wrapper': {'value_hints': ramp_names } } )
+        if Qgis.QGIS_VERSION_INT >= 32200:
+            ramp_name_param = QgsProcessingParameterString('RAMP_NAMES', 'Select a color ramp', defaultValue='Reds')
+            ramp_name_param.setMetadata( {'widget_wrapper': {'value_hints': ramp_names } } )
+        else:
+            try:
+                index = ramp_names.index('Reds')
+            except Exception:
+                index = 0
+            ramp_name_param = QgsProcessingParameterEnum(
+                'RAMP_NAMES',
+                'Select a color ramp',
+                options=ramp_names,
+                defaultValue=index,
+                optional=False)
         self.addParameter(ramp_name_param)
         self.addParameter(
             QgsProcessingParameterEnum(
                 'COLOR_RAMP_MODE',
                 'Color ramp mode',
-                options=['Equal Count (Quantile)','Equal Interval','Logrithmic scale','Natural Breaks (Jenks)','Pretty Breaks','Standard Deviation'],
+                options=['Equal Count (Quantile)','Equal Interval','Logarithmic scale','Natural Breaks (Jenks)','Pretty Breaks','Standard Deviation'],
                 defaultValue=0,
                 optional=False)
         )
@@ -141,7 +154,12 @@ class H3DensityMapAlgorithm(QgsProcessingAlgorithm):
             return {}
         resolution = self.parameterAsInt(parameters, 'RESOLUTION', context)
         num_classes = self.parameterAsInt(parameters, 'CLASSES', context)
-        ramp_name = self.parameterAsString(parameters, 'RAMP_NAMES', context)
+        if Qgis.QGIS_VERSION_INT >= 32200:
+            # In this case ramp_name will be the name
+            ramp_name = self.parameterAsString(parameters, 'RAMP_NAMES', context)
+        else:
+            # In this case ramp_name will be an index into ramp_names
+            ramp_name = self.parameterAsEnum(parameters, 'RAMP_NAMES', context)
         ramp_mode = self.parameterAsInt(parameters, 'COLOR_RAMP_MODE', context)
         no_outline = self.parameterAsBool(parameters, 'NO_OUTLINE', context)
         

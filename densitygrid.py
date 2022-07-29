@@ -1,6 +1,6 @@
 import os
 from qgis.PyQt.QtGui import QIcon
-from qgis.core import QgsStyle, QgsUnitTypes
+from qgis.core import Qgis, QgsStyle, QgsUnitTypes
 
 from qgis.core import (
     QgsProcessing,
@@ -99,14 +99,26 @@ class KernelDensityAlgorithm(QgsProcessingAlgorithm):
         )
         style = QgsStyle.defaultStyle()
         ramp_names = style.colorRampNames()
-        ramp_name_param = QgsProcessingParameterString('RAMP_NAMES', 'Select a color ramp', defaultValue='Reds')
-        ramp_name_param.setMetadata( {'widget_wrapper': {'value_hints': ramp_names } } )
+        if Qgis.QGIS_VERSION_INT >= 32200:
+            ramp_name_param = QgsProcessingParameterString('RAMP_NAMES', 'Select a color ramp', defaultValue='Reds')
+            ramp_name_param.setMetadata( {'widget_wrapper': {'value_hints': ramp_names } } )
+        else:
+            try:
+                index = ramp_names.index('Reds')
+            except Exception:
+                index = 0
+            ramp_name_param = QgsProcessingParameterEnum(
+                'RAMP_NAMES',
+                'Select a color ramp',
+                options=ramp_names,
+                defaultValue=index,
+                optional=False)
         self.addParameter(ramp_name_param)
         self.addParameter(
             QgsProcessingParameterEnum(
                 'COLOR_RAMP_MODE',
                 'Color ramp mode',
-                options=['Equal Count (Quantile)','Equal Interval','Logrithmic scale','Natural Breaks (Jenks)','Pretty Breaks','Standard Deviation'],
+                options=['Equal Count (Quantile)','Equal Interval','Logarithmic scale','Natural Breaks (Jenks)','Pretty Breaks','Standard Deviation'],
                 defaultValue=0,
                 optional=False)
         )
@@ -128,7 +140,12 @@ class KernelDensityAlgorithm(QgsProcessingAlgorithm):
         extent = self.parameterAsExtent(parameters, 'EXTENT', context)
         extent_crs = self.parameterAsExtentCrs(parameters, 'EXTENT', context)
         num_classes = self.parameterAsInt(parameters, 'CLASSES', context)
-        ramp_name = self.parameterAsString(parameters, 'RAMP_NAMES', context)
+        if Qgis.QGIS_VERSION_INT >= 32200:
+            # In this case ramp_name will be the name
+            ramp_name = self.parameterAsString(parameters, 'RAMP_NAMES', context)
+        else:
+            # In this case ramp_name will be an index into ramp_names
+            ramp_name = self.parameterAsEnum(parameters, 'RAMP_NAMES', context)
         ramp_mode = self.parameterAsInt(parameters, 'COLOR_RAMP_MODE', context)
         no_outline = self.parameterAsBool(parameters, 'NO_OUTLINE', context)
         cell_width = self.parameterAsDouble(parameters, 'GRID_CELL_WIDTH', context)

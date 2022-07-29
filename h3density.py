@@ -1,7 +1,7 @@
 import os
 from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtCore import QVariant
-from qgis.core import QgsWkbTypes, QgsFields, QgsField, QgsCoordinateTransform, QgsCoordinateReferenceSystem,  QgsFeature, QgsGeometry, QgsPointXY, QgsProject
+from qgis.core import Qgis, QgsWkbTypes, QgsFields, QgsField, QgsCoordinateTransform, QgsCoordinateReferenceSystem,  QgsFeature, QgsGeometry, QgsPointXY, QgsProject
 
 from qgis.core import (
     QgsProcessing,
@@ -20,82 +20,83 @@ class H3DensityAlgorithm(QgsProcessingAlgorithm):
         )
         param = QgsProcessingParameterNumber('RESOLUTION', 'H3 Resolution',
                 type=QgsProcessingParameterNumber.Integer, minValue=0, defaultValue=9, maxValue=15, optional=False)
-        param.setHelp(
-            '''
-            The resolution level of the grid, as defined in the H3 standard.
-            <br>
-            <table>
-              <tr>
-                <th>Resolution<br>Level</th>
-                <th>Avg. Hexagon<br>Edge Length</th>
-              </tr>
-              <tr>
-                <td style="text-align: center">0</td>
-                <td style="text-align: center">1107.71 km</td>
-              </tr>
-              <tr>
-                <td style="text-align: center">1</td>
-                <td style="text-align: center">418.68 km</td>
-              </tr>
-              <tr>
-                <td style="text-align: center">2</td>
-                <td style="text-align: center">158.24 km</td>
-              </tr>
-              <tr>
-                <td style="text-align: center">3</td>
-                <td style="text-align: center">59.81 km</td>
-              </tr>
-              <tr>
-                <td style="text-align: center">4</td>
-                <td style="text-align: center">22.61 km</td>
-              </tr>
-              <tr>
-                <td style="text-align: center">5</td>
-                <td style="text-align: center">8.54 km</td>
-              </tr>
-              <tr>
-                <td style="text-align: center">6</td>
-                <td style="text-align: center">3.23 km</td>
-              </tr>
-              <tr>
-                <td style="text-align: center">7</td>
-                <td style="text-align: center">1.22 km</td>
-              </tr>
-              <tr>
-                <td style="text-align: center">8</td>
-                <td style="text-align: center">461.35 m</td>
-              </tr>
-              <tr>
-                <td style="text-align: center">9</td>
-                <td style="text-align: center">174.38 m</td>
-              </tr>
-              <tr>
-                <td style="text-align: center">10</td>
-                <td style="text-align: center">65.91 m</td>
-              </tr>
-              <tr>
-                <td style="text-align: center">11</td>
-                <td style="text-align: center">24.91 m</td>
-              </tr>
-              <tr>
-                <td style="text-align: center">12</td>
-                <td style="text-align: center">9.42 m</td>
-              </tr>
-              <tr>
-                <td style="text-align: center">13</td>
-                <td style="text-align: center">3.56 m</td>
-              </tr>
-              <tr>
-                <td style="text-align: center">14</td>
-                <td style="text-align: center">1.35 m</td>
-              </tr>
-              <tr>
-                <td style="text-align: center">15</td>
-                <td style="text-align: center">0.51 m</td>
-              </tr>
-            </table>
-            '''
-        )
+        if Qgis.QGIS_VERSION_INT >= 31600:
+            param.setHelp(
+                '''
+                The resolution level of the grid, as defined in the H3 standard.
+                <br>
+                <table>
+                  <tr>
+                    <th>Resolution<br>Level</th>
+                    <th>Avg. Hexagon<br>Edge Length</th>
+                  </tr>
+                  <tr>
+                    <td style="text-align: center">0</td>
+                    <td style="text-align: center">1107.71 km</td>
+                  </tr>
+                  <tr>
+                    <td style="text-align: center">1</td>
+                    <td style="text-align: center">418.68 km</td>
+                  </tr>
+                  <tr>
+                    <td style="text-align: center">2</td>
+                    <td style="text-align: center">158.24 km</td>
+                  </tr>
+                  <tr>
+                    <td style="text-align: center">3</td>
+                    <td style="text-align: center">59.81 km</td>
+                  </tr>
+                  <tr>
+                    <td style="text-align: center">4</td>
+                    <td style="text-align: center">22.61 km</td>
+                  </tr>
+                  <tr>
+                    <td style="text-align: center">5</td>
+                    <td style="text-align: center">8.54 km</td>
+                  </tr>
+                  <tr>
+                    <td style="text-align: center">6</td>
+                    <td style="text-align: center">3.23 km</td>
+                  </tr>
+                  <tr>
+                    <td style="text-align: center">7</td>
+                    <td style="text-align: center">1.22 km</td>
+                  </tr>
+                  <tr>
+                    <td style="text-align: center">8</td>
+                    <td style="text-align: center">461.35 m</td>
+                  </tr>
+                  <tr>
+                    <td style="text-align: center">9</td>
+                    <td style="text-align: center">174.38 m</td>
+                  </tr>
+                  <tr>
+                    <td style="text-align: center">10</td>
+                    <td style="text-align: center">65.91 m</td>
+                  </tr>
+                  <tr>
+                    <td style="text-align: center">11</td>
+                    <td style="text-align: center">24.91 m</td>
+                  </tr>
+                  <tr>
+                    <td style="text-align: center">12</td>
+                    <td style="text-align: center">9.42 m</td>
+                  </tr>
+                  <tr>
+                    <td style="text-align: center">13</td>
+                    <td style="text-align: center">3.56 m</td>
+                  </tr>
+                  <tr>
+                    <td style="text-align: center">14</td>
+                    <td style="text-align: center">1.35 m</td>
+                  </tr>
+                  <tr>
+                    <td style="text-align: center">15</td>
+                    <td style="text-align: center">0.51 m</td>
+                  </tr>
+                </table>
+                '''
+            )
         self.addParameter(param)
         self.addParameter(
             QgsProcessingParameterFeatureSink('OUTPUT', 'Output H3 density map',

@@ -1,6 +1,6 @@
 import os
 from qgis.PyQt.QtGui import QIcon
-from qgis.core import QgsStyle, QgsMapLayerType, QgsRasterBandStats, QgsColorRampShader, QgsRasterShader, QgsSingleBandPseudoColorRenderer
+from qgis.core import Qgis, QgsStyle, QgsMapLayerType, QgsRasterBandStats, QgsColorRampShader, QgsRasterShader, QgsSingleBandPseudoColorRenderer
 from qgis.core import (
     QgsProcessing,
     QgsProcessingAlgorithm,
@@ -20,9 +20,22 @@ class RasterStyleAlgorithm(QgsProcessingAlgorithm):
                 'INPUT', 'Input raster layer')
         )
         style = QgsStyle.defaultStyle()
-        ramp_names = style.colorRampNames()
-        ramp_name_param = QgsProcessingParameterString('RAMP_NAME', 'Color ramp name', defaultValue='Reds')
-        ramp_name_param.setMetadata( {'widget_wrapper': {'value_hints': ramp_names } } )
+        self.ramp_names = style.colorRampNames()
+        if Qgis.QGIS_VERSION_INT >= 32200:
+            ramp_name_param = QgsProcessingParameterString('RAMP_NAMES', 'Color ramp name', defaultValue='Reds',
+                optional=False)
+            ramp_name_param.setMetadata( {'widget_wrapper': {'value_hints': self.ramp_names } } )
+        else:
+            try:
+                index = self.ramp_names.index('Reds')
+            except Exception:
+                index = 0
+            ramp_name_param = QgsProcessingParameterEnum(
+                'RAMP_NAMES',
+                'Color ramp name',
+                options=self.ramp_names,
+                defaultValue=index,
+                optional=False)
         self.addParameter(ramp_name_param)
         self.addParameter(
             QgsProcessingParameterEnum(
@@ -52,7 +65,10 @@ class RasterStyleAlgorithm(QgsProcessingAlgorithm):
 
     def processAlgorithm(self, parameters, context, feedback):
         layer = self.parameterAsRasterLayer(parameters, 'INPUT', context)
-        ramp_name = self.parameterAsString(parameters, 'RAMP_NAME', context)
+        if Qgis.QGIS_VERSION_INT >= 32200:
+            ramp_name = self.parameterAsString(parameters, 'RAMP_NAMES', context)
+        else:
+            ramp_name = self.ramp_names[self.parameterAsEnum(parameters, 'RAMP_NAMES', context)]
         interp = self.parameterAsInt(parameters, 'INTERPOLATION', context)
         mode = self.parameterAsInt(parameters, 'MODE', context)
         num_classes = self.parameterAsInt(parameters, 'CLASSES', context)
