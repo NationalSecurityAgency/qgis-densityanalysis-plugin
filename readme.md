@@ -28,6 +28,7 @@ These are the input parameters:
 * ***Grid cell height*** - This is the height of the grid cell as defined by ***Grid measurement unit***.
 * ***Grid measurement unit*** - The unit of measure for the grid cell width and heights. Choices are Kilometers, Meters, Miles, Yards, Feet, Nautical Miles, and Degrees.
 * ***Maximum grid width or height*** - This prevents a grid of huge proportions from being created and allows the user to correct the input parameters. If the width or height of the grid is exceeded, then it generates an error with a message of the grid size that would be created by the current settings and the cell width or height that needs to be used to fit within this grid size. You can always increase this number if you want a denser grid.
+* ***Weight field*** - An optional weight field can be used to assign weights to each point. If set, the count generated will be the sum of the weight field for each point contained by the polygon.
 * ***Number of gradient colors*** - This specifies the number of categories that are going to be used. In this example we used 15. When we look at the output layer, it shows each category and the number of events that can occur within the category.
 
     <div style="text-align:center"><img src="help/values.png" alt="Cell counts"></div>
