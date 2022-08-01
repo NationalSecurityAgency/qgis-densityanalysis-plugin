@@ -7,6 +7,7 @@ from qgis.core import (
     QgsProcessingAlgorithm,
     QgsProcessingParameterBoolean,
     QgsProcessingParameterEnum,
+    QgsProcessingParameterField,
     QgsProcessingParameterFeatureSource,
     QgsProcessingParameterNumber,
     QgsProcessingParameterString,
@@ -87,6 +88,14 @@ class GeohashDensityMapAlgorithm(QgsProcessingAlgorithm):
             )
         self.addParameter(param)
         self.addParameter(
+            QgsProcessingParameterField(
+                'WEIGHT',
+                'Weight field',
+                parentLayerParameterName='INPUT',
+                type=QgsProcessingParameterField.Numeric,
+                optional=True)
+        )
+        self.addParameter(
             QgsProcessingParameterNumber(
                 'CLASSES',
                 'Number of gradient colors',
@@ -135,6 +144,11 @@ class GeohashDensityMapAlgorithm(QgsProcessingAlgorithm):
     def processAlgorithm(self, parameters, context, feedback):
         resolution = self.parameterAsInt(parameters, 'RESOLUTION', context)
         num_classes = self.parameterAsInt(parameters, 'CLASSES', context)
+        if 'WEIGHT' in parameters and parameters['WEIGHT']:
+            use_weight = True
+            weight_field = self.parameterAsString(parameters, 'WEIGHT', context)
+        else:
+            use_weight = False
         if Qgis.QGIS_VERSION_INT >= 32200:
             # In this case ramp_name will be the name
             ramp_name = self.parameterAsString(parameters, 'RAMP_NAMES', context)
@@ -152,6 +166,8 @@ class GeohashDensityMapAlgorithm(QgsProcessingAlgorithm):
             'RESOLUTION': resolution,
             'OUTPUT': parameters['OUTPUT']
         }
+        if use_weight:
+            alg_params['WEIGHT'] = weight_field
         outputs['CreateGrid'] = processing.run('densityanalysis:geohashdensity', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
         results['OUTPUT'] = outputs['CreateGrid']['OUTPUT']
 

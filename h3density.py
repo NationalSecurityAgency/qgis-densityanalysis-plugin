@@ -8,6 +8,7 @@ from qgis.core import (
     QgsProcessingAlgorithm,
     QgsProcessingParameterFeatureSource,
     QgsProcessingParameterNumber,
+    QgsProcessingParameterField,
     QgsProcessingParameterFeatureSink
     )
 import processing
@@ -99,6 +100,14 @@ class H3DensityAlgorithm(QgsProcessingAlgorithm):
             )
         self.addParameter(param)
         self.addParameter(
+            QgsProcessingParameterField(
+                'WEIGHT',
+                'Weight field',
+                parentLayerParameterName='INPUT',
+                type=QgsProcessingParameterField.Numeric,
+                optional=True)
+        )
+        self.addParameter(
             QgsProcessingParameterFeatureSink('OUTPUT', 'Output H3 density map',
                 type=QgsProcessing.TypeVectorPolygon, createByDefault=True, defaultValue=None)
         )
@@ -112,12 +121,17 @@ class H3DensityAlgorithm(QgsProcessingAlgorithm):
             return {}
         source = self.parameterAsSource(parameters, 'INPUT', context)
         resolution = self.parameterAsInt(parameters, 'RESOLUTION', context)
+        if 'WEIGHT' in parameters and parameters['WEIGHT']:
+            use_weight = True
+            weight_field = self.parameterAsString(parameters, 'WEIGHT', context)
+        else:
+            use_weight = False
         
         epsg4326 = QgsCoordinateReferenceSystem("EPSG:4326")
         fields = QgsFields()
         fields.append(QgsField('ID', QVariant.Int))
         fields.append(QgsField('H3HASH', QVariant.String))
-        fields.append(QgsField('NUMPOINTS', QVariant.Int))
+        fields.append(QgsField('NUMPOINTS', QVariant.Double))
         (sink, dest_id) = self.parameterAsSink(
             parameters, 'OUTPUT',
             context, fields, QgsWkbTypes.Polygon, epsg4326)
@@ -130,24 +144,45 @@ class H3DensityAlgorithm(QgsProcessingAlgorithm):
         ghash = {}
 
         iterator = source.getFeatures()
-        for cnt, feature in enumerate(iterator):
-            if feedback.isCanceled():
-                break
-            try:
-                pt = feature.geometry().asPoint()
-                if src_crs != epsg4326:
-                    pt = transform.transform(pt)
-                h = h3.geo_to_h3(pt.y(), pt.x(), resolution)
-                if h == 0: # Check to see if the input coordinates were invalid
-                    continue
-                if h in ghash:
-                    ghash[h] += 1
-                else:
-                    ghash[h] = 1
-            except Exception:
-                pass
-            if cnt % 1000 == 0:
-                feedback.setProgress(int(cnt * total))
+        if use_weight:
+            for cnt, feature in enumerate(iterator):
+                if feedback.isCanceled():
+                    break
+                try:
+                    pt = feature.geometry().asPoint()
+                    if src_crs != epsg4326:
+                        pt = transform.transform(pt)
+                    h = h3.geo_to_h3(pt.y(), pt.x(), resolution)
+                    if h == 0: # Check to see if the input coordinates were invalid
+                        continue
+                    weight = feature[weight_field]
+                    if h in ghash:
+                        ghash[h] += weight
+                    else:
+                        ghash[h] = weight
+                except Exception:
+                    pass
+                if cnt % 1000 == 0:
+                    feedback.setProgress(int(cnt * total))
+        else:
+            for cnt, feature in enumerate(iterator):
+                if feedback.isCanceled():
+                    break
+                try:
+                    pt = feature.geometry().asPoint()
+                    if src_crs != epsg4326:
+                        pt = transform.transform(pt)
+                    h = h3.geo_to_h3(pt.y(), pt.x(), resolution)
+                    if h == 0: # Check to see if the input coordinates were invalid
+                        continue
+                    if h in ghash:
+                        ghash[h] += 1
+                    else:
+                        ghash[h] = 1
+                except Exception:
+                    pass
+                if cnt % 1000 == 0:
+                    feedback.setProgress(int(cnt * total))
 
         if len(ghash) == 0:
             return {}

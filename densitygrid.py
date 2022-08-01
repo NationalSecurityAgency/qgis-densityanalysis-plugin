@@ -10,6 +10,7 @@ from qgis.core import (
     QgsProcessingMultiStepFeedback,
     QgsProcessingParameterExtent,
     QgsProcessingParameterEnum,
+    QgsProcessingParameterField,
     QgsProcessingParameterVectorLayer,
     QgsProcessingParameterNumber,
     QgsProcessingParameterString,
@@ -89,6 +90,14 @@ class KernelDensityAlgorithm(QgsProcessingAlgorithm):
                 type=QgsProcessingParameterNumber.Integer, minValue=1, defaultValue=500, optional=False)
         )
         self.addParameter(
+            QgsProcessingParameterField(
+                'WEIGHT',
+                'Weight field',
+                parentLayerParameterName='INPUT',
+                type=QgsProcessingParameterField.Numeric,
+                optional=True)
+        )
+        self.addParameter(
             QgsProcessingParameterNumber(
                 'CLASSES',
                 'Number of gradient colors',
@@ -152,6 +161,11 @@ class KernelDensityAlgorithm(QgsProcessingAlgorithm):
         cell_height = self.parameterAsDouble(parameters, 'GRID_CELL_HEIGHT', context)
         selected_units = self.parameterAsInt(parameters, 'UNITS', context)
         max_dimension = self.parameterAsInt(parameters, 'MAX_GRID_SIZE', context)
+        if 'WEIGHT' in parameters and parameters['WEIGHT']:
+            use_weight = True
+            weight_field = self.parameterAsString(parameters, 'WEIGHT', context)
+        else:
+            use_weight = False
         
         # Determine the width and height in extent units
         extent_units = extent_crs.mapUnits()
@@ -211,9 +225,12 @@ class KernelDensityAlgorithm(QgsProcessingAlgorithm):
             'FIELD': 'NUMPOINTS',
             'POINTS': parameters['INPUT'],
             'POLYGONS': outputs['CreateGrid']['OUTPUT'],
-            'WEIGHT': '',
             'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
         }
+        if use_weight:
+            alg_params['WEIGHT'] = weight_field
+        else:
+            alg_params['WEIGHT'] = ''
         outputs['CountPointsInPolygon'] = processing.run('native:countpointsinpolygon', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
 
         feedback.setCurrentStep(2)

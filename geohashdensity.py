@@ -7,6 +7,7 @@ from qgis.core import (
     QgsProcessing,
     QgsProcessingAlgorithm,
     QgsProcessingParameterFeatureSource,
+    QgsProcessingParameterField,
     QgsProcessingParameterNumber,
     QgsProcessingParameterFeatureSink
     )
@@ -85,6 +86,14 @@ class GeohashDensityAlgorithm(QgsProcessingAlgorithm):
             )
         self.addParameter(param)
         self.addParameter(
+            QgsProcessingParameterField(
+                'WEIGHT',
+                'Weight field',
+                parentLayerParameterName='INPUT',
+                type=QgsProcessingParameterField.Numeric,
+                optional=True)
+        )
+        self.addParameter(
             QgsProcessingParameterFeatureSink('OUTPUT', 'Output geohash density map',
                 type=QgsProcessing.TypeVectorPolygon, createByDefault=True, defaultValue=None)
         )
@@ -92,12 +101,17 @@ class GeohashDensityAlgorithm(QgsProcessingAlgorithm):
     def processAlgorithm(self, parameters, context, feedback):
         source = self.parameterAsSource(parameters, 'INPUT', context)
         resolution = self.parameterAsInt(parameters, 'RESOLUTION', context)
+        if 'WEIGHT' in parameters and parameters['WEIGHT']:
+            use_weight = True
+            weight_field = self.parameterAsString(parameters, 'WEIGHT', context)
+        else:
+            use_weight = False
         
         epsg4326 = QgsCoordinateReferenceSystem("EPSG:4326")
         fields = QgsFields()
         fields.append(QgsField('ID', QVariant.Int))
         fields.append(QgsField('GEOHASH', QVariant.String))
-        fields.append(QgsField('NUMPOINTS', QVariant.Int))
+        fields.append(QgsField('NUMPOINTS', QVariant.Double))
         (sink, dest_id) = self.parameterAsSink(
             parameters, 'OUTPUT',
             context, fields, QgsWkbTypes.Polygon, epsg4326)
@@ -110,22 +124,41 @@ class GeohashDensityAlgorithm(QgsProcessingAlgorithm):
         ghash = {}
 
         iterator = source.getFeatures()
-        for cnt, feature in enumerate(iterator):
-            if feedback.isCanceled():
-                break
-            try:
-                pt = feature.geometry().asPoint()
-                if src_crs != epsg4326:
-                    pt = transform.transform(pt)
-                h = geohash.encode(pt.y(), pt.x(), resolution)
-                if h in ghash:
-                    ghash[h] += 1
-                else:
-                    ghash[h] = 1
-            except Exception:
-                pass
-            if cnt % 1000 == 0:
-                feedback.setProgress(int(cnt * total))
+        if use_weight:
+            for cnt, feature in enumerate(iterator):
+                if feedback.isCanceled():
+                    break
+                try:
+                    pt = feature.geometry().asPoint()
+                    if src_crs != epsg4326:
+                        pt = transform.transform(pt)
+                    h = geohash.encode(pt.y(), pt.x(), resolution)
+                    weight = feature[weight_field]
+                    if h in ghash:
+                        ghash[h] += weight
+                    else:
+                        ghash[h] = weight
+                except Exception:
+                    pass
+                if cnt % 1000 == 0:
+                    feedback.setProgress(int(cnt * total))
+        else:
+            for cnt, feature in enumerate(iterator):
+                if feedback.isCanceled():
+                    break
+                try:
+                    pt = feature.geometry().asPoint()
+                    if src_crs != epsg4326:
+                        pt = transform.transform(pt)
+                    h = geohash.encode(pt.y(), pt.x(), resolution)
+                    if h in ghash:
+                        ghash[h] += 1
+                    else:
+                        ghash[h] = 1
+                except Exception:
+                    pass
+                if cnt % 1000 == 0:
+                    feedback.setProgress(int(cnt * total))
         if len(ghash) == 0:
             return {}
         total = 15 / len(ghash)
