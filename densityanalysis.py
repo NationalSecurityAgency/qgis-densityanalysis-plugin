@@ -7,6 +7,13 @@ from qgis.core import QgsApplication
 import processing
 from .provider import DensityAnalysisProvider
 
+try:
+    import h3
+    h3_installed = True
+except Exception:
+    from .utils import h3InstallString
+    h3_installed = False
+
 import os
 
 class DensityAnalysis(object):
@@ -76,6 +83,19 @@ class DensityAnalysis(object):
         self.toolbar.addAction(self.rasterStyleAction)
         self.iface.addPluginToMenu("Density analysis", self.rasterStyleAction)
         
+        icon = QIcon(os.path.dirname(__file__) + '/icons/h3grid.svg')
+        self.h3GridAction = QAction(icon, "Create H3 grid", self.iface.mainWindow())
+        self.h3GridAction.triggered.connect(self.h3Grid)
+        self.iface.addPluginToMenu("Density analysis", self.h3GridAction)
+
+        self.geohashDensityGridAction = QAction("Create geohash density grid", self.iface.mainWindow())
+        self.geohashDensityGridAction.triggered.connect(self.geohashDensityGrid)
+        self.iface.addPluginToMenu("Density analysis", self.geohashDensityGridAction)
+
+        self.h3DensityGridAction = QAction("Create H3 density grid", self.iface.mainWindow())
+        self.h3DensityGridAction.triggered.connect(self.h3DensityGrid)
+        self.iface.addPluginToMenu("Density analysis", self.h3DensityGridAction)
+
         # Help
         icon = QIcon(os.path.dirname(__file__) + '/icons/help.svg')
         self.helpAction = QAction(icon, "Help", self.iface.mainWindow())
@@ -95,6 +115,9 @@ class DensityAnalysis(object):
         self.iface.removePluginMenu('Density analysis', self.heatmapAction)
         self.iface.removePluginMenu('Density analysis', self.style2layersAction)
         self.iface.removePluginMenu('Density analysis', self.rasterStyleAction)
+        self.iface.removePluginMenu("Density analysis", self.h3GridAction)
+        self.iface.removePluginMenu("Density analysis", self.geohashDensityGridAction)
+        self.iface.removePluginMenu("Density analysis", self.h3DensityGridAction)
         self.iface.removePluginMenu("Density analysis", self.helpAction)
         if self.heatmap_dialog:
             self.iface.removeDockWidget(self.heatmap_dialog)
@@ -127,11 +150,9 @@ class DensityAnalysis(object):
         processing.execAlgorithmDialog('densityanalysis:geohashdensitymap', {})
 
     def h3Algorithm(self):
-        try:
-            import h3
+        if h3_installed:
             processing.execAlgorithmDialog('densityanalysis:h3densitymap', {})
-        except Exception:
-            from .utils import h3InstallString
+        else:
             QMessageBox.information(self.iface.mainWindow(), 'H3 Install Instructions', h3InstallString)
 
     def graduatedStyleAlgorithm(self):
@@ -151,6 +172,21 @@ class DensityAnalysis(object):
             from .style2layers import StyleToLayers
             self.style_Layers_dialog = StyleToLayers(self.iface, self.iface.mainWindow())
         self.style_Layers_dialog.show()
+    
+    def geohashDensityGrid(self):
+        processing.execAlgorithmDialog('densityanalysis:geohashdensity', {})
+    
+    def h3DensityGrid(self):
+        if h3_installed:
+            processing.execAlgorithmDialog('densityanalysis:h3density', {})
+        else:
+            QMessageBox.information(self.iface.mainWindow(), 'H3 Install Instructions', h3InstallString)
+    
+    def h3Grid(self):
+        if h3_installed:
+            processing.execAlgorithmDialog('densityanalysis:h3grid', {})
+        else:
+            QMessageBox.information(self.iface.mainWindow(), 'H3 Install Instructions', h3InstallString)
 
     def help(self):
         '''Display a help page'''

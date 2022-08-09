@@ -74,7 +74,7 @@ class PolygonRasterDensityAlgorithm(QgsProcessingAlgorithm):
         )
         self.addParameter(
             QgsProcessingParameterNumber('MAX_IMAGE_DIMENSION', 'Maximum width or height dimensions for output image',
-                type=QgsProcessingParameterNumber.Integer, minValue=1, defaultValue=5000, optional=False)
+                type=QgsProcessingParameterNumber.Integer, minValue=1, defaultValue=20000, optional=False)
         )
         self.addParameter(
             QgsProcessingParameterRasterDestination('OUTPUT', 'Output polygon density heatmap',

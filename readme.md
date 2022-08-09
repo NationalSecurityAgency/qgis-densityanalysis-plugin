@@ -1,6 +1,6 @@
 # QGIS Density Analysis Plugin
 
-This plugin automates the creation of vector density heatmaps in QGIS with a heatmap explorer to examine the areas of greatest concentrations. It has two processing algorithms to create a gradient style and random style so that they can be used in QGIS models. Another tool allows a copied style or a .qml file to be pasted onto all selected layers. It provides an algorithm to create a raster density map of polygons and a pseudocolor processing algorithm to style the results. Once installed, the plugin is located under ***Plugins->Density analysis*** in the QGIS menu or on the toolbar. Some algorithms can be found in the *Processing Toolbox*.
+This plugin automates the creation of vector density heatmaps in QGIS with a heatmap explorer to examine the areas of greatest concentrations. It has two processing algorithms to create a gradient style and random style so that they can be used in QGIS models. Another tool allows a copied style or a .qml file to be pasted onto all selected layers. It provides an algorithm to create a raster density map of polygons and a pseudocolor processing algorithm to style the results. Once installed, the plugin is located under ***Plugins->Density analysis*** in the QGIS menu, on the toolbar, and can be found in the *Processing Toolbox* under *Density analysis*.
 
 <div style="text-align:center"><img src="help/menu.jpg" alt="Density Analysis"></div>
 
@@ -248,5 +248,16 @@ The parameters in dialog box are as follows:
 
 This achieves some of the functionality you get from right-mouse clicking on a single band image and selecting properties and selecting the *Symbology* tab and choosing ***Singleband pseudocolor*** for the ***Render type**. For more information on the parameters visit the QGIS documentation.
 
+## <img src="help/h3grid.png" alt="Create H3 grid" width="24" height="24"> Create H3 grid
 
+This will create a grid of H3 polygons based on the extent of a layer, canvas, or user drawn extent. ***H3 Resolution*** is a value between 0 and 15 specifying the resolution of the H3 grid. 
 
+## Create geohash density grid
+
+This is the same as ***Create styled geohash density map***, but without the styling. The algorithm iterates through every point of the input layer indexing them using a geohash with a count of the number of times each geohash has been seen and added to the **NUMPOINTS** attribute. The bounds of each geohash cell is then created as a polygon. Depending on the resolution these polygon are either a square or rectangle.
+
+## Create H3 density grid
+
+This is the same as ***Create styled H3 density map***, but without the styling. This algorithm uses the H3 (Hexagonal hierarchical geospatial indexing system) library for fast density map generation. It iterates through every point of the input layer using H3 indexing with a count of the number of times each H3 index has been seen. Each H3 cell is then created as a polygon. The polygons are in a hexagon shape. 
+
+To create H3 density maps you will need to install the H3 Library (<a href="https://h3geo.org/">https://h3geo.org/</a>).
