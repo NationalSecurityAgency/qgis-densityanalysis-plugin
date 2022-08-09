@@ -7,6 +7,7 @@ from qgis.core import Qgis, QgsWkbTypes, QgsFields, QgsField, QgsCoordinateTrans
 from qgis.core import (
     QgsProcessing,
     QgsProcessingAlgorithm,
+    QgsProcessingException,
     QgsProcessingParameterNumber,
     QgsProcessingParameterExtent,
     QgsProcessingParameterFeatureSink
@@ -140,7 +141,8 @@ class H3GridAlgorithm(QgsProcessingAlgorithm):
             raise QgsProcessingException('Operation canceled')
         feedback.setProgress(50)
         if len(h3_ids) == 0:
-            return {'OUTPUT': dest_id}
+            raise QgsProcessingException("No grid was created. Grid extent may be invalid or resolution and extent may exceeded a practical threshold.")
+
         total = 50 / len(h3_ids)
         for i, h3str in enumerate(h3_ids):
             coords = h3.h3_to_geo_boundary(h3str)
