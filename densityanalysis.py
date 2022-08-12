@@ -30,22 +30,28 @@ class DensityAnalysis(object):
         self.toolbar.setToolTip('Density Analysis Toolbar')
 
         icon = QIcon(os.path.dirname(__file__) + '/icons/densitygrid.svg')
-        self.densityGridAction = QAction(icon, "Create styled density map", self.iface.mainWindow())
+        self.densityGridAction = QAction(icon, "Styled density map", self.iface.mainWindow())
         self.densityGridAction.triggered.connect(self.densityGridAlgorithm)
         self.toolbar.addAction(self.densityGridAction)
         self.iface.addPluginToMenu("Density analysis", self.densityGridAction)
 
         icon = QIcon(os.path.dirname(__file__) + '/icons/geohash.png')
-        self.geohashAction = QAction(icon, "Create styled geohash density map", self.iface.mainWindow())
+        self.geohashAction = QAction(icon, "Styled geohash density map", self.iface.mainWindow())
         self.geohashAction.triggered.connect(self.geohashAlgorithm)
         self.toolbar.addAction(self.geohashAction)
         self.iface.addPluginToMenu("Density analysis", self.geohashAction)
 
         icon = QIcon(os.path.dirname(__file__) + '/icons/h3.png')
-        self.h3Action = QAction(icon, "Create styled H3 density map", self.iface.mainWindow())
+        self.h3Action = QAction(icon, "Styled H3 density map", self.iface.mainWindow())
         self.h3Action.triggered.connect(self.h3Algorithm)
         self.toolbar.addAction(self.h3Action)
         self.iface.addPluginToMenu("Density analysis", self.h3Action)
+
+        icon = QIcon(os.path.dirname(__file__) + '/icons/kde.png')
+        self.kdeAction = QAction(icon, "Styled heatmap (Kernel density estimation)", self.iface.mainWindow())
+        self.kdeAction.triggered.connect(self.kdeAlgorithm)
+        self.toolbar.addAction(self.kdeAction)
+        self.iface.addPluginToMenu("Density analysis", self.kdeAction)
         
         icon = QIcon(os.path.dirname(__file__) + '/icons/densityexplorer.svg')
         self.heatmapAction = QAction(icon, "Density map analysis tool", self.iface.mainWindow())
@@ -60,7 +66,7 @@ class DensityAnalysis(object):
         self.iface.addPluginToMenu("Density analysis", self.style2layersAction)
         
         icon = QIcon(os.path.dirname(__file__) + '/icons/gradient.png')
-        self.graduatedStyleAction = QAction(icon, "Apply a graduated style", self.iface.mainWindow())
+        self.graduatedStyleAction = QAction(icon, "Apply graduated style", self.iface.mainWindow())
         self.graduatedStyleAction.triggered.connect(self.graduatedStyleAlgorithm)
         self.toolbar.addAction(self.graduatedStyleAction)
         self.iface.addPluginToMenu("Density analysis", self.graduatedStyleAction)
@@ -72,27 +78,29 @@ class DensityAnalysis(object):
         self.iface.addPluginToMenu("Density analysis", self.randomStyleAction)
         
         icon = QIcon(os.path.dirname(__file__) + '/icons/polydensity.png')
-        self.polyDensityAction = QAction(icon, "Create a polygon raster density map", self.iface.mainWindow())
+        self.polyDensityAction = QAction(icon, "Polygon raster density map", self.iface.mainWindow())
         self.polyDensityAction.triggered.connect(self.polyDensityDialog)
         self.toolbar.addAction(self.polyDensityAction)
         self.iface.addPluginToMenu("Density analysis", self.polyDensityAction)
         
         icon = QIcon(os.path.dirname(__file__) + '/icons/styleraster.png')
-        self.rasterStyleAction = QAction(icon, "Apply a pseudocolor raster style", self.iface.mainWindow())
+        self.rasterStyleAction = QAction(icon, "Apply pseudocolor raster style", self.iface.mainWindow())
         self.rasterStyleAction.triggered.connect(self.rasterStyleDialog)
         self.toolbar.addAction(self.rasterStyleAction)
         self.iface.addPluginToMenu("Density analysis", self.rasterStyleAction)
         
         icon = QIcon(os.path.dirname(__file__) + '/icons/h3grid.svg')
-        self.h3GridAction = QAction(icon, "Create H3 grid", self.iface.mainWindow())
+        self.h3GridAction = QAction(icon, "H3 grid", self.iface.mainWindow())
         self.h3GridAction.triggered.connect(self.h3Grid)
         self.iface.addPluginToMenu("Density analysis", self.h3GridAction)
 
-        self.geohashDensityGridAction = QAction("Create geohash density grid", self.iface.mainWindow())
+
+        icon = QIcon(':/images/themes/default/processingAlgorithm.svg')
+        self.geohashDensityGridAction = QAction(icon, "Geohash density grid", self.iface.mainWindow())
         self.geohashDensityGridAction.triggered.connect(self.geohashDensityGrid)
         self.iface.addPluginToMenu("Density analysis", self.geohashDensityGridAction)
 
-        self.h3DensityGridAction = QAction("Create H3 density grid", self.iface.mainWindow())
+        self.h3DensityGridAction = QAction(icon, "H3 density grid", self.iface.mainWindow())
         self.h3DensityGridAction.triggered.connect(self.h3DensityGrid)
         self.iface.addPluginToMenu("Density analysis", self.h3DensityGridAction)
 
@@ -109,6 +117,7 @@ class DensityAnalysis(object):
         self.iface.removePluginMenu('Density analysis', self.densityGridAction)
         self.iface.removePluginMenu('Density analysis', self.geohashAction)
         self.iface.removePluginMenu('Density analysis', self.h3Action)
+        self.iface.removePluginMenu('Density analysis', self.kdeAction)
         self.iface.removePluginMenu('Density analysis', self.graduatedStyleAction)
         self.iface.removePluginMenu('Density analysis', self.randomStyleAction)
         self.iface.removePluginMenu('Density analysis', self.polyDensityAction)
@@ -125,6 +134,7 @@ class DensityAnalysis(object):
         self.iface.removeToolBarIcon(self.densityGridAction)
         self.iface.removeToolBarIcon(self.geohashAction)
         self.iface.removeToolBarIcon(self.h3Action)
+        self.iface.removeToolBarIcon(self.kdeAction)
         self.iface.removeToolBarIcon(self.heatmapAction)
         self.iface.removeToolBarIcon(self.style2layersAction)
         self.iface.removeToolBarIcon(self.graduatedStyleAction)
@@ -187,6 +197,9 @@ class DensityAnalysis(object):
             processing.execAlgorithmDialog('densityanalysis:h3grid', {})
         else:
             QMessageBox.information(self.iface.mainWindow(), 'H3 Install Instructions', h3InstallString)
+    
+    def kdeAlgorithm(self):
+        processing.execAlgorithmDialog('densityanalysis:styledkde', {})
 
     def help(self):
         '''Display a help page'''
