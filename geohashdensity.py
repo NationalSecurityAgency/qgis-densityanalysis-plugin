@@ -178,7 +178,7 @@ class GeohashDensityAlgorithm(QgsProcessingAlgorithm):
         return 'geohashdensity'
 
     def displayName(self):
-        return 'Create geohash density grid'
+        return 'Geohash density grid'
 
     '''def icon(self):
         return QIcon(os.path.join(os.path.dirname(__file__), 'icons/geohash.png'))'''

@@ -60,7 +60,7 @@ class RandomStyleAlgorithm(QgsProcessingAlgorithm):
         return 'randomstyle'
 
     def displayName(self):
-        return 'Apply a random categorized style'
+        return 'Apply random categorized style'
 
     def icon(self):
         return QIcon(os.path.join(os.path.dirname(__file__), 'icons/random.png'))

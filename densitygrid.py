@@ -54,7 +54,7 @@ def conversionFromCrsUnits(selected_unit, crs_unit, value):
         measureFactor = QgsUnitTypes.fromUnitToUnitFactor(crs_unit, QgsUnitTypes.DistanceDegrees)
     return(measureFactor * value)
 
-class KernelDensityAlgorithm(QgsProcessingAlgorithm):
+class StyledDensityGridAlgorithm(QgsProcessingAlgorithm):
 
     def initAlgorithm(self, config=None):
         self.addParameter(
@@ -261,17 +261,17 @@ class KernelDensityAlgorithm(QgsProcessingAlgorithm):
             'MODE': ramp_mode,  # Equal Count (Quantile)
             'RAMP_NAMES': ramp_name
         }
-        outputs['ApplyAGraduatedStyle'] = processing.run('densityanalysis:gratuatedstyle', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
+        outputs['GraduatedStyle'] = processing.run('densityanalysis:gratuatedstyle', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
         return results
 
     def name(self):
         return 'densitymap'
 
     def displayName(self):
-        return 'Create styled density map'
+        return 'Styled density map'
 
     def icon(self):
         return QIcon(os.path.join(os.path.dirname(__file__), 'icons/densitygrid.svg'))
 
     def createInstance(self):
-        return KernelDensityAlgorithm()
+        return StyledDensityGridAlgorithm()

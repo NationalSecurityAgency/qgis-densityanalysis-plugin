@@ -159,7 +159,7 @@ class PolygonRasterDensityAlgorithm(QgsProcessingAlgorithm):
         return 'polygondensity'
 
     def displayName(self):
-        return 'Create a polygon raster density map'
+        return 'Polygon raster density map'
 
     def icon(self):
         return QIcon(os.path.join(os.path.dirname(__file__), 'icons/polydensity.png'))

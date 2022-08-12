@@ -210,7 +210,7 @@ class H3DensityAlgorithm(QgsProcessingAlgorithm):
         return 'h3density'
 
     def displayName(self):
-        return 'Create H3 density grid'
+        return 'H3 density grid'
 
     '''def icon(self):
         return QIcon(os.path.join(os.path.dirname(__file__), 'icons/h3.png'))'''

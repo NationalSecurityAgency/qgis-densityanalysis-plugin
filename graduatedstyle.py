@@ -123,7 +123,7 @@ class GraduatedStyleAlgorithm(QgsProcessingAlgorithm):
         return 'gratuatedstyle'
 
     def displayName(self):
-        return 'Apply a graduated style'
+        return 'Apply graduated style'
 
     def icon(self):
         return QIcon(os.path.join(os.path.dirname(__file__), 'icons/gradient.png'))

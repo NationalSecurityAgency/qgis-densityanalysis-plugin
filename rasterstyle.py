@@ -50,7 +50,7 @@ class RasterStyleAlgorithm(QgsProcessingAlgorithm):
                 'MODE',
                 'Mode',
                 options=['Continuous','Equal Interval','Quantile'],
-                defaultValue=0,
+                defaultValue=2,
                 optional=False)
         )
         self.addParameter(
@@ -117,7 +117,7 @@ class RasterStyleAlgorithm(QgsProcessingAlgorithm):
         return 'rasterstyle'
 
     def displayName(self):
-        return 'Apply a pseudocolor raster style'
+        return 'Apply pseudocolor raster style'
 
     def icon(self):
         return QIcon(os.path.join(os.path.dirname(__file__), 'icons/styleraster.png'))

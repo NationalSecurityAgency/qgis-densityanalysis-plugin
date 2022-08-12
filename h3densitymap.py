@@ -209,7 +209,7 @@ class H3DensityMapAlgorithm(QgsProcessingAlgorithm):
         return 'h3densitymap'
 
     def displayName(self):
-        return 'Create styled H3 density map'
+        return 'Styled H3 density map'
 
     def icon(self):
         return QIcon(os.path.join(os.path.dirname(__file__), 'icons/h3.png'))

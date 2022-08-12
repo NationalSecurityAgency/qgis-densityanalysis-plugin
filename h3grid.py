@@ -160,7 +160,7 @@ class H3GridAlgorithm(QgsProcessingAlgorithm):
         return 'h3grid'
 
     def displayName(self):
-        return 'Create H3 grid'
+        return 'H3 grid'
 
     def icon(self):
         return QIcon(os.path.join(os.path.dirname(__file__), 'icons/h3grid.svg'))
