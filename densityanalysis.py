@@ -6,6 +6,7 @@ from qgis.PyQt.QtWidgets import QAction, QMessageBox
 from qgis.core import QgsApplication
 import processing
 from .provider import DensityAnalysisProvider
+from .settings import SettingsWidget
 
 try:
     import h3
@@ -19,6 +20,8 @@ import os
 class DensityAnalysis(object):
     heatmap_dialog = None
     style_Layers_dialog = None
+    settingsDialog = None
+
     def __init__(self, iface):
         self.iface = iface
         self.canvas = iface.mapCanvas()
@@ -53,6 +56,12 @@ class DensityAnalysis(object):
         self.toolbar.addAction(self.kdeAction)
         self.iface.addPluginToMenu("Density analysis", self.kdeAction)
         
+        icon = QIcon(os.path.dirname(__file__) + '/icons/styledrasterdensity.png')
+        self.styledPolyDensityAction = QAction(icon, "Styled polygon density map", self.iface.mainWindow())
+        self.styledPolyDensityAction.triggered.connect(self.styledPolyDensityDialog)
+        self.toolbar.addAction(self.styledPolyDensityAction)
+        self.iface.addPluginToMenu("Density analysis", self.styledPolyDensityAction)
+        
         icon = QIcon(os.path.dirname(__file__) + '/icons/densityexplorer.svg')
         self.heatmapAction = QAction(icon, "Density map analysis tool", self.iface.mainWindow())
         self.heatmapAction.triggered.connect(self.showHeatmapDialog)
@@ -77,12 +86,6 @@ class DensityAnalysis(object):
         self.toolbar.addAction(self.randomStyleAction)
         self.iface.addPluginToMenu("Density analysis", self.randomStyleAction)
         
-        icon = QIcon(os.path.dirname(__file__) + '/icons/polydensity.png')
-        self.polyDensityAction = QAction(icon, "Polygon raster density map", self.iface.mainWindow())
-        self.polyDensityAction.triggered.connect(self.polyDensityDialog)
-        self.toolbar.addAction(self.polyDensityAction)
-        self.iface.addPluginToMenu("Density analysis", self.polyDensityAction)
-        
         icon = QIcon(os.path.dirname(__file__) + '/icons/styleraster.png')
         self.rasterStyleAction = QAction(icon, "Apply pseudocolor raster style", self.iface.mainWindow())
         self.rasterStyleAction.triggered.connect(self.rasterStyleDialog)
@@ -94,7 +97,6 @@ class DensityAnalysis(object):
         self.h3GridAction.triggered.connect(self.h3Grid)
         self.iface.addPluginToMenu("Density analysis", self.h3GridAction)
 
-
         icon = QIcon(':/images/themes/default/processingAlgorithm.svg')
         self.geohashDensityGridAction = QAction(icon, "Geohash density grid", self.iface.mainWindow())
         self.geohashDensityGridAction.triggered.connect(self.geohashDensityGrid)
@@ -103,6 +105,17 @@ class DensityAnalysis(object):
         self.h3DensityGridAction = QAction(icon, "H3 density grid", self.iface.mainWindow())
         self.h3DensityGridAction.triggered.connect(self.h3DensityGrid)
         self.iface.addPluginToMenu("Density analysis", self.h3DensityGridAction)
+        
+        icon = QIcon(os.path.dirname(__file__) + '/icons/polydensity.png')
+        self.polyDensityAction = QAction(icon, "Polygon density map", self.iface.mainWindow())
+        self.polyDensityAction.triggered.connect(self.polyDensityDialog)
+        self.iface.addPluginToMenu("Density analysis", self.polyDensityAction)
+
+        # Settings
+        icon = QIcon(':/images/themes/default/mActionOptions.svg')
+        self.settingsAction = QAction(icon, 'Settings', self.iface.mainWindow())
+        self.settingsAction.triggered.connect(self.settings)
+        self.iface.addPluginToMenu('Density analysis', self.settingsAction)
 
         # Help
         icon = QIcon(os.path.dirname(__file__) + '/icons/help.svg')
@@ -120,6 +133,7 @@ class DensityAnalysis(object):
         self.iface.removePluginMenu('Density analysis', self.kdeAction)
         self.iface.removePluginMenu('Density analysis', self.graduatedStyleAction)
         self.iface.removePluginMenu('Density analysis', self.randomStyleAction)
+        self.iface.removePluginMenu('Density analysis', self.styledPolyDensityAction)
         self.iface.removePluginMenu('Density analysis', self.polyDensityAction)
         self.iface.removePluginMenu('Density analysis', self.heatmapAction)
         self.iface.removePluginMenu('Density analysis', self.style2layersAction)
@@ -127,6 +141,7 @@ class DensityAnalysis(object):
         self.iface.removePluginMenu("Density analysis", self.h3GridAction)
         self.iface.removePluginMenu("Density analysis", self.geohashDensityGridAction)
         self.iface.removePluginMenu("Density analysis", self.h3DensityGridAction)
+        self.iface.removePluginMenu("Density analysis", self.settingsAction)
         self.iface.removePluginMenu("Density analysis", self.helpAction)
         if self.heatmap_dialog:
             self.iface.removeDockWidget(self.heatmap_dialog)
@@ -139,7 +154,7 @@ class DensityAnalysis(object):
         self.iface.removeToolBarIcon(self.style2layersAction)
         self.iface.removeToolBarIcon(self.graduatedStyleAction)
         self.iface.removeToolBarIcon(self.randomStyleAction)
-        self.iface.removeToolBarIcon(self.polyDensityAction)
+        self.iface.removeToolBarIcon(self.styledPolyDensityAction)
         self.iface.removeToolBarIcon(self.rasterStyleAction)
         del self.toolbar
         """Remove the provider."""
@@ -174,6 +189,9 @@ class DensityAnalysis(object):
     def polyDensityDialog(self):
         processing.execAlgorithmDialog('densityanalysis:polygondensity', {})
 
+    def styledPolyDensityDialog(self):
+        processing.execAlgorithmDialog('densityanalysis:styledpolygondensity', {})
+
     def rasterStyleDialog(self):
         processing.execAlgorithmDialog('densityanalysis:rasterstyle', {})
 
@@ -200,6 +218,11 @@ class DensityAnalysis(object):
     
     def kdeAlgorithm(self):
         processing.execAlgorithmDialog('densityanalysis:styledkde', {})
+
+    def settings(self):
+        if self.settingsDialog is None:
+            self.settingsDialog = SettingsWidget(self.iface, self.iface.mainWindow())
+        self.settingsDialog.show()
 
     def help(self):
         '''Display a help page'''

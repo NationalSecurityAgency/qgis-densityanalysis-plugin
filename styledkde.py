@@ -7,6 +7,7 @@ from qgis.core import (
     QgsProcessingAlgorithm,
     QgsProcessingException,
     QgsProcessingParameterEnum,
+    QgsProcessingParameterBoolean,
     QgsProcessingParameterVectorLayer,
     QgsProcessingParameterNumber,
     QgsProcessingParameterString,
@@ -14,6 +15,7 @@ from qgis.core import (
     QgsProcessingParameterRasterDestination
     )
 import processing
+from .settings import settings
 
 DISTANCE_LABELS = ["Kilometers", "Meters", "Miles", 'Yards', "Feet", "Nautical Miles", "Degrees"]
 
@@ -87,24 +89,25 @@ class StyledKdeAlgorithm(QgsProcessingAlgorithm):
         param.setFlags(param.flags() | QgsProcessingParameterDefinition.FlagAdvanced)
         self.addParameter(param)
 
-        style = QgsStyle.defaultStyle()
-        self.ramp_names = style.colorRampNames()
         if Qgis.QGIS_VERSION_INT >= 32200:
-            ramp_name_param = QgsProcessingParameterString('RAMP_NAMES', 'Color ramp name', defaultValue='Reds',
+            ramp_name_param = QgsProcessingParameterString('RAMP_NAMES', 'Color ramp name', defaultValue=settings.defaultColorRamp(),
                 optional=False)
-            ramp_name_param.setMetadata( {'widget_wrapper': {'value_hints': self.ramp_names } } )
+            ramp_name_param.setMetadata( {'widget_wrapper': {'value_hints': settings.ramp_names } } )
         else:
-            try:
-                index = self.ramp_names.index('Reds')
-            except Exception:
-                index = 0
             ramp_name_param = QgsProcessingParameterEnum(
                 'RAMP_NAMES',
                 'Color ramp name',
-                options=self.ramp_names,
-                defaultValue=index,
+                options=settings.ramp_names,
+                defaultValue=settings.defaultColorRampIndex(),
                 optional=False)
         self.addParameter(ramp_name_param)
+        self.addParameter(
+            QgsProcessingParameterBoolean(
+                'INVERT',
+                'Invert color ramp',
+                False,
+                optional=False)
+        )
         self.addParameter(
             QgsProcessingParameterEnum(
                 'INTERPOLATION',
@@ -147,7 +150,8 @@ class StyledKdeAlgorithm(QgsProcessingAlgorithm):
         if Qgis.QGIS_VERSION_INT >= 32200:
             ramp_name = self.parameterAsString(parameters, 'RAMP_NAMES', context)
         else:
-            ramp_name = self.ramp_names[self.parameterAsEnum(parameters, 'RAMP_NAMES', context)]
+            ramp_name = self.parameterAsEnum(parameters, 'RAMP_NAMES', context)
+        invert = self.parameterAsBool(parameters, 'INVERT', context)
         interp = self.parameterAsInt(parameters, 'INTERPOLATION', context)
         mode = self.parameterAsInt(parameters, 'MODE', context)
         num_classes = self.parameterAsInt(parameters, 'CLASSES', context)
@@ -208,6 +212,7 @@ class StyledKdeAlgorithm(QgsProcessingAlgorithm):
             'INPUT': outputs['HeatmapKDE']['OUTPUT'],
             'INTERPOLATION': interp,
             'MODE': mode,
+            'INVERT': invert,
             'RAMP_NAMES': ramp_name
         }
         outputs['Styled'] = processing.run('densityanalysis:rasterstyle', alg_params, context=context, feedback=feedback, is_child_algorithm=True)

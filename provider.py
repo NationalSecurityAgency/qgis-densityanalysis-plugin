@@ -10,6 +10,7 @@ from .h3grid import H3GridAlgorithm
 from .h3density import H3DensityAlgorithm
 from .h3densitymap import H3DensityMapAlgorithm
 from .polygondensity import PolygonRasterDensityAlgorithm
+from .styledpolygondensity import StyledPolygonRasterDensityAlgorithm
 from .rasterstyle import RasterStyleAlgorithm
 from . styledkde import StyledKdeAlgorithm
 
@@ -29,6 +30,7 @@ class DensityAnalysisProvider(QgsProcessingProvider):
         self.addAlgorithm(H3DensityMapAlgorithm())
         self.addAlgorithm(RasterStyleAlgorithm())
         self.addAlgorithm(PolygonRasterDensityAlgorithm())
+        self.addAlgorithm(StyledPolygonRasterDensityAlgorithm())
         self.addAlgorithm(StyledKdeAlgorithm())
 
     def icon(self):

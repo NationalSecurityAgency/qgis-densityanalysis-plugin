@@ -14,6 +14,7 @@ from qgis.core import (
     QgsProcessingParameterFeatureSink
     )
 import processing
+from .settings import settings
 
 class H3DensityMapAlgorithm(QgsProcessingAlgorithm):
     def initAlgorithm(self, config=None):
@@ -117,23 +118,24 @@ class H3DensityMapAlgorithm(QgsProcessingAlgorithm):
                 minValue=2,
                 optional=False)
         )
-        style = QgsStyle.defaultStyle()
-        ramp_names = style.colorRampNames()
         if Qgis.QGIS_VERSION_INT >= 32200:
-            ramp_name_param = QgsProcessingParameterString('RAMP_NAMES', 'Select a color ramp', defaultValue='Reds')
-            ramp_name_param.setMetadata( {'widget_wrapper': {'value_hints': ramp_names } } )
+            ramp_name_param = QgsProcessingParameterString('RAMP_NAMES', 'Select a color ramp', defaultValue=settings.defaultColorRamp())
+            ramp_name_param.setMetadata( {'widget_wrapper': {'value_hints': settings.ramp_names } } )
         else:
-            try:
-                index = ramp_names.index('Reds')
-            except Exception:
-                index = 0
             ramp_name_param = QgsProcessingParameterEnum(
                 'RAMP_NAMES',
                 'Select a color ramp',
-                options=ramp_names,
-                defaultValue=index,
+                options=settings.ramp_names,
+                defaultValue=settings.defaultColorRampIndex(),
                 optional=False)
         self.addParameter(ramp_name_param)
+        self.addParameter(
+            QgsProcessingParameterBoolean(
+                'INVERT',
+                'Invert color ramp',
+                False,
+                optional=False)
+        )
         self.addParameter(
             QgsProcessingParameterEnum(
                 'COLOR_RAMP_MODE',
@@ -176,6 +178,7 @@ class H3DensityMapAlgorithm(QgsProcessingAlgorithm):
             ramp_name = self.parameterAsEnum(parameters, 'RAMP_NAMES', context)
         ramp_mode = self.parameterAsInt(parameters, 'COLOR_RAMP_MODE', context)
         no_outline = self.parameterAsBool(parameters, 'NO_OUTLINE', context)
+        invert = self.parameterAsBool(parameters, 'INVERT', context)
         
         results = {}
         outputs = {}
@@ -196,6 +199,7 @@ class H3DensityMapAlgorithm(QgsProcessingAlgorithm):
         # Apply a graduated style
         alg_params = {
             'NO_OUTLINE': no_outline,
+            'INVERT': invert,
             'CLASSES': num_classes,
             'GROUP_FIELD': 'NUMPOINTS',
             'INPUT': outputs['CreateGrid']['OUTPUT'],

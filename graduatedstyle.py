@@ -12,6 +12,7 @@ from qgis.core import (
     QgsProcessingParameterVectorLayer,
     QgsProcessingParameterField)
 import processing
+from .settings import settings
 
 
 class GraduatedStyleAlgorithm(QgsProcessingAlgorithm):
@@ -29,24 +30,25 @@ class GraduatedStyleAlgorithm(QgsProcessingAlgorithm):
                 defaultValue='NUMPOINTS',
                 optional=False)
         )
-        style = QgsStyle.defaultStyle()
-        self.ramp_names = style.colorRampNames()
         if Qgis.QGIS_VERSION_INT >= 32200:
-            ramp_name_param = QgsProcessingParameterString('RAMP_NAMES', 'Graduated color ramp name', defaultValue='Reds')
-            ramp_name_param.setMetadata( {'widget_wrapper': {'value_hints': self.ramp_names } } )
+            ramp_name_param = QgsProcessingParameterString('RAMP_NAMES', 'Graduated color ramp name', defaultValue=settings.defaultColorRamp())
+            ramp_name_param.setMetadata( {'widget_wrapper': {'value_hints': settings.ramp_names } } )
         else:
-            try:
-                index = self.ramp_names.index('Reds')
-            except Exception:
-                index = 0
             ramp_name_param = QgsProcessingParameterEnum(
                 'RAMP_NAMES',
                 'Graduated color ramp name',
-                options=self.ramp_names,
-                defaultValue=index,
+                options=settings.ramp_names,
+                defaultValue=settings.defaultColorRampIndex(),
                 optional=False)
 
         self.addParameter(ramp_name_param)
+        self.addParameter(
+            QgsProcessingParameterBoolean(
+                'INVERT',
+                'Invert color ramp',
+                False,
+                optional=False)
+        )
         self.addParameter(
             QgsProcessingParameterEnum(
                 'MODE',
@@ -78,10 +80,11 @@ class GraduatedStyleAlgorithm(QgsProcessingAlgorithm):
         if Qgis.QGIS_VERSION_INT >= 32200:
             ramp_name = self.parameterAsString(parameters, 'RAMP_NAMES', context)
         else:
-            ramp_name = self.ramp_names[self.parameterAsEnum(parameters, 'RAMP_NAMES', context)]
+            ramp_name = settings.ramp_names[self.parameterAsEnum(parameters, 'RAMP_NAMES', context)]
         mode = self.parameterAsInt(parameters, 'MODE', context)
         num_classes = self.parameterAsInt(parameters, 'CLASSES', context)
         no_outline = self.parameterAsBool(parameters, 'NO_OUTLINE', context)
+        invert = self.parameterAsBool(parameters, 'INVERT', context)
         
         if mode == 0: # Quantile
             grad_mode = QgsGraduatedSymbolRenderer.Quantile
@@ -102,6 +105,8 @@ class GraduatedStyleAlgorithm(QgsProcessingAlgorithm):
             symbol.symbolLayer(0).setStrokeStyle(Qt.PenStyle(Qt.NoPen))
         style = QgsStyle.defaultStyle()
         ramp = style.colorRamp(ramp_name)
+        if invert:
+            ramp.invert()
         new_renderer = QgsGraduatedSymbolRenderer.createRenderer(
             layer, # The layer
             attr, # Attribute name

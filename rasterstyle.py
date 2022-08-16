@@ -8,9 +8,9 @@ from qgis.core import (
     QgsProcessingParameterEnum,
     QgsProcessingParameterNumber,
     QgsProcessingParameterString,
-    QgsProcessingParameterRasterLayer,
-    QgsProcessingParameterField)
+    QgsProcessingParameterRasterLayer)
 import processing
+from .settings import settings
 
 
 class RasterStyleAlgorithm(QgsProcessingAlgorithm):
@@ -19,24 +19,25 @@ class RasterStyleAlgorithm(QgsProcessingAlgorithm):
             QgsProcessingParameterRasterLayer(
                 'INPUT', 'Input raster layer')
         )
-        style = QgsStyle.defaultStyle()
-        self.ramp_names = style.colorRampNames()
         if Qgis.QGIS_VERSION_INT >= 32200:
-            ramp_name_param = QgsProcessingParameterString('RAMP_NAMES', 'Color ramp name', defaultValue='Reds',
+            ramp_name_param = QgsProcessingParameterString('RAMP_NAMES', 'Color ramp name', defaultValue=settings.defaultColorRamp(),
                 optional=False)
-            ramp_name_param.setMetadata( {'widget_wrapper': {'value_hints': self.ramp_names } } )
+            ramp_name_param.setMetadata( {'widget_wrapper': {'value_hints': settings.ramp_names } } )
         else:
-            try:
-                index = self.ramp_names.index('Reds')
-            except Exception:
-                index = 0
             ramp_name_param = QgsProcessingParameterEnum(
                 'RAMP_NAMES',
                 'Color ramp name',
-                options=self.ramp_names,
-                defaultValue=index,
+                options=settings.ramp_names,
+                defaultValue=settings.defaultColorRampIndex(),
                 optional=False)
         self.addParameter(ramp_name_param)
+        self.addParameter(
+            QgsProcessingParameterBoolean(
+                'INVERT',
+                'Invert color ramp',
+                False,
+                optional=False)
+        )
         self.addParameter(
             QgsProcessingParameterEnum(
                 'INTERPOLATION',
@@ -68,7 +69,8 @@ class RasterStyleAlgorithm(QgsProcessingAlgorithm):
         if Qgis.QGIS_VERSION_INT >= 32200:
             ramp_name = self.parameterAsString(parameters, 'RAMP_NAMES', context)
         else:
-            ramp_name = self.ramp_names[self.parameterAsEnum(parameters, 'RAMP_NAMES', context)]
+            ramp_name = settings.ramp_names[self.parameterAsEnum(parameters, 'RAMP_NAMES', context)]
+        invert = self.parameterAsBool(parameters, 'INVERT', context)
         interp = self.parameterAsInt(parameters, 'INTERPOLATION', context)
         mode = self.parameterAsInt(parameters, 'MODE', context)
         num_classes = self.parameterAsInt(parameters, 'CLASSES', context)
@@ -97,6 +99,8 @@ class RasterStyleAlgorithm(QgsProcessingAlgorithm):
         
         style = QgsStyle.defaultStyle()
         ramp = style.colorRamp(ramp_name)
+        if invert:
+            ramp.invert()
         color_ramp = QgsColorRampShader(stats.minimumValue, stats.maximumValue, ramp, interpolation, shader_mode)
         if shader_mode == QgsColorRampShader.Quantile:
             color_ramp.classifyColorRamp(classes=num_classes, band=1, input=provider)
