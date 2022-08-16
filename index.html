@@ -37,12 +37,12 @@ code {
 </head>
 <body>
 <h1>QGIS Density Analysis Plugin</h1>
-<p>This plugin automates the creation of vector density heatmaps in QGIS with a heatmap explorer to examine the areas of greatest concentrations. It has two processing algorithms to create a gradient style and random style so that they can be used in QGIS models. Another tool allows a copied style or a .qml file to be pasted onto all selected layers. It provides an algorithm to create a raster density map of polygons and a pseudocolor processing algorithm to style the results. Once installed, the plugin is located under <strong><em>Plugins-&gt;Density analysis</em></strong> in the QGIS menu, on the toolbar, and can be found in the <em>Processing Toolbox</em> under <em>Density analysis</em>.</p>
+<p>This plugin automates the creation of vector density heatmaps in QGIS with a heatmap explorer to examine the areas of greatest concentrations. It wraps the QGIS Heatmap algorithm into a new version that automatically styles the layer and allows the user to specify the cell size in various units of measure and not just the units of the layer's CRS. It provides an algorithm to create a raster density map of polygons. It has three processing algorithms to create a gradient style, random style, and raster pseudocolor style so that they can be used in QGIS models. Another tool allows a copied style or a .qml file to be pasted onto all selected layers. Once installed, the plugin is located under <strong><em>Plugins-&gt;Density analysis</em></strong> in the QGIS menu, on the toolbar, and can be found in the <em>Processing Toolbox</em> under <em>Density analysis</em>.</p>
 <div style="text-align:center"><img src="help/menu.jpg" alt="Density Analysis"></div>
 
-<p>Note that one of the algorithms used in this plugin makes use of <strong>H3</strong> (Hexagonal hierarchical geospatial indexing system). This is an incredibly fast algorithm for generating hexagon density maps, but requires installation of the <strong>H3 python library</strong>. The H3 package can be installed by running the OSGeo4W shell as system administrator and running 'pip install h3' or whatever method you use to install python packages. After spending some time working with it, I think it would be beneficial to include it as one of the QGIS libraries in the future. In one test using the QGIS <strong><em>Create grid</em></strong> processing algorithm, followed by <strong><em>Count points in a polygon</em></strong> algorithm took 63.18 seconds to process spatially indexed point data. To do the same thing with H3 only took 3.79 seconds.</p>
-<h2><img src="help/densitygrid.png" alt="Random style" width="25" height="24"> Create styled density map</h2>
-<p>Given point features this will create a rectangle, diamond, or hexagon grid histogram of points that occur in each polygon grid cell. This algorithm uses the QGIS <strong><em>Count points in polygon</em></strong> algorithm which is fairly time intensive even though it has been masterfully implemented in core QGIS and significantly beats the speed implemented in commercial software. To optimize the speed make sure your input data is spatially indexed; otherwise, this algorithm will be painfully slow. The advantage to this algorithm is that it gives the most control over the size of the polygon grid cells. If speed is more important then use either the <strong><em>Create geohash density map</em></strong> or <strong><em>Create H3 density map</em></strong>. Both of these use geohash indexing to count points in each geohash grid cell and they are very fast. The former creates a square or rectangular grid and H3 creates a hexagon grid. For H3 support the H3 library needs to be installed in QGIS. The disadvantages of these geohash density maps is that they have fixed resolutions and you cannot choose anything in between, but this is also what makes them fast.</p>
+<p>Note that several algorithms in this plugin use <strong>H3</strong> (Hexagonal hierarchical geospatial indexing system). This is an incredibly fast algorithm for generating hexagon density maps, but requires installation of the <strong>H3 python library</strong>. The H3 package can be installed by running the OSGeo4W shell as system administrator and running 'pip install h3' or whatever method you use to install python packages. In one test using the QGIS <strong><em>Create grid</em></strong> processing algorithm, followed by <strong><em>Count points in a polygon</em></strong> algorithm took 63.18 seconds to process spatially indexed point data. To do the same thing with H3 only took 3.79 seconds.</p>
+<h2><img src="help/densitygrid.png" alt="Random style" width="25" height="24"> Styled density map</h2>
+<p>Given point features this will create a rectangle, diamond, or hexagon grid histogram of points that occur in each polygon grid cell. This algorithm uses the QGIS <strong><em>Count points in polygon</em></strong> algorithm which is fairly time intensive even though it has been masterfully implemented in core QGIS and significantly beats the speed implemented in commercial software. To optimize the speed make sure your input data is spatially indexed; otherwise, this algorithm will be painfully slow. The advantage to this algorithm is that it gives the most control over the size of the polygon grid cells. If speed is more important then use <strong><em>Styled geohash density map</em></strong> or <strong><em>Styled H3 density map</em></strong> algorithm. Both of these use geohash indexing to count points in each geohash grid cell and are very fast. The former creates a square or rectangular grid and H3 creates a hexagon grid. For H3 support the H3 library needs to be installed in QGIS. The disadvantages of these geohash density maps is that they have fixed resolutions and you cannot choose anything in between, but this is also what makes them fast.</p>
 <p>Here is an example of crime in Chicago. Each point on the left is a criminal event. On the right is a hexagon heatmap counting the number of events in each cell and displaying it as a heatmap. The darker the red, the more crime is in that area. </p>
 <div style="text-align:center"><img src="help/chicago_crime.jpg" alt="Chicago crime" width="1000"></div>
 
@@ -67,17 +67,18 @@ code {
 <li>
 <p><strong><em>Select a color ramp</em></strong> - This is a list of the QGIS color ramps (default Reds) that will be applied to the layer.</p>
 </li>
+<li><strong><em>Invert color ramp</em></strong> - When checked, the ordering of the color ramp is inverted.</li>
 <li><strong><em>Color ramp mode</em></strong> - Select one of Equal Count (Quantile), Equal Interval, Logarithmic scale ,Natural Breaks (Jenks), Pretty Breaks, or Standard Deviation.</li>
 <li><strong><em>No feature outlines</em></strong> - If checked, it will not draw grid cell outlines.</li>
 </ul>
-<h2><img src="icons/geohash.png" alt="Geohash map" width="24" height="24"> Create styled geohash density map</h2>
+<h2><img src="icons/geohash.png" alt="Geohash map" width="24" height="24"> Styled geohash density map</h2>
 <p>This algorithm iterates through every point indexing them using a geohash with a count of the number of times each geohash has been seen. The bounds of each geohash cell is then created as a polygon. Depending on the resolution these polygon are either a square or rectangle. Here is an example.</p>
 <div style="text-align:center"><img src="help/geohash_example.png" alt="Geohash Density Map"></div>
 
 <p>This shows the algorithm dialog.</p>
 <div style="text-align:center"><img src="help/geohash_alg.png" alt="Geohash Density Map Algorithm"></div>
 
-<p>The styling parameters are the same as the above algorithm. The resolution is determined by <strong><em>Geohash resolution</em></strong> as follows:</p>
+<p><strong><em>Weight field</em></strong> is used to specify an attribute field that is as the count for each point rather than using the fixed value of 1. The styling parameters are the same as the above algorithm. The resolution is determined by <strong><em>Geohash resolution</em></strong> as follows:</p>
 <table style="margin-left: auto; margin-right: auto;">
 <tr>
 <th>Resolution<br>Level</th>
@@ -133,7 +134,7 @@ code {
 </tr>
 </table>
 
-<h2><img src="icons/h3.png" alt="H3 density map" width="24" height="24"> Create styled H3 density map</h2>
+<h2><img src="icons/h3.png" alt="H3 density map" width="24" height="24"> Styled H3 density map</h2>
 <p>This algorithm uses the H3 (Hexagonal hierarchical geospatial indexing system) library for fast density map generation. It iterates through every point using H3 indexing with a count of the number of times each H3 index has been seen. Each H3 cell is then created as a polygon. The polygons are in a hexagon shape. </p>
 <p>To create H3 density maps you will need to install the H3 Library (<a href="https://h3geo.org/">https://h3geo.org/</a>).
 The H3 package can be installed by running the OSGeo4W shell as system administrator and running 'pip install h3' or whatever method you use to install python packages. The H3 algorithms will give a warning message if H3 has not been installed.</p>
@@ -143,7 +144,7 @@ The H3 package can be installed by running the OSGeo4W shell as system administr
 <p>This shows the algorithm dialog.</p>
 <div style="text-align:center"><img src="help/h3_alg.png" alt="H3 Density Map Algorithm"></div>
 
-<p>The styling parameters are the same as the <strong><em>Create Density Map Grid</em></strong> algorithm. The resolution is determined by <strong><em>H3 resolution</em></strong> as follows:</p>
+<p><strong><em>Weight field</em></strong> is used to specify an attribute field that is as the count for each point rather than using the fixed value of 1. The styling parameters are the same as the <strong><em>Create Density Map Grid</em></strong> algorithm. The resolution ranges from 0 to 15 and is determined by <strong><em>H3 resolution</em></strong> as follows:</p>
 <table style="margin-left: auto; margin-right: auto;">
 <tr>
 <th>Resolution<br>Level</th>
@@ -215,6 +216,42 @@ The H3 package can be installed by running the OSGeo4W shell as system administr
 </tr>
 </table>
 
+<h2><img src="icons/kde.png" alt="Styled heatmap" width="24" height="24"> Styled heatmap (Kernel density estimation)</h2>
+<p>This algorithm is a wrapper for the native QGIS <strong><em>Heatmap (Kernel Density Estimation)</em></strong> algorithm, but adds automatic styling and simplifies specifying the pixel/grid size of the output image. The user specifies the measurement unit used such as kilometers, meters, etc. rather than having to know the units used for the CRS. The algorithm creates a density heatmap raster image. It's size will be based on the <strong><em>Pixel grid size</em></strong> and bounding box of the input vector layer. If either dimension exceeds <strong><em>Maximum width of height dimensions of output image</em></strong>, then an error will be generated and you will need to either increase the <strong><em>Pixel grid size</em></strong> or <strong><em>Maximum width or height dimensions of output image</em></strong>.</p>
+<div style="text-align:center"><img src="help/styled_heatmap.jpg" alt="Styled KDE Heatmap"></div>
+
+<ul>
+<li><strong><em>Input point layer</em></strong> - Select a point vector layer as input.</li>
+<li><strong><em>Kernel radius</em></strong> - This acts as a blurring function centered on each point. Its radius is in terms of the <strong><em>Measurement unit of kernel radius and pixel grid size</em></strong> drop down box. Usually, you will want this a little larger than <strong><em>Pixel grid size</em></strong>.</li>
+<li><strong><em>Pixel grid size</em></strong> - For every point feature a kernel density function will be summed up by added it to the output raster image that is generated. This specifies the size of each pixel in the output image. The total image size is calculated by the number of pixels it takes to span the bounding box of the vector layer.</li>
+<li><strong><em>Measurement unit of kernel radium and pixel grid size</em></strong> - This is the unit of measure for the two above parameters and is one of the following: kilometers, meters, miles, yards, feet, nautical miles, and degrees.</li>
+<li><strong><em>Color ramp name</em></strong> - This is a list of the QGIS color ramps that will be applied to the layer.</li>
+<li><strong><em>Invert color ramp</em></strong> - When checked, the ordering of the color ramp is inverted.</li>
+<li><strong><em>Interpolation</em></strong> - Options are Discrete, Linear, and Exact.</li>
+<li><strong><em>Mode</em></strong> - Options are Continuous, Equal Interval, and Quantile.</li>
+<li><strong><em>Number of classes</em></strong> - Specifies the number of classes.</li>
+<li><strong><em>Maximum width or height dimensions of output image</em></strong> - If the output image dimensions used to accumulate the heatmap results exceeds this value then the algorithm will error out unless <strong><em>Pixel grid size</em></strong> or this value is increased. This prevents ridiculously large images from being created.</li>
+<li><strong><em>Kernel shape</em></strong> - This is the shape of the kernel density function. The options are Quartic, Triangular, Uniform, Triweight, and Epanechnikov.</li>
+</ul>
+<h2><img src="icons/styledrasterdensity.png" alt="Styled Polygon density map" width="28" height="28"> Styled polygon raster density map</h2>
+<p>Like the <strong><em>Styled Heatmap</em></strong>, this algorithm uses a raster image to accumulate the summation of rasterized polygon layers and then automatically style the results. Here is an example of the result of summing a cluster of polygons.</p>
+<div style="text-align:center"><img src="help/styledpolygondensity.jpg" alt="Styled polygon density map"></div>
+
+<p>The parameters in dialog box are as follows:</p>
+<div style="text-align:center"><img src="help/styledpolygondensitymap.jpg" alt="Styled polygon density map"></div>
+
+<ul>
+<li><strong><em>Grid extent</em></strong> - Select a grid extent. In this case it is not set and defaults to the extent of the input layer.</li>
+<li><strong><em>Grid cell width or image width in pixels</em></strong> - If <strong><em>Grid measurement unit</em></strong> is set to <strong>Dimensions in pixels</strong> then this represents the width of the output image that will be created to span the extent of the polygon data; otherwise, each pixel represents the width value defined by <strong><em>Grid measurement unit</em></strong>. For example if <strong><em>Grid measurement unit</em></strong> is set to Kilometers and this value is set to 2, then every pixel represents a width of 2 kilometers.</li>
+<li><strong><em>Grid cell height or image height in pixels</em></strong> - If <strong><em>Grid measurement unit</em></strong> is set to <strong>Dimensions in pixels</strong> then this represents the height of the output image that will be created to span the extent of the polygon data; otherwise, each pixel represents the height value defined by <strong><em>Grid measurement unit</em></strong>. For example if <strong><em>Grid measurement unit</em></strong> is set to Meters and this value is set to 20, then every pixel represents a height of 20 meters.</li>
+<li><strong><em>Grid measurement unit</em></strong> - This specifies what the values represent in <strong><em>Grid cell width or image width in pixels</em></strong> and <strong><em>Grid cell height or image height in pixels</em></strong>. The values are <strong>Dimensions in pixels</strong>, <strong>Kilometers</strong>, <strong>Meters</strong>, <strong>Miles</strong>, <strong>Yards</strong>, <strong>Feet</strong>, <strong>Nautical Miles</strong>, and <strong>Degrees</strong>.</li>
+<li><strong><em>Maximum width or height dimensions for output image</em></strong> - Because it would be easy to create an astronomically large image if inappropriate values are used above, this provides a check to make sure they are reasonable. It will error out if the width or height of the resulting output image were to exceed this value.</li>
+<li><strong><em>Color ramp name</em></strong> - This is a list of the QGIS color ramps that will be applied to the layer.</li>
+<li><strong><em>Invert color ramp</em></strong> - When checked, the ordering of the color ramp is inverted.</li>
+<li><strong><em>Interpolation</em></strong> - Options are Discrete, Linear, and Exact.</li>
+<li><strong><em>Mode</em></strong> - Options are Continuous, Equal Interval, and Quantile.</li>
+<li><strong><em>Number of classes</em></strong> - Specifies the number of color class divisions.</li>
+</ul>
 <h2><img src="help/densityexplorer.png" alt="Density explorer tool" width="25" height="24"> Density map analysis tool</h2>
 <p>With this tool you can quickly look at the top scoring values. Select the original point layer and the density heatmap polygon layer generated by the above algorithms. ID and Count will probably automatically select the right attribute, but ID should be set to a unique identifier, and count should be set to the histogram count attribute which is <strong>NUMPOINTS</strong>.</p>
 <div style="text-align:center"><img src="help/densityanalysis.png" alt="Heatmap density analysis"></div>
@@ -258,11 +295,22 @@ The H3 package can be installed by running the OSGeo4W shell as system administr
 <h2><img src="icons/styleraster.png" alt="Create a polygon density map" width="28" height="28"> Apply a pseudocolor raster style</h2>
 <div style="text-align:center"><img src="help/pseudocolorstyle.png" alt="Pseudocolor raster style dialog"></div>
 
-<p>This achieves some of the functionality you get from right-mouse clicking on a single band image and selecting properties and selecting the <em>Symbology</em> tab and choosing <strong><em>Singleband pseudocolor</em></strong> for the <strong>*Render type</strong>. For more information on the parameters visit the QGIS documentation.</p>
+<p>This achieves some of the functionality you get from right-mouse clicking on a single band image and selecting properties and selecting the <em>Symbology</em> tab and choosing <strong><em>Singleband pseudocolor</em></strong> for the <strong>*Render type</strong>. For more information on the parameters visit the QGIS documentation. These are the settings.</p>
+<ul>
+<li><strong><em>Input raster layer</em></strong> - Choose an input raster layer.</li>
+<li><strong><em>Color ramp name</em></strong> - This is a list of the QGIS color ramps that will be applied to the layer.</li>
+<li><strong><em>Invert color ramp</em></strong> - When checked, the ordering of the color ramp is inverted.</li>
+<li><strong><em>Interpolation</em></strong> - Options are Discrete, Linear, and Exact.</li>
+<li><strong><em>Mode</em></strong> - Options are Continuous, Equal Interval, and Quantile.</li>
+<li><strong><em>Number of classes</em></strong> - Specifies the number of color class divisions.</li>
+</ul>
 <h2><img src="help/h3grid.png" alt="Create H3 grid" width="24" height="24"> Create H3 grid</h2>
 <p>This will create a grid of H3 polygons based on the extent of a layer, canvas, or user drawn extent. <strong><em>H3 Resolution</em></strong> is a value between 0 and 15 specifying the resolution of the H3 grid. </p>
-<h2>Create geohash density grid</h2>
-<p>This is the same as <strong><em>Create styled geohash density map</em></strong>, but without the styling. The algorithm iterates through every point of the input layer indexing them using a geohash with a count of the number of times each geohash has been seen and added to the <strong>NUMPOINTS</strong> attribute. The bounds of each geohash cell is then created as a polygon. Depending on the resolution these polygon are either a square or rectangle.</p>
-<h2>Create H3 density grid</h2>
-<p>This is the same as <strong><em>Create styled H3 density map</em></strong>, but without the styling. This algorithm uses the H3 (Hexagonal hierarchical geospatial indexing system) library for fast density map generation. It iterates through every point of the input layer using H3 indexing with a count of the number of times each H3 index has been seen. Each H3 cell is then created as a polygon. The polygons are in a hexagon shape. </p>
-<p>To create H3 density maps you will need to install the H3 Library (<a href="https://h3geo.org/">https://h3geo.org/</a>).</p></body>
+<h2>Geohash density grid</h2>
+<p>This is the same as <strong><em>Styled geohash density map</em></strong>, but without the styling. The algorithm iterates through every point of the input layer indexing them using a geohash with a count of the number of times each geohash has been seen and added to the <strong>NUMPOINTS</strong> attribute. The bounds of each geohash cell is then created as a polygon. Depending on the resolution these polygon are either a square or rectangle.</p>
+<h2>H3 density grid</h2>
+<p>This is the same as <strong><em>Styled H3 density map</em></strong>, but without the styling. This algorithm uses the H3 (Hexagonal hierarchical geospatial indexing system) library for fast density map generation. It iterates through every point of the input layer using H3 indexing with a count of the number of times each H3 index has been seen. Each H3 cell is then created as a polygon. The polygons are in a hexagon shape. </p>
+<p>To create H3 density maps you will need to install the H3 Library (<a href="https://h3geo.org/">https://h3geo.org/</a>).</p>
+<h2><img src="help/settings.png" alt="Settings" width="26" height="24"> Settings</h2>
+<p>In the settings you can select the default color ramp that will be displayed in the processing algorithms. This setting is persistent from one launch of QGIS to the next.</p>
+<div style="text-align:center"><img src="help/settings_dialog.jpg" alt="Settings dialog box"></div></body>
