@@ -2,7 +2,7 @@
 name=Density Analysis
 qgisMinimumVersion=3.12
 description=This plugin automates the creation of vector density heatmaps in QGIS with a heatmap explorer to examine the areas of greatest concentrations. It also includes a raster polygon density map algorithm.
-version=2022.8.8
+version=2022.8.16
 author=C Hamilton
 email=adenaculture@gmail.com
 about=This plugin automates the creation of vector density heatmaps in QGIS with a heatmap explorer to examine the areas of greatest concentrations. It has two algorithms to create a gradient style and random style so that they can be used in QGIS models. Another tool allows a copied style or a .qml file to be pasted onto all selected layers. It provides an algorithm to create a raster density map of polygons and a pseudocolor processing algorithm to style the results. The plugin can be extended by installing the H3 library for very fast hexagon density maps.
@@ -16,6 +16,7 @@ hasProcessingProvider=yes
 experimental=False
 deprecated=False
 changelog=
+    2022.8.16 - New algorithms and more options to other algorithms.
     2022.8.8 - Expose other processing algorithms in menu and add a H3 grid algorithm.
     2022.8.1 - Add weight field to density analsysis algorithms.
     2022.7.29 - Fix Logarithmic gradient
