@@ -238,7 +238,14 @@ With this tool you can quickly look at the top scoring values. Select the origin
 
 <div style="text-align:center"><img src="help/densityanalysis.png" alt="Heatmap density analysis"></div>
 
-Once the parameters have been set, click on ***Display Density Values*** and the top scores will be listed. If you click on any of entries only that grid cell will be display. A drop down set of actions specifies whether QGIS will ***Auto pan*** or ***Auto zoom*** to the selected feature or ***No action*** taken. You can then examine the features within the grid cell. You can also click and drag to select more than one, or Ctrl-click to add or subtract from the selection. Here is an example view.
+Once the parameters have been set, click on ***Display Density Values*** and the top scores will be listed. If you click on any of entries only that grid cell will be display. A drop down set of actions selects what happens when clicking on one or more of the score entries.
+
+* ***No action*** - No action is taken.
+* ***Auto pan*** - The density map polygon layer will only display the selected polygons and hide all ther rest. The QGIS canvas will pan to the center of all the selected features. You can click and drag to select more than one entry, or Ctrl-click to add or subtract from the selection.
+* ***Pan+flash*** - All of the polygons in the density map polygon layer will be displayed. Only a single row can be selected at a time and the canvas will pan to the center of the selected polygon and will flash lines showing where it is located at.
+* ***Auto zoom*** - The density map polygon layer will only display the selected polygons and hide all ther rest.  The QGIS canvas will zoom to the center of all the selected features. You can click and drag to select more than one entry, or Ctrl-click to add or subtract from the selection.
+
+You can then examine the features within the grid cell. Here is an example view.
 
 <div style="text-align:center"><img src="help/example.png" alt="Example"></div>
 

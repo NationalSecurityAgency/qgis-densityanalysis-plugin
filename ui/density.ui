@@ -100,6 +100,11 @@
         </item>
         <item>
          <property name="text">
+          <string>Pan+flash</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
           <string>Auto zoom</string>
          </property>
         </item>

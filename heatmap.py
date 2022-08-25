@@ -1,9 +1,11 @@
 import os
 
 from qgis.PyQt.uic import loadUiType
+from qgis.PyQt.QtCore import Qt, QTimer
 from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtWidgets import QDockWidget, QAbstractItemView, QTableWidget, QTableWidgetItem
-from qgis.core import Qgis, QgsMapLayerProxyModel, QgsFieldProxyModel, QgsWkbTypes, QgsFeatureRequest, QgsCoordinateTransform, QgsProject, QgsRectangle
+from qgis.core import Qgis, QgsMapLayerProxyModel, QgsFieldProxyModel, QgsWkbTypes, QgsFeatureRequest, QgsCoordinateTransform, QgsProject, QgsRectangle, QgsPoint, QgsPointXY, QgsGeometry
+from qgis.gui import QgsRubberBand
 from qgis.utils import isPluginLoaded, plugins
 import traceback
 
@@ -32,23 +34,37 @@ class HeatmapAnalysis(QDockWidget, FORM_CLASS):
         self.idComboBox.fieldChanged.connect(self.fieldChanged)
         self.countComboBox.setFilters(QgsFieldProxyModel.Numeric)
         self.countComboBox.fieldChanged.connect(self.fieldChanged)
+        self.zoomComboBox.currentIndexChanged.connect(self.zoomModeChanged)
         self.resultsTable.setEditTriggers(QTableWidget.NoEditTriggers)
         self.resultsTable.setColumnCount(2)
         self.resultsTable.setSortingEnabled(False)
         self.resultsTable.setHorizontalHeaderLabels(['ID','Score'])
+        self.resultsTable.setSelectionMode(QAbstractItemView.ExtendedSelection)
         self.resultsTable.setSelectionBehavior(QAbstractItemView.SelectRows)
         self.resultsTable.itemSelectionChanged.connect(self.select_feature)
+        # self.resultsTable.itemClicked.connect(self.select_feature)
+        self.rb = QgsRubberBand(self.canvas, QgsWkbTypes.LineGeometry)
+        self.rb.setColor(Qt.yellow)
 
     def showEvent(self, e):
         self.layerChanged()
 
     def closeEvent(self, e):
-        layer = self.dataComboBox.currentLayer()
+        layer = self.densityHeatmapComboBox.currentLayer()
         if layer:
             layer.setSubsetString('')
 
     def fieldChanged(self, fieldName):
         self.layerChanged()
+
+    def zoomModeChanged(self, index):
+        if index == 2:
+            self.resultsTable.setSelectionMode(QAbstractItemView.SingleSelection)
+            layer = self.densityHeatmapComboBox.currentLayer()
+            if layer:
+                layer.setSubsetString('')
+        else:
+            self.resultsTable.setSelectionMode(QAbstractItemView.ExtendedSelection)
 
     def layerChanged(self):
         if not self.isVisible():
@@ -89,14 +105,15 @@ class HeatmapAnalysis(QDockWidget, FORM_CLASS):
             if density_layer:
                 density_layer.setSubsetString('')
             return
-        id_field_name = self.idComboBox.currentField()
-        ids = set()
-        for item in selectedItems:
-            selectedRow = item.row()
-            ids.add(self.resultsTable.item(selectedRow, 0).text())
-        ids_str = ",".join(ids)
-        exp = '"{}" IN ({})'.format(id_field_name, ids_str)
-        density_layer.setSubsetString(exp)
+        if auto_zoom != 2:
+            id_field_name = self.idComboBox.currentField()
+            ids = set()
+            for item in selectedItems:
+                selectedRow = item.row()
+                ids.add(self.resultsTable.item(selectedRow, 0).text())
+            ids_str = ",".join(ids)
+            exp = '"{}" IN ({})'.format(id_field_name, ids_str)
+            density_layer.setSubsetString(exp)
         
         if auto_zoom:
             density_crs = density_layer.crs()
@@ -104,11 +121,22 @@ class HeatmapAnalysis(QDockWidget, FORM_CLASS):
             xform = QgsCoordinateTransform(density_crs, canvas_crs, QgsProject.instance())
             # center = xform.transform(density_layer.extent()).center()
             # rect = QgsRectangle(center.x(), center.y(), center.x(), center.y())
-            rect = xform.transform(density_layer.extent())
-            if auto_zoom == 1:
+            if auto_zoom == 1:  # Auto pan to center of selected features
+                rect = xform.transform(density_layer.extent())
                 center = rect.center()
                 rect = QgsRectangle(center.x(), center.y(), center.x(), center.y())
-            self.canvas.setExtent(rect)
+                self.canvas.setExtent(rect)
+            elif auto_zoom == 2:  # Pan and flash point
+                pt = self.resultsTable.item(selectedItems[0].row(), 0).data(Qt.UserRole)
+                pt = xform.transform(pt.x(), pt.y())
+                rect = QgsRectangle(pt.x(), pt.y(), pt.x(), pt.y())
+                self.canvas.setExtent(rect)
+                self.highlight(pt)
+                self.canvas.refresh()
+            else:  # Zoom to selected features
+                rect = xform.transform(density_layer.extent())
+                self.canvas.setExtent(rect)
+                
 
     def on_applyButton_pressed(self):
         self.resultsTable.setRowCount(0)
@@ -125,6 +153,7 @@ class HeatmapAnalysis(QDockWidget, FORM_CLASS):
             id = f[id_field]
             self.resultsTable.insertRow(i)
             item = QTableWidgetItem('{}'.format(id))
+            item.setData(Qt.UserRole, f.geometry().centroid().asPoint())
             self.resultsTable.setItem(i, 0, item)
             try:
                 item = QTableWidgetItem('{}'.format(score))
@@ -139,3 +168,25 @@ class HeatmapAnalysis(QDockWidget, FORM_CLASS):
             This deselects all selected tracks. It doesn't remove them.
         """
         self.resultsTable.clearSelection()
+
+    def highlight(self, point):
+        currExt = self.canvas.extent()
+
+        leftPt = QgsPoint(currExt.xMinimum(), point.y())
+        rightPt = QgsPoint(currExt.xMaximum(), point.y())
+
+        topPt = QgsPoint(point.x(), currExt.yMaximum())
+        bottomPt = QgsPoint(point.x(), currExt.yMinimum())
+
+        horizLine = QgsGeometry.fromPolyline([leftPt, rightPt])
+        vertLine = QgsGeometry.fromPolyline([topPt, bottomPt])
+
+        self.rb.reset(QgsWkbTypes.LineGeometry)
+        self.rb.addGeometry(horizLine, None)
+        self.rb.addGeometry(vertLine, None)
+
+        QTimer.singleShot(1000, self.resetRubberbands)
+
+    def resetRubberbands(self):
+        self.rb.reset()
+
