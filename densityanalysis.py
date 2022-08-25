@@ -7,13 +7,7 @@ from qgis.core import QgsApplication
 import processing
 from .provider import DensityAnalysisProvider
 from .settings import SettingsWidget
-
-try:
-    import h3
-    h3_installed = True
-except Exception:
-    from .utils import h3InstallString
-    h3_installed = False
+from .utils import h3InstallString
 
 import os
 
@@ -175,9 +169,10 @@ class DensityAnalysis(object):
         processing.execAlgorithmDialog('densityanalysis:geohashdensitymap', {})
 
     def h3Algorithm(self):
-        if h3_installed:
+        try:
+            import h3
             processing.execAlgorithmDialog('densityanalysis:h3densitymap', {})
-        else:
+        except Exception:
             QMessageBox.information(self.iface.mainWindow(), 'H3 Install Instructions', h3InstallString)
 
     def graduatedStyleAlgorithm(self):
@@ -205,15 +200,17 @@ class DensityAnalysis(object):
         processing.execAlgorithmDialog('densityanalysis:geohashdensity', {})
     
     def h3DensityGrid(self):
-        if h3_installed:
+        try:
+            import h3
             processing.execAlgorithmDialog('densityanalysis:h3density', {})
-        else:
+        except Exception:
             QMessageBox.information(self.iface.mainWindow(), 'H3 Install Instructions', h3InstallString)
     
     def h3Grid(self):
-        if h3_installed:
+        try:
+            import h3
             processing.execAlgorithmDialog('densityanalysis:h3grid', {})
-        else:
+        except Exception:
             QMessageBox.information(self.iface.mainWindow(), 'H3 Install Instructions', h3InstallString)
     
     def kdeAlgorithm(self):
