@@ -15,43 +15,7 @@ from qgis.core import (
     QgsProcessingParameterRasterDestination
     )
 import processing
-from .settings import settings
-
-DISTANCE_LABELS = ["Kilometers", "Meters", "Miles", 'Yards', "Feet", "Nautical Miles", "Degrees"]
-
-def conversionToCrsUnits(selected_unit, crs_unit, value):
-    if selected_unit == 0:  # Kilometers
-        measureFactor = QgsUnitTypes.fromUnitToUnitFactor(QgsUnitTypes.DistanceKilometers, crs_unit)
-    elif selected_unit == 1:  # Meters
-        measureFactor = QgsUnitTypes.fromUnitToUnitFactor(QgsUnitTypes.DistanceMeters, crs_unit)
-    elif selected_unit == 2:  # Miles
-        measureFactor = QgsUnitTypes.fromUnitToUnitFactor(QgsUnitTypes.DistanceMiles, crs_unit)
-    elif selected_unit == 3:  # Yards
-        measureFactor = QgsUnitTypes.fromUnitToUnitFactor(QgsUnitTypes.DistanceYards, crs_unit)
-    elif selected_unit == 4:  # Feet
-        measureFactor = QgsUnitTypes.fromUnitToUnitFactor(QgsUnitTypes.DistanceFeet, crs_unit)
-    elif selected_unit == 5:  # Nautical Miles
-        measureFactor = QgsUnitTypes.fromUnitToUnitFactor(QgsUnitTypes.DistanceNauticalMiles, crs_unit)
-    elif selected_unit == 6:  # Degrees
-        measureFactor = QgsUnitTypes.fromUnitToUnitFactor(QgsUnitTypes.DistanceDegrees, crs_unit)
-    return(measureFactor * value)
-
-def conversionFromCrsUnits(selected_unit, crs_unit, value):
-    if selected_unit == 0:  # Kilometers
-        measureFactor = QgsUnitTypes.fromUnitToUnitFactor(crs_unit, QgsUnitTypes.DistanceKilometers)
-    elif selected_unit == 1:  # Meters
-        measureFactor = QgsUnitTypes.fromUnitToUnitFactor(crs_unit, QgsUnitTypes.DistanceMeters)
-    elif selected_unit == 2:  # Miles
-        measureFactor = QgsUnitTypes.fromUnitToUnitFactor(crs_unit, QgsUnitTypes.DistanceMiles)
-    elif selected_unit == 3:  # Yards
-        measureFactor = QgsUnitTypes.fromUnitToUnitFactor(crs_unit, QgsUnitTypes.DistanceYards)
-    elif selected_unit == 4:  # Feet
-        measureFactor = QgsUnitTypes.fromUnitToUnitFactor(crs_unit, QgsUnitTypes.DistanceFeet)
-    elif selected_unit == 5:  # Nautical Miles
-        measureFactor = QgsUnitTypes.fromUnitToUnitFactor(crs_unit, QgsUnitTypes.DistanceNauticalMiles)
-    elif selected_unit == 6:  # Degrees
-        measureFactor = QgsUnitTypes.fromUnitToUnitFactor(crs_unit, QgsUnitTypes.DistanceDegrees)
-    return(measureFactor * value)
+from .settings import settings, UNIT_LABELS, conversionToCrsUnits, conversionFromCrsUnits
 
 class StyledKdeAlgorithm(QgsProcessingAlgorithm):
 
@@ -61,19 +25,39 @@ class StyledKdeAlgorithm(QgsProcessingAlgorithm):
             [QgsProcessing.TypeVectorPoint])
         )
         self.addParameter(
-            QgsProcessingParameterNumber('KERNEL_RADIUS', 'Kernel radius',
-                type=QgsProcessingParameterNumber.Double, minValue=0, defaultValue=2, optional=False)
+            QgsProcessingParameterNumber('PIXEL_SIZE', 'Cell/pixel dimension in measurement units',
+                type=QgsProcessingParameterNumber.Double, defaultValue=settings.default_dimension, optional=False)
         )
         self.addParameter(
-            QgsProcessingParameterNumber('PIXEL_SIZE', 'Pixel grid size',
-                type=QgsProcessingParameterNumber.Double, defaultValue=1, optional=False)
+            QgsProcessingParameterNumber('KERNEL_RADIUS', 'Kernel radius in measurement units',
+                type=QgsProcessingParameterNumber.Double, minValue=0, defaultValue=settings.default_dimension * 2, optional=False)
         )
         self.addParameter(
-            QgsProcessingParameterEnum('UNITS', 'Measurement unit of kernel radius and pixel grid size',
-                options=DISTANCE_LABELS, defaultValue=0, optional=False)
+            QgsProcessingParameterEnum('UNITS', 'Measurement unit',
+                options=UNIT_LABELS, defaultValue=settings.measurement_unit, optional=False)
+        )
+
+        if Qgis.QGIS_VERSION_INT >= 32200:
+            ramp_name_param = QgsProcessingParameterString('RAMP_NAMES', 'Select color ramp', defaultValue=settings.defaultColorRamp(),
+                optional=False)
+            ramp_name_param.setMetadata( {'widget_wrapper': {'value_hints': settings.ramp_names } } )
+        else:
+            ramp_name_param = QgsProcessingParameterEnum(
+                'RAMP_NAMES',
+                'Select color ramp',
+                options=settings.ramp_names,
+                defaultValue=settings.defaultColorRampIndex(),
+                optional=False)
+        self.addParameter(ramp_name_param)
+        self.addParameter(
+            QgsProcessingParameterBoolean(
+                'INVERT',
+                'Invert color ramp',
+                False,
+                optional=False)
         )
         param = QgsProcessingParameterNumber('MAX_IMAGE_DIMENSION', 'Maximum width or height dimensions of output image',
-            type=QgsProcessingParameterNumber.Integer, minValue=1, defaultValue=20000, optional=False)
+            type=QgsProcessingParameterNumber.Integer, minValue=1, defaultValue=settings.max_image_size, optional=False)
         param.setFlags(param.flags() | QgsProcessingParameterDefinition.FlagAdvanced)
         self.addParameter(param)
         param = QgsProcessingParameterEnum('KERNEL', 'Kernel shape',
@@ -88,51 +72,31 @@ class StyledKdeAlgorithm(QgsProcessingAlgorithm):
             options=['Raw','Scaled'], defaultValue=0, optional=False)
         param.setFlags(param.flags() | QgsProcessingParameterDefinition.FlagAdvanced)
         self.addParameter(param)
-
-        if Qgis.QGIS_VERSION_INT >= 32200:
-            ramp_name_param = QgsProcessingParameterString('RAMP_NAMES', 'Color ramp name', defaultValue=settings.defaultColorRamp(),
-                optional=False)
-            ramp_name_param.setMetadata( {'widget_wrapper': {'value_hints': settings.ramp_names } } )
-        else:
-            ramp_name_param = QgsProcessingParameterEnum(
-                'RAMP_NAMES',
-                'Color ramp name',
-                options=settings.ramp_names,
-                defaultValue=settings.defaultColorRampIndex(),
-                optional=False)
-        self.addParameter(ramp_name_param)
-        self.addParameter(
-            QgsProcessingParameterBoolean(
-                'INVERT',
-                'Invert color ramp',
-                False,
-                optional=False)
-        )
-        self.addParameter(
-            QgsProcessingParameterEnum(
-                'INTERPOLATION',
-                'Interpolation',
-                options=['Discrete','Linear','Exact'],
-                defaultValue=1,
-                optional=False)
-        )
-        self.addParameter(
-            QgsProcessingParameterEnum(
-                'MODE',
-                'Mode',
-                options=['Continuous','Equal Interval','Quantile'],
-                defaultValue=2,
-                optional=False)
-        )
-        self.addParameter(
-            QgsProcessingParameterNumber(
-                'CLASSES',
-                'Number of classes',
-                QgsProcessingParameterNumber.Integer,
-                defaultValue=15,
-                minValue=2,
-                optional=False)
-        )
+        param = QgsProcessingParameterEnum(
+            'INTERPOLATION',
+            'Interpolation',
+            options=['Discrete','Linear','Exact'],
+            defaultValue=1,
+            optional=False)
+        param.setFlags(param.flags() | QgsProcessingParameterDefinition.FlagAdvanced)
+        self.addParameter(param)
+        param = QgsProcessingParameterEnum(
+            'MODE',
+            'Mode',
+            options=['Continuous','Equal Interval','Quantile'],
+            defaultValue=2,
+            optional=False)
+        param.setFlags(param.flags() | QgsProcessingParameterDefinition.FlagAdvanced)
+        self.addParameter(param)
+        param = QgsProcessingParameterNumber(
+            'CLASSES',
+            'Number of gradient colors',
+            QgsProcessingParameterNumber.Integer,
+            defaultValue=settings.num_ramp_classes,
+            minValue=2,
+            optional=False)
+        param.setFlags(param.flags() | QgsProcessingParameterDefinition.FlagAdvanced)
+        self.addParameter(param)
         self.addParameter(
             QgsProcessingParameterRasterDestination('OUTPUT', 'Output kernel density heatmap',
                 createByDefault=True, defaultValue=None)

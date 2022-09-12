@@ -1,6 +1,6 @@
 import os
 from qgis.PyQt.QtGui import QIcon
-from qgis.core import Qgis, QgsStyle
+from qgis.core import Qgis
 
 from qgis.core import (
     QgsProcessing,
@@ -11,6 +11,7 @@ from qgis.core import (
     QgsProcessingParameterFeatureSource,
     QgsProcessingParameterNumber,
     QgsProcessingParameterString,
+    QgsProcessingParameterDefinition,
     QgsProcessingParameterFeatureSink
     )
 import processing
@@ -88,30 +89,13 @@ class GeohashDensityMapAlgorithm(QgsProcessingAlgorithm):
                 '''
             )
         self.addParameter(param)
-        self.addParameter(
-            QgsProcessingParameterField(
-                'WEIGHT',
-                'Weight field',
-                parentLayerParameterName='INPUT',
-                type=QgsProcessingParameterField.Numeric,
-                optional=True)
-        )
-        self.addParameter(
-            QgsProcessingParameterNumber(
-                'CLASSES',
-                'Number of gradient colors',
-                QgsProcessingParameterNumber.Integer,
-                defaultValue=15,
-                minValue=2,
-                optional=False)
-        )
         if Qgis.QGIS_VERSION_INT >= 32200:
-            ramp_name_param = QgsProcessingParameterString('RAMP_NAMES', 'Select a color ramp', defaultValue=settings.defaultColorRamp())
+            ramp_name_param = QgsProcessingParameterString('RAMP_NAMES', 'Select color ramp', defaultValue=settings.defaultColorRamp())
             ramp_name_param.setMetadata( {'widget_wrapper': {'value_hints': settings.ramp_names } } )
         else:
             ramp_name_param = QgsProcessingParameterEnum(
                 'RAMP_NAMES',
-                'Select a color ramp',
+                'Select color ramp',
                 options=settings.ramp_names,
                 defaultValue=settings.defaultColorRampIndex(),
                 optional=False)
@@ -123,21 +107,40 @@ class GeohashDensityMapAlgorithm(QgsProcessingAlgorithm):
                 False,
                 optional=False)
         )
-        self.addParameter(
-            QgsProcessingParameterEnum(
-                'COLOR_RAMP_MODE',
-                'Color ramp mode',
-                options=['Equal Count (Quantile)','Equal Interval','Logarithmic scale','Natural Breaks (Jenks)','Pretty Breaks','Standard Deviation'],
-                defaultValue=0,
-                optional=False)
-        )
-        self.addParameter(
-            QgsProcessingParameterBoolean(
-                'NO_OUTLINE',
-                'No feature outlines',
-                True,
-                optional=False)
-        )
+
+        param = QgsProcessingParameterField(
+            'WEIGHT',
+            'Weight field',
+            parentLayerParameterName='INPUT',
+            type=QgsProcessingParameterField.Numeric,
+            optional=True)
+        param.setFlags(param.flags() | QgsProcessingParameterDefinition.FlagAdvanced)
+        self.addParameter(param)
+        param = QgsProcessingParameterNumber(
+            'CLASSES',
+            'Number of gradient colors',
+            QgsProcessingParameterNumber.Integer,
+            defaultValue=settings.num_ramp_classes,
+            minValue=2,
+            optional=False)
+        param.setFlags(param.flags() | QgsProcessingParameterDefinition.FlagAdvanced)
+        self.addParameter(param)
+        param = QgsProcessingParameterEnum(
+            'COLOR_RAMP_MODE',
+            'Color ramp mode',
+            options=['Equal Count (Quantile)','Equal Interval','Logarithmic scale','Natural Breaks (Jenks)','Pretty Breaks','Standard Deviation'],
+            defaultValue=0,
+            optional=False)
+        param.setFlags(param.flags() | QgsProcessingParameterDefinition.FlagAdvanced)
+        self.addParameter(param)
+        param = QgsProcessingParameterBoolean(
+            'NO_OUTLINE',
+            'No feature outlines',
+            True,
+            optional=False)
+        param.setFlags(param.flags() | QgsProcessingParameterDefinition.FlagAdvanced)
+        self.addParameter(param)
+
         self.addParameter(
             QgsProcessingParameterFeatureSink('OUTPUT', 'Output geohash density map',
                 type=QgsProcessing.TypeVectorPolygon, createByDefault=True, defaultValue=None)

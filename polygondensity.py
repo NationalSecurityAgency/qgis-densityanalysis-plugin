@@ -1,6 +1,7 @@
 import os
 from qgis.PyQt.QtGui import QIcon
-from qgis.core import QgsUnitTypes, QgsCoordinateTransform, QgsProject
+from qgis.core import QgsCoordinateTransform, QgsProject
+from .settings import settings, POLYGON_UNIT_LABELS, conversionToCrsUnits, conversionFromCrsUnits
 
 from qgis.core import (
     QgsProcessing,
@@ -10,45 +11,10 @@ from qgis.core import (
     QgsProcessingParameterEnum,
     QgsProcessingParameterVectorLayer,
     QgsProcessingParameterNumber,
+    QgsProcessingParameterDefinition,
     QgsProcessingParameterRasterDestination
     )
 import processing
-
-DISTANCE_LABELS = ["Dimensions in pixels", "Kilometers", "Meters", "Miles", 'Yards', "Feet", "Nautical Miles", "Degrees"]
-
-def conversionToCrsUnits(selected_unit, crs_unit, value):
-    if selected_unit == 1:  # Kilometers
-        measureFactor = QgsUnitTypes.fromUnitToUnitFactor(QgsUnitTypes.DistanceKilometers, crs_unit)
-    elif selected_unit == 2:  # Meters
-        measureFactor = QgsUnitTypes.fromUnitToUnitFactor(QgsUnitTypes.DistanceMeters, crs_unit)
-    elif selected_unit == 3:  # Miles
-        measureFactor = QgsUnitTypes.fromUnitToUnitFactor(QgsUnitTypes.DistanceMiles, crs_unit)
-    elif selected_unit == 4:  # Yards
-        measureFactor = QgsUnitTypes.fromUnitToUnitFactor(QgsUnitTypes.DistanceYards, crs_unit)
-    elif selected_unit == 5:  # Feet
-        measureFactor = QgsUnitTypes.fromUnitToUnitFactor(QgsUnitTypes.DistanceFeet, crs_unit)
-    elif selected_unit == 6:  # Nautical Miles
-        measureFactor = QgsUnitTypes.fromUnitToUnitFactor(QgsUnitTypes.DistanceNauticalMiles, crs_unit)
-    elif selected_unit == 7:  # Degrees
-        measureFactor = QgsUnitTypes.fromUnitToUnitFactor(QgsUnitTypes.DistanceDegrees, crs_unit)
-    return(measureFactor * value)
-
-def conversionFromCrsUnits(selected_unit, crs_unit, value):
-    if selected_unit == 1:  # Kilometers
-        measureFactor = QgsUnitTypes.fromUnitToUnitFactor(crs_unit, QgsUnitTypes.DistanceKilometers)
-    elif selected_unit == 2:  # Meters
-        measureFactor = QgsUnitTypes.fromUnitToUnitFactor(crs_unit, QgsUnitTypes.DistanceMeters)
-    elif selected_unit == 3:  # Miles
-        measureFactor = QgsUnitTypes.fromUnitToUnitFactor(crs_unit, QgsUnitTypes.DistanceMiles)
-    elif selected_unit == 4:  # Yards
-        measureFactor = QgsUnitTypes.fromUnitToUnitFactor(crs_unit, QgsUnitTypes.DistanceYards)
-    elif selected_unit == 5:  # Feet
-        measureFactor = QgsUnitTypes.fromUnitToUnitFactor(crs_unit, QgsUnitTypes.DistanceFeet)
-    elif selected_unit == 6:  # Nautical Miles
-        measureFactor = QgsUnitTypes.fromUnitToUnitFactor(crs_unit, QgsUnitTypes.DistanceNauticalMiles)
-    elif selected_unit == 7:  # Degrees
-        measureFactor = QgsUnitTypes.fromUnitToUnitFactor(crs_unit, QgsUnitTypes.DistanceDegrees)
-    return(measureFactor * value)
 
 class PolygonRasterDensityAlgorithm(QgsProcessingAlgorithm):
 
@@ -58,24 +24,24 @@ class PolygonRasterDensityAlgorithm(QgsProcessingAlgorithm):
             [QgsProcessing.TypeVectorPolygon])
         )
         self.addParameter(
-            QgsProcessingParameterExtent('EXTENT', 'Grid extent', optional=True)
+            QgsProcessingParameterExtent('EXTENT', 'Grid extent (defaults to layer extent)', optional=True)
         )
         self.addParameter(
-            QgsProcessingParameterNumber('GRID_CELL_WIDTH', 'Grid cell width or image width in pixels',
-                type=QgsProcessingParameterNumber.Double, defaultValue=1, optional=False)
+            QgsProcessingParameterNumber('GRID_CELL_WIDTH', 'Cell width in measurement units',
+                type=QgsProcessingParameterNumber.Double, defaultValue=settings.default_dimension, optional=False)
         )
         self.addParameter(
-            QgsProcessingParameterNumber('GRID_CELL_HEIGHT', 'Grid cell height or image height in pixels',
-                type=QgsProcessingParameterNumber.Double, defaultValue=1, optional=False)
+            QgsProcessingParameterNumber('GRID_CELL_HEIGHT', 'Cell height in measurement units',
+                type=QgsProcessingParameterNumber.Double, defaultValue=settings.default_dimension, optional=False)
         )
         self.addParameter(
-            QgsProcessingParameterEnum('UNITS', 'Grid measurement unit',
-                options=DISTANCE_LABELS, defaultValue=1, optional=False)
+            QgsProcessingParameterEnum('UNITS', 'Measurement unit',
+                options=POLYGON_UNIT_LABELS, defaultValue=settings.poly_measurement_unit, optional=False)
         )
-        self.addParameter(
-            QgsProcessingParameterNumber('MAX_IMAGE_DIMENSION', 'Maximum width or height dimensions for output image',
-                type=QgsProcessingParameterNumber.Integer, minValue=1, defaultValue=20000, optional=False)
-        )
+        param = QgsProcessingParameterNumber('MAX_IMAGE_DIMENSION', 'Maximum width or height dimensions for output image',
+            type=QgsProcessingParameterNumber.Integer, minValue=1, defaultValue=settings.max_image_size, optional=False)
+        param.setFlags(param.flags() | QgsProcessingParameterDefinition.FlagAdvanced)
+        self.addParameter(param)
         self.addParameter(
             QgsProcessingParameterRasterDestination('OUTPUT', 'Output polygon density heatmap',
                 createByDefault=True, defaultValue=None)
@@ -100,7 +66,7 @@ class PolygonRasterDensityAlgorithm(QgsProcessingAlgorithm):
             extent = transform.transformBoundingBox(extent)
             extent_crs = layer_crs
             
-        if selected_units == 0:
+        if selected_units == 7:
             # This is the exact width and height of the output image
             width = int(cell_width)
             height = int(cell_height)

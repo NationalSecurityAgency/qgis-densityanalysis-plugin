@@ -1,6 +1,6 @@
 import os
 from qgis.PyQt.QtGui import QIcon
-from qgis.core import Qgis, QgsStyle, QgsUnitTypes, QgsCoordinateTransform, QgsProject
+from qgis.core import Qgis, QgsStyle
 
 from qgis.core import (
     QgsProcessing,
@@ -12,12 +12,11 @@ from qgis.core import (
     QgsProcessingParameterVectorLayer,
     QgsProcessingParameterNumber,
     QgsProcessingParameterString,
+    QgsProcessingParameterDefinition,
     QgsProcessingParameterRasterDestination
     )
 import processing
-from .settings import settings
-
-DISTANCE_LABELS = ["Dimensions in pixels", "Kilometers", "Meters", "Miles", 'Yards', "Feet", "Nautical Miles", "Degrees"]
+from .settings import settings, POLYGON_UNIT_LABELS
 
 class StyledPolygonRasterDensityAlgorithm(QgsProcessingAlgorithm):
 
@@ -27,34 +26,30 @@ class StyledPolygonRasterDensityAlgorithm(QgsProcessingAlgorithm):
             [QgsProcessing.TypeVectorPolygon])
         )
         self.addParameter(
-            QgsProcessingParameterExtent('EXTENT', 'Grid extent', optional=True)
+            QgsProcessingParameterExtent('EXTENT', 'Grid extent (defaults to layer extent)', optional=True)
         )
         self.addParameter(
-            QgsProcessingParameterNumber('GRID_CELL_WIDTH', 'Grid cell width or image width in pixels',
-                type=QgsProcessingParameterNumber.Double, defaultValue=1, optional=False)
+            QgsProcessingParameterNumber('GRID_CELL_WIDTH', 'Cell width in measurement units',
+                type=QgsProcessingParameterNumber.Double, defaultValue=settings.default_dimension, optional=False)
         )
         self.addParameter(
-            QgsProcessingParameterNumber('GRID_CELL_HEIGHT', 'Grid cell height or image height in pixels',
-                type=QgsProcessingParameterNumber.Double, defaultValue=1, optional=False)
+            QgsProcessingParameterNumber('GRID_CELL_HEIGHT', 'Cell height in measurement units',
+                type=QgsProcessingParameterNumber.Double, defaultValue=settings.default_dimension, optional=False)
         )
         self.addParameter(
-            QgsProcessingParameterEnum('UNITS', 'Grid measurement unit',
-                options=DISTANCE_LABELS, defaultValue=1, optional=False)
-        )
-        self.addParameter(
-            QgsProcessingParameterNumber('MAX_IMAGE_DIMENSION', 'Maximum width or height dimensions for output image',
-                type=QgsProcessingParameterNumber.Integer, minValue=1, defaultValue=20000, optional=False)
+            QgsProcessingParameterEnum('UNITS', 'Measurement unit',
+                options=POLYGON_UNIT_LABELS, defaultValue=settings.poly_measurement_unit, optional=False)
         )
         style = QgsStyle.defaultStyle()
         self.ramp_names = style.colorRampNames()
         if Qgis.QGIS_VERSION_INT >= 32200:
-            ramp_name_param = QgsProcessingParameterString('RAMP_NAMES', 'Color ramp name', defaultValue=settings.defaultColorRamp(),
+            ramp_name_param = QgsProcessingParameterString('RAMP_NAMES', 'Select color ramp', defaultValue=settings.defaultColorRamp(),
                 optional=False)
             ramp_name_param.setMetadata( {'widget_wrapper': {'value_hints': settings.ramp_names } } )
         else:
             ramp_name_param = QgsProcessingParameterEnum(
                 'RAMP_NAMES',
-                'Color ramp name',
+                'Select color ramp',
                 options=settings.ramp_names,
                 defaultValue=settings.defaultColorRampIndex(),
                 optional=False)
@@ -66,31 +61,36 @@ class StyledPolygonRasterDensityAlgorithm(QgsProcessingAlgorithm):
                 False,
                 optional=False)
         )
-        self.addParameter(
-            QgsProcessingParameterEnum(
-                'INTERPOLATION',
-                'Interpolation',
-                options=['Discrete','Linear','Exact'],
-                defaultValue=1,
-                optional=False)
-        )
-        self.addParameter(
-            QgsProcessingParameterEnum(
-                'MODE',
-                'Mode',
-                options=['Continuous','Equal Interval','Quantile'],
-                defaultValue=2,
-                optional=False)
-        )
-        self.addParameter(
-            QgsProcessingParameterNumber(
-                'CLASSES',
-                'Number of classes',
-                QgsProcessingParameterNumber.Integer,
-                defaultValue=15,
-                minValue=2,
-                optional=False)
-        )
+        param = QgsProcessingParameterNumber('MAX_IMAGE_DIMENSION', 'Maximum width or height dimensions for output image',
+            type=QgsProcessingParameterNumber.Integer, minValue=1, defaultValue=settings.max_image_size, optional=False)
+        param.setFlags(param.flags() | QgsProcessingParameterDefinition.FlagAdvanced)
+        self.addParameter(param)
+        param = QgsProcessingParameterEnum(
+            'INTERPOLATION',
+            'Interpolation',
+            options=['Discrete','Linear','Exact'],
+            defaultValue=1,
+            optional=False)
+        param.setFlags(param.flags() | QgsProcessingParameterDefinition.FlagAdvanced)
+        self.addParameter(param)
+
+        param = QgsProcessingParameterEnum(
+            'MODE',
+            'Mode',
+            options=['Continuous','Equal Interval','Quantile'],
+            defaultValue=2,
+            optional=False)
+        param.setFlags(param.flags() | QgsProcessingParameterDefinition.FlagAdvanced)
+        self.addParameter(param)
+        param = QgsProcessingParameterNumber(
+            'CLASSES',
+            'Number of gradient colors',
+            QgsProcessingParameterNumber.Integer,
+            defaultValue=settings.num_ramp_classes,
+            minValue=2,
+            optional=False)
+        param.setFlags(param.flags() | QgsProcessingParameterDefinition.FlagAdvanced)
+        self.addParameter(param)
         self.addParameter(
             QgsProcessingParameterRasterDestination('OUTPUT', 'Output polygon density heatmap',
                 createByDefault=True, defaultValue=None)

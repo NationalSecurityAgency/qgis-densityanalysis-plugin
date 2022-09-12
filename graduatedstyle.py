@@ -31,12 +31,12 @@ class GraduatedStyleAlgorithm(QgsProcessingAlgorithm):
                 optional=False)
         )
         if Qgis.QGIS_VERSION_INT >= 32200:
-            ramp_name_param = QgsProcessingParameterString('RAMP_NAMES', 'Graduated color ramp name', defaultValue=settings.defaultColorRamp())
+            ramp_name_param = QgsProcessingParameterString('RAMP_NAMES', 'Select color ramp', defaultValue=settings.defaultColorRamp())
             ramp_name_param.setMetadata( {'widget_wrapper': {'value_hints': settings.ramp_names } } )
         else:
             ramp_name_param = QgsProcessingParameterEnum(
                 'RAMP_NAMES',
-                'Graduated color ramp name',
+                'Select color ramp',
                 options=settings.ramp_names,
                 defaultValue=settings.defaultColorRampIndex(),
                 optional=False)
@@ -60,9 +60,9 @@ class GraduatedStyleAlgorithm(QgsProcessingAlgorithm):
         self.addParameter(
             QgsProcessingParameterNumber(
                 'CLASSES',
-                'Number of classes',
+                'Number of gradient colors',
                 QgsProcessingParameterNumber.Integer,
-                defaultValue=15,
+                defaultValue=settings.num_ramp_classes,
                 minValue=2,
                 optional=False)
         )

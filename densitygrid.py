@@ -1,6 +1,6 @@
 import os
 from qgis.PyQt.QtGui import QIcon
-from qgis.core import Qgis, QgsStyle, QgsUnitTypes
+from qgis.core import Qgis, QgsStyle
 
 from qgis.core import (
     QgsProcessing,
@@ -14,46 +14,11 @@ from qgis.core import (
     QgsProcessingParameterVectorLayer,
     QgsProcessingParameterNumber,
     QgsProcessingParameterString,
+    QgsProcessingParameterDefinition,
     QgsProcessingParameterFeatureSink
     )
 import processing
-from .settings import settings
-
-DISTANCE_LABELS = ["Kilometers", "Meters", "Miles", 'Yards', "Feet", "Nautical Miles", "Degrees"]
-
-def conversionToCrsUnits(selected_unit, crs_unit, value):
-    if selected_unit == 0:  # Kilometers
-        measureFactor = QgsUnitTypes.fromUnitToUnitFactor(QgsUnitTypes.DistanceKilometers, crs_unit)
-    elif selected_unit == 1:  # Meters
-        measureFactor = QgsUnitTypes.fromUnitToUnitFactor(QgsUnitTypes.DistanceMeters, crs_unit)
-    elif selected_unit == 2:  # Miles
-        measureFactor = QgsUnitTypes.fromUnitToUnitFactor(QgsUnitTypes.DistanceMiles, crs_unit)
-    elif selected_unit == 3:  # Yards
-        measureFactor = QgsUnitTypes.fromUnitToUnitFactor(QgsUnitTypes.DistanceYards, crs_unit)
-    elif selected_unit == 4:  # Feet
-        measureFactor = QgsUnitTypes.fromUnitToUnitFactor(QgsUnitTypes.DistanceFeet, crs_unit)
-    elif selected_unit == 5:  # Nautical Miles
-        measureFactor = QgsUnitTypes.fromUnitToUnitFactor(QgsUnitTypes.DistanceNauticalMiles, crs_unit)
-    elif selected_unit == 6:  # Degrees
-        measureFactor = QgsUnitTypes.fromUnitToUnitFactor(QgsUnitTypes.DistanceDegrees, crs_unit)
-    return(measureFactor * value)
-
-def conversionFromCrsUnits(selected_unit, crs_unit, value):
-    if selected_unit == 0:  # Kilometers
-        measureFactor = QgsUnitTypes.fromUnitToUnitFactor(crs_unit, QgsUnitTypes.DistanceKilometers)
-    elif selected_unit == 1:  # Meters
-        measureFactor = QgsUnitTypes.fromUnitToUnitFactor(crs_unit, QgsUnitTypes.DistanceMeters)
-    elif selected_unit == 2:  # Miles
-        measureFactor = QgsUnitTypes.fromUnitToUnitFactor(crs_unit, QgsUnitTypes.DistanceMiles)
-    elif selected_unit == 3:  # Yards
-        measureFactor = QgsUnitTypes.fromUnitToUnitFactor(crs_unit, QgsUnitTypes.DistanceYards)
-    elif selected_unit == 4:  # Feet
-        measureFactor = QgsUnitTypes.fromUnitToUnitFactor(crs_unit, QgsUnitTypes.DistanceFeet)
-    elif selected_unit == 5:  # Nautical Miles
-        measureFactor = QgsUnitTypes.fromUnitToUnitFactor(crs_unit, QgsUnitTypes.DistanceNauticalMiles)
-    elif selected_unit == 6:  # Degrees
-        measureFactor = QgsUnitTypes.fromUnitToUnitFactor(crs_unit, QgsUnitTypes.DistanceDegrees)
-    return(measureFactor * value)
+from .settings import settings, UNIT_LABELS, conversionToCrsUnits, conversionFromCrsUnits
 
 class StyledDensityGridAlgorithm(QgsProcessingAlgorithm):
 
@@ -63,11 +28,7 @@ class StyledDensityGridAlgorithm(QgsProcessingAlgorithm):
             [QgsProcessing.TypeVectorPoint])
         )
         self.addParameter(
-            QgsProcessingParameterExtent('EXTENT', 'Grid extent', optional=False)
-        )
-        self.addParameter(
-            QgsProcessingParameterNumber('MIN_GRID_COUNT', 'Minimum cell histogram count',
-                type=QgsProcessingParameterNumber.Integer, minValue=0, defaultValue=1)
+            QgsProcessingParameterExtent('EXTENT', 'Grid extent (defaults to layer extent)', optional=True)
         )
         self.addParameter(
             QgsProcessingParameterEnum('GRID_TYPE', 'Grid type',
@@ -75,45 +36,25 @@ class StyledDensityGridAlgorithm(QgsProcessingAlgorithm):
                 defaultValue=2, optional=False)
         )
         self.addParameter(
-            QgsProcessingParameterNumber('GRID_CELL_WIDTH', 'Grid cell width',
-                type=QgsProcessingParameterNumber.Double, defaultValue=1, optional=False)
+            QgsProcessingParameterNumber('GRID_CELL_WIDTH', 'Cell width in measurement units',
+                type=QgsProcessingParameterNumber.Double, defaultValue=settings.default_dimension, optional=False)
         )
         self.addParameter(
-            QgsProcessingParameterNumber('GRID_CELL_HEIGHT', 'Grid cell height',
-                type=QgsProcessingParameterNumber.Double, defaultValue=1, optional=False)
+            QgsProcessingParameterNumber('GRID_CELL_HEIGHT', 'Cell height in measurement units',
+                type=QgsProcessingParameterNumber.Double, defaultValue=settings.default_dimension, optional=False)
         )
         self.addParameter(
-            QgsProcessingParameterEnum('UNITS', 'Grid measurement unit',
-                options=DISTANCE_LABELS, defaultValue=0, optional=False)
+            QgsProcessingParameterEnum('UNITS', 'Measurement unit',
+                options=UNIT_LABELS, defaultValue=settings.measurement_unit, optional=False)
         )
-        self.addParameter(
-            QgsProcessingParameterNumber('MAX_GRID_SIZE', 'Maximum grid width or height',
-                type=QgsProcessingParameterNumber.Integer, minValue=1, defaultValue=500, optional=False)
-        )
-        self.addParameter(
-            QgsProcessingParameterField(
-                'WEIGHT',
-                'Weight field',
-                parentLayerParameterName='INPUT',
-                type=QgsProcessingParameterField.Numeric,
-                optional=True)
-        )
-        self.addParameter(
-            QgsProcessingParameterNumber(
-                'CLASSES',
-                'Number of gradient colors',
-                QgsProcessingParameterNumber.Integer,
-                defaultValue=15,
-                minValue=2,
-                optional=False)
-        )
+
         if Qgis.QGIS_VERSION_INT >= 32200:
-            ramp_name_param = QgsProcessingParameterString('RAMP_NAMES', 'Select a color ramp', defaultValue=settings.defaultColorRamp())
+            ramp_name_param = QgsProcessingParameterString('RAMP_NAMES', 'Select color ramp', defaultValue=settings.defaultColorRamp())
             ramp_name_param.setMetadata( {'widget_wrapper': {'value_hints': settings.ramp_names } } )
         else:
             ramp_name_param = QgsProcessingParameterEnum(
                 'RAMP_NAMES',
-                'Select a color ramp',
+                'Select color ramp',
                 options=settings.ramp_names,
                 defaultValue=settings.defaultColorRampIndex(),
                 optional=False)
@@ -125,31 +66,62 @@ class StyledDensityGridAlgorithm(QgsProcessingAlgorithm):
                 False,
                 optional=False)
         )
-        self.addParameter(
-            QgsProcessingParameterEnum(
-                'COLOR_RAMP_MODE',
-                'Color ramp mode',
-                options=['Equal Count (Quantile)','Equal Interval','Logarithmic scale','Natural Breaks (Jenks)','Pretty Breaks','Standard Deviation'],
-                defaultValue=0,
-                optional=False)
-        )
-        self.addParameter(
-            QgsProcessingParameterBoolean(
-                'NO_OUTLINE',
-                'No feature outlines',
-                True,
-                optional=False)
-        )
+
+        param = QgsProcessingParameterNumber('MIN_GRID_COUNT', 'Minimum cell histogram count',
+            type=QgsProcessingParameterNumber.Integer, minValue=0, defaultValue=1)
+        param.setFlags(param.flags() | QgsProcessingParameterDefinition.FlagAdvanced)
+        self.addParameter(param)
+        param = QgsProcessingParameterNumber('MAX_GRID_SIZE', 'Maximum grid width or height',
+            type=QgsProcessingParameterNumber.Integer, minValue=1, defaultValue=600, optional=False)
+        param.setFlags(param.flags() | QgsProcessingParameterDefinition.FlagAdvanced)
+        self.addParameter(param)
+        param = QgsProcessingParameterField(
+            'WEIGHT',
+            'Weight field',
+            parentLayerParameterName='INPUT',
+            type=QgsProcessingParameterField.Numeric,
+            optional=True)
+        param.setFlags(param.flags() | QgsProcessingParameterDefinition.FlagAdvanced)
+        self.addParameter(param)
+        param = QgsProcessingParameterNumber(
+            'CLASSES',
+            'Number of gradient colors',
+            QgsProcessingParameterNumber.Integer,
+            defaultValue=settings.num_ramp_classes,
+            minValue=2,
+            optional=False)
+        param.setFlags(param.flags() | QgsProcessingParameterDefinition.FlagAdvanced)
+        self.addParameter(param)
+        param = QgsProcessingParameterEnum(
+            'COLOR_RAMP_MODE',
+            'Color ramp mode',
+            options=['Equal Count (Quantile)','Equal Interval','Logarithmic scale','Natural Breaks (Jenks)','Pretty Breaks','Standard Deviation'],
+            defaultValue=0,
+            optional=False)
+        param.setFlags(param.flags() | QgsProcessingParameterDefinition.FlagAdvanced)
+        self.addParameter(param)
+        param = QgsProcessingParameterBoolean(
+            'NO_OUTLINE',
+            'No feature outlines',
+            True,
+            optional=False)
+        param.setFlags(param.flags() | QgsProcessingParameterDefinition.FlagAdvanced)
+        self.addParameter(param)
+
         self.addParameter(
             QgsProcessingParameterFeatureSink('OUTPUT', 'Output density heatmap',
                 type=QgsProcessing.TypeVectorPolygon, createByDefault=True, defaultValue=None)
         )
 
     def processAlgorithm(self, parameters, context, model_feedback):
+        layer = self.parameterAsLayer(parameters, 'INPUT', context)
         grid_type = self.parameterAsInt(parameters, 'GRID_TYPE', context) + 2
         min_grid_cnt = self.parameterAsInt(parameters, 'MIN_GRID_COUNT', context)
         extent = self.parameterAsExtent(parameters, 'EXTENT', context)
         extent_crs = self.parameterAsExtentCrs(parameters, 'EXTENT', context)
+        if extent.isNull():
+            extent = layer.sourceExtent()
+            extent_crs = layer.sourceCrs()
         num_classes = self.parameterAsInt(parameters, 'CLASSES', context)
         if Qgis.QGIS_VERSION_INT >= 32200:
             # In this case ramp_name will be the name
