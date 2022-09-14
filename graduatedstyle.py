@@ -12,7 +12,7 @@ from qgis.core import (
     QgsProcessingParameterVectorLayer,
     QgsProcessingParameterField)
 import processing
-from .settings import settings
+from .settings import settings, COLOR_RAMP_MODE
 
 
 class GraduatedStyleAlgorithm(QgsProcessingAlgorithm):
@@ -50,20 +50,20 @@ class GraduatedStyleAlgorithm(QgsProcessingAlgorithm):
                 optional=False)
         )
         self.addParameter(
-            QgsProcessingParameterEnum(
-                'MODE',
-                'Mode',
-                options=['Equal Count (Quantile)','Equal Interval','Logarithmic scale','Natural Breaks (Jenks)','Pretty Breaks','Standard Deviation'],
-                defaultValue=0,
-                optional=False)
-        )
-        self.addParameter(
             QgsProcessingParameterNumber(
                 'CLASSES',
                 'Number of gradient colors',
                 QgsProcessingParameterNumber.Integer,
                 defaultValue=settings.num_ramp_classes,
                 minValue=2,
+                optional=False)
+        )
+        self.addParameter(
+            QgsProcessingParameterEnum(
+                'MODE',
+                'Color ramp mode',
+                options=COLOR_RAMP_MODE,
+                defaultValue=settings.color_ramp_mode,
                 optional=False)
         )
         self.addParameter(

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>312</width>
-    <height>356</height>
+    <width>314</width>
+    <height>377</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -20,7 +20,7 @@
    <item>
     <widget class="QLabel" name="label_3">
      <property name="text">
-      <string>Default measument unit for most algorithms</string>
+      <string>Default measurement unit for most algorithms</string>
      </property>
     </widget>
    </item>
@@ -106,6 +106,16 @@
       <number>15</number>
      </property>
     </widget>
+   </item>
+   <item>
+    <widget class="QLabel" name="label_7">
+     <property name="text">
+      <string>Default color ramp mode</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QComboBox" name="colorRampModeComboBox"/>
    </item>
    <item>
     <spacer name="verticalSpacer">

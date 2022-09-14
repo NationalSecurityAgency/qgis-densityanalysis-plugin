@@ -6,6 +6,7 @@ from qgis.PyQt.QtCore import QSettings
 
 POLYGON_UNIT_LABELS = ["Kilometers", "Meters", "Miles", 'Yards', "Feet", "Nautical Miles", "Degrees", "Dimensions in pixels"]
 UNIT_LABELS = ["Kilometers", "Meters", "Miles", 'Yards', "Feet", "Nautical Miles", "Degrees"]
+COLOR_RAMP_MODE = ['Equal Count (Quantile)','Equal Interval','Logarithmic scale','Natural Breaks (Jenks)','Pretty Breaks','Standard Deviation']
 
 def conversionToCrsUnits(selected_unit, crs_unit, value):
     if selected_unit == 0:  # Kilometers
@@ -63,6 +64,10 @@ class Settings():
         except Exception:
             self.num_ramp_classes = 15
         try:
+            self.color_ramp_mode = int(qset.value('/DensityAnalysis/ColorRampMode', 0))
+        except Exception:
+            self.color_ramp_mode = 0
+        try:
             self.poly_measurement_unit = int(qset.value('/DensityAnalysis/PolyMeasuementUnit', 0))
         except Exception:
             self.poly_measurement_unit = 0
@@ -79,7 +84,7 @@ class Settings():
         except Exception:
             self.max_image_size = 20000
 
-    def setDefaultColorRamp(self, color_ramp, num_ramp_classes):
+    def setDefaultColorRamp(self, color_ramp, num_ramp_classes, color_ramp_mode):
         # print('color_ramp: {}'.format(color_ramp))
         # print('ramp_names: {}'.format(self.ramp_names))
         if color_ramp not in self.ramp_names:
@@ -87,9 +92,11 @@ class Settings():
         # print('color_ramp: {}'.format(color_ramp))
         self.color_ramp = color_ramp
         self.num_ramp_classes = num_ramp_classes
+        self.color_ramp_mode = color_ramp_mode
         qset = QSettings()
         qset.setValue('/DensityAnalysis/ColorRamp', color_ramp)
         qset.setValue('/DensityAnalysis/NumRampClasses', num_ramp_classes)
+        qset.setValue('/DensityAnalysis/ColorRampMode', color_ramp_mode)
     
     def setDefaults(self, measurement_unit, poly_measurement_unit, default_dimension, max_image_size):
         self.measurement_unit = measurement_unit
@@ -128,6 +135,7 @@ class SettingsWidget(QDialog, FORM_CLASS):
         self.iface = iface
         self.unitsComboBox.addItems(UNIT_LABELS)
         self.polyUnitsComboBox.addItems(POLYGON_UNIT_LABELS)
+        self.colorRampModeComboBox.addItems(COLOR_RAMP_MODE)
 
     def showEvent(self, e):
         settings.updateColorRamps()
@@ -136,6 +144,7 @@ class SettingsWidget(QDialog, FORM_CLASS):
         self.colorRampComboBox.addItems(settings.ramp_names)
         index = settings.defaultColorRampIndex()
         self.colorRampComboBox.setCurrentIndex(index)
+        self.colorRampModeComboBox.setCurrentIndex(settings.color_ramp_mode)
         self.rampClassesSpinBox.setValue(settings.num_ramp_classes)
         self.unitsComboBox.setCurrentIndex(settings.measurement_unit)
         self.polyUnitsComboBox.setCurrentIndex(settings.poly_measurement_unit)
@@ -144,7 +153,7 @@ class SettingsWidget(QDialog, FORM_CLASS):
 
     def accept(self):
         selected_ramp = self.colorRampComboBox.currentText()
-        settings.setDefaultColorRamp(selected_ramp, self.rampClassesSpinBox.value())
+        settings.setDefaultColorRamp(selected_ramp, self.rampClassesSpinBox.value(), self.colorRampModeComboBox.currentIndex())
         settings.setDefaults(self.unitsComboBox.currentIndex(), self.polyUnitsComboBox.currentIndex(),
             self.defaultDimensionSpinBox.value(), self.maxImageSizeSpinBox.value())
         self.close()

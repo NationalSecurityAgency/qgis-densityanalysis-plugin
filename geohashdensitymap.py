@@ -17,7 +17,7 @@ from qgis.core import (
 import processing
 
 from . import geohash
-from .settings import settings
+from .settings import settings, COLOR_RAMP_MODE
 
 class GeohashDensityMapAlgorithm(QgsProcessingAlgorithm):
 
@@ -128,8 +128,8 @@ class GeohashDensityMapAlgorithm(QgsProcessingAlgorithm):
         param = QgsProcessingParameterEnum(
             'COLOR_RAMP_MODE',
             'Color ramp mode',
-            options=['Equal Count (Quantile)','Equal Interval','Logarithmic scale','Natural Breaks (Jenks)','Pretty Breaks','Standard Deviation'],
-            defaultValue=0,
+            options=COLOR_RAMP_MODE,
+            defaultValue=settings.color_ramp_mode,
             optional=False)
         param.setFlags(param.flags() | QgsProcessingParameterDefinition.FlagAdvanced)
         self.addParameter(param)

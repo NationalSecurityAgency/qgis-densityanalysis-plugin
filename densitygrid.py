@@ -18,7 +18,7 @@ from qgis.core import (
     QgsProcessingParameterFeatureSink
     )
 import processing
-from .settings import settings, UNIT_LABELS, conversionToCrsUnits, conversionFromCrsUnits
+from .settings import settings, UNIT_LABELS, COLOR_RAMP_MODE, conversionToCrsUnits, conversionFromCrsUnits
 
 class StyledDensityGridAlgorithm(QgsProcessingAlgorithm):
 
@@ -72,7 +72,7 @@ class StyledDensityGridAlgorithm(QgsProcessingAlgorithm):
         param.setFlags(param.flags() | QgsProcessingParameterDefinition.FlagAdvanced)
         self.addParameter(param)
         param = QgsProcessingParameterNumber('MAX_GRID_SIZE', 'Maximum grid width or height',
-            type=QgsProcessingParameterNumber.Integer, minValue=1, defaultValue=600, optional=False)
+            type=QgsProcessingParameterNumber.Integer, minValue=1, defaultValue=1000, optional=False)
         param.setFlags(param.flags() | QgsProcessingParameterDefinition.FlagAdvanced)
         self.addParameter(param)
         param = QgsProcessingParameterField(
@@ -95,8 +95,8 @@ class StyledDensityGridAlgorithm(QgsProcessingAlgorithm):
         param = QgsProcessingParameterEnum(
             'COLOR_RAMP_MODE',
             'Color ramp mode',
-            options=['Equal Count (Quantile)','Equal Interval','Logarithmic scale','Natural Breaks (Jenks)','Pretty Breaks','Standard Deviation'],
-            defaultValue=0,
+            options=COLOR_RAMP_MODE,
+            defaultValue=settings.color_ramp_mode,
             optional=False)
         param.setFlags(param.flags() | QgsProcessingParameterDefinition.FlagAdvanced)
         self.addParameter(param)
