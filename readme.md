@@ -241,6 +241,7 @@ The following are the main parameters.
 * ***Invert color ramp*** - When checked, the ordering of the color ramp is inverted.
 
 These are ***Advanced Parameters***.
+
 * ***Maximum width or height dimensions of output image*** - If the output image dimensions used to accumulate the heatmap results exceeds this value then the algorithm will generate an error. This is an error check to make sure excessively large images are not created. To fix this error, increase this value or the value of ***Cell/pixel dimension in measurement units***.
 * ***Kernel shape*** - This is the shape of the kernel density function. The options are Quartic, Triangular, Uniform, Triweight, and Epanechnikov.
 * ***Decay ration (Triangular kernels only)*** - This is used with a triangular kernel shape. See the QGIS Heatmap documentation for more information.
