@@ -252,13 +252,15 @@ The H3 package can be installed by running the OSGeo4W shell as system administr
 <li><strong><em>Select color ramp</em></strong> - This is a list of the QGIS color ramps that will be applied to the layer.</li>
 <li><strong><em>Invert color ramp</em></strong> - When checked, the ordering of the color ramp is inverted.</li>
 </ul>
-<p>These are <strong><em>Advanced Parameters</em></strong>.
-* <strong><em>Maximum width or height dimensions of output image</em></strong> - If the output image dimensions used to accumulate the heatmap results exceeds this value then the algorithm will generate an error. This is an error check to make sure excessively large images are not created. To fix this error, increase this value or the value of <strong><em>Cell/pixel dimension in measurement units</em></strong>.
-* <strong><em>Kernel shape</em></strong> - This is the shape of the kernel density function. The options are Quartic, Triangular, Uniform, Triweight, and Epanechnikov.
-* <strong><em>Decay ration (Triangular kernels only)</em></strong> - This is used with a triangular kernel shape. See the QGIS Heatmap documentation for more information.
-* <strong><em>Interpolation</em></strong> - Options are Discrete, Linear, and Exact.
-* <strong><em>Mode</em></strong> - Options are Continuous, Equal Interval, and Quantile.
-* <strong><em>Number of gradient colors</em></strong> - Specifies the number of gradient color classes.</p>
+<p>These are <strong><em>Advanced Parameters</em></strong>.</p>
+<ul>
+<li><strong><em>Maximum width or height dimensions of output image</em></strong> - If the output image dimensions used to accumulate the heatmap results exceeds this value then the algorithm will generate an error. This is an error check to make sure excessively large images are not created. To fix this error, increase this value or the value of <strong><em>Cell/pixel dimension in measurement units</em></strong>.</li>
+<li><strong><em>Kernel shape</em></strong> - This is the shape of the kernel density function. The options are Quartic, Triangular, Uniform, Triweight, and Epanechnikov.</li>
+<li><strong><em>Decay ration (Triangular kernels only)</em></strong> - This is used with a triangular kernel shape. See the QGIS Heatmap documentation for more information.</li>
+<li><strong><em>Interpolation</em></strong> - Options are Discrete, Linear, and Exact.</li>
+<li><strong><em>Mode</em></strong> - Options are Continuous, Equal Interval, and Quantile.</li>
+<li><strong><em>Number of gradient colors</em></strong> - Specifies the number of gradient color classes.</li>
+</ul>
 <h2><img src="icons/styledrasterdensity.png" alt="Styled Polygon density map" width="28" height="28"> Styled polygon density map</h2>
 <p>Like the <strong><em>Styled Heatmap</em></strong>, this algorithm uses a raster image to accumulate the summation of rasterized polygon layers and then automatically style the results. Here is an example of the result of summing a cluster of polygons.</p>
 <div style="text-align:center"><img src="help/styledpolygondensity.jpg" alt="Styled polygon density map"></div>
@@ -340,4 +342,6 @@ The H3 package can be installed by running the OSGeo4W shell as system administr
 <li><strong><em>Default color ramp</em></strong> - This setting will be used by the algorithms for the default color ramp.</li>
 <li><strong><em>Default number of color ramp classes</em></strong>  - This is the default number of color ramp colors or classes that are used by the algorithms.</li>
 <li><strong><em>Default color ramp mode</em></strong> - This is the default color ramp mode used by the vector density maps for styling the output layer. The options are Equal Count (Quantile), Equal Interval, Logarithmic scale ,Natural Breaks (Jenks), Pretty Breaks, or Standard Deviation.</li>
+<li><strong><em>Line flash width</em></strong> - This is the width of the line flash marker lines used by the density hotspot explorer.</li>
+<li><strong><em>Line flash color</em></strong> - This is the color of the line flash marker lines used by the density hotspot explorer.</li>
 </ul></body>
