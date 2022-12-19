@@ -3,6 +3,7 @@ from qgis.PyQt import uic
 from qgis.core import Qgis, QgsStyle, QgsUnitTypes
 from qgis.PyQt.QtWidgets import QDialog
 from qgis.PyQt.QtCore import QSettings
+from qgis.PyQt.QtGui import QColor
 
 POLYGON_UNIT_LABELS = ["Kilometers", "Meters", "Miles", 'Yards', "Feet", "Nautical Miles", "Degrees", "Dimensions in pixels"]
 UNIT_LABELS = ["Kilometers", "Meters", "Miles", 'Yards', "Feet", "Nautical Miles", "Degrees"]
@@ -83,6 +84,12 @@ class Settings():
             self.max_image_size = int(qset.value('/DensityAnalysis/MaxImageSize', 20000))
         except Exception:
             self.max_image_size = 20000
+        try:
+            self.line_flash_width = int(qset.value('/DensityAnalysis/LineFlashWidth', 2))
+        except Exception:
+            self.line_flash_width = 2
+        color = qset.value('/DensityAnalysis/LineFlashColor', '#ffff00')
+        self.line_flash_color = QColor(color)
 
     def setDefaultColorRamp(self, color_ramp, num_ramp_classes, color_ramp_mode):
         # print('color_ramp: {}'.format(color_ramp))
@@ -98,16 +105,20 @@ class Settings():
         qset.setValue('/DensityAnalysis/NumRampClasses', num_ramp_classes)
         qset.setValue('/DensityAnalysis/ColorRampMode', color_ramp_mode)
     
-    def setDefaults(self, measurement_unit, poly_measurement_unit, default_dimension, max_image_size):
+    def setDefaults(self, measurement_unit, poly_measurement_unit, default_dimension, max_image_size, line_flash_width, line_flash_color):
         self.measurement_unit = measurement_unit
         self.poly_measurement_unit = poly_measurement_unit
         self.default_dimension = default_dimension
         self.max_image_size = max_image_size
+        self.line_flash_width = line_flash_width
+        self.line_flash_color = line_flash_color
         qset = QSettings()
         qset.setValue('/DensityAnalysis/MeasuementUnit', measurement_unit)
         qset.setValue('/DensityAnalysis/PolyMeasuementUnit', poly_measurement_unit)
         qset.setValue('/DensityAnalysis/DefaultDimension', default_dimension)
         qset.setValue('/DensityAnalysis/MaxImageSize', max_image_size)
+        qset.setValue('/DensityAnalysis/LineFlashWidth', line_flash_width)
+        qset.setValue('/DensityAnalysis/LineFlashColor', line_flash_color.name())
         
     
     def defaultColorRamp(self):
@@ -150,10 +161,13 @@ class SettingsWidget(QDialog, FORM_CLASS):
         self.polyUnitsComboBox.setCurrentIndex(settings.poly_measurement_unit)
         self.defaultDimensionSpinBox.setValue(settings.default_dimension)
         self.maxImageSizeSpinBox.setValue(settings.max_image_size)
+        self.lineFlashWidthSpinBox.setValue(settings.line_flash_width)
+        self.lineFlashColorButton.setColor(settings.line_flash_color)
 
     def accept(self):
         selected_ramp = self.colorRampComboBox.currentText()
         settings.setDefaultColorRamp(selected_ramp, self.rampClassesSpinBox.value(), self.colorRampModeComboBox.currentIndex())
         settings.setDefaults(self.unitsComboBox.currentIndex(), self.polyUnitsComboBox.currentIndex(),
-            self.defaultDimensionSpinBox.value(), self.maxImageSizeSpinBox.value())
+            self.defaultDimensionSpinBox.value(), self.maxImageSizeSpinBox.value(), self.lineFlashWidthSpinBox.value(),
+            self.lineFlashColorButton.color())
         self.close()

@@ -7,6 +7,7 @@ from qgis.PyQt.QtWidgets import QDockWidget, QAbstractItemView, QTableWidget, QT
 from qgis.core import Qgis, QgsMapLayerProxyModel, QgsFieldProxyModel, QgsWkbTypes, QgsFeatureRequest, QgsCoordinateTransform, QgsProject, QgsRectangle, QgsPoint, QgsPointXY, QgsGeometry
 from qgis.gui import QgsRubberBand
 from qgis.utils import isPluginLoaded, plugins
+from .settings import settings
 import traceback
 
 MAX_LIST_SIZE = 5000
@@ -44,7 +45,8 @@ class HeatmapAnalysis(QDockWidget, FORM_CLASS):
         self.resultsTable.itemSelectionChanged.connect(self.select_feature)
         # self.resultsTable.itemClicked.connect(self.select_feature)
         self.rb = QgsRubberBand(self.canvas, QgsWkbTypes.LineGeometry)
-        self.rb.setColor(Qt.yellow)
+        self.rb.setColor(settings.line_flash_color)
+        self.rb.setWidth(settings.line_flash_width)
 
     def showEvent(self, e):
         self.layerChanged()
@@ -182,6 +184,8 @@ class HeatmapAnalysis(QDockWidget, FORM_CLASS):
         vertLine = QgsGeometry.fromPolyline([topPt, bottomPt])
 
         self.rb.reset(QgsWkbTypes.LineGeometry)
+        self.rb.setColor(settings.line_flash_color)
+        self.rb.setWidth(settings.line_flash_width)
         self.rb.addGeometry(horizLine, None)
         self.rb.addGeometry(vertLine, None)
 

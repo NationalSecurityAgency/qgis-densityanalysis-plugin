@@ -343,5 +343,5 @@ The settings are found in the QGIS menu under ***Plugins->Density Analysis->Sett
 * ***Default color ramp*** - This setting will be used by the algorithms for the default color ramp.
 * ***Default number of color ramp classes***  - This is the default number of color ramp colors or classes that are used by the algorithms.
 * ***Default color ramp mode*** - This is the default color ramp mode used by the vector density maps for styling the output layer. The options are Equal Count (Quantile), Equal Interval, Logarithmic scale ,Natural Breaks (Jenks), Pretty Breaks, or Standard Deviation.
-
-
+* ***Line flash width*** - This is the width of the line flash marker lines used by the density hotspot explorer.
+* ***Line flash color*** - This is the color of the line flash marker lines used by the density hotspot explorer.
