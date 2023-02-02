@@ -1,10 +1,14 @@
 # QGIS Density Analysis Plugin
 
-This plugin adds six new density heatmap algorithms to QGIS including geohash, H3, and polygon density maps. It adds a vector density heatmap explorer to examine the areas of greatest concentrations. It wraps the QGIS Heatmap algorithm into a new version that automatically styles the layer and allows the user to specify the cell size in various units of measure and not just the units of the layer's CRS. It provides an algorithm to create a raster density map of polygons. It has three processing algorithms to create a gradient style, random style, and raster pseudocolor style so that they can be used in QGIS models. Another tool allows a copied style or a .qml file to be pasted onto all selected layers. Once installed, the plugin is located under ***Plugins->Density analysis*** in the QGIS menu, on the toolbar, and can be found in the *Processing Toolbox* under *Density analysis*.
+This plugin adds  new density heatmap algorithms to QGIS including geohash, H3, styled heatmap, and polygon density maps. It adds a vector density heatmap explorer to examine hotspot areas of greatest concentrations. It wraps the QGIS Heatmap (Kernel Density Estimation) algorithm into a new version that automatically styles the layer and allows the user to specify the cell size in various units of measure and not just the units of the layer's CRS. It provides an algorithm to create a raster density map of polygons. It has processing algorithms to create a gradient style, random style, and raster pseudocolor style so that they can be used in QGIS models. Another tool allows a copied style or a .qml file to be pasted onto all selected layers. Once installed, the plugin is located under ***Plugins->Density analysis*** in the QGIS menu, on the toolbar, and can be found in the *Processing Toolbox* under *Density analysis*. This shows plugin from the main menu with ***Geohash density algorithms*** expanded.
 
 <div style="text-align:center"><img src="help/menu.jpg" alt="Density Analysis"></div>
 
-Note that several algorithms in this plugin use **H3** (Hexagonal hierarchical geospatial indexing system). This is an incredibly fast algorithm for generating hexagon density maps, but requires installation of the **H3 python library**. The H3 package can be installed by running the OSGeo4W shell as system administrator and running 'pip install h3' or whatever method you use to install python packages. In one test using the QGIS ***Create grid*** processing algorithm, followed by ***Count points in a polygon*** algorithm took 63.18 seconds to process spatially indexed point data. To do the same thing with H3 only took 3.79 seconds.
+This shows the expanded ***H3 density algorithms***.
+
+<div style="text-align:center"><img src="help/menu2.jpg" alt="Density Analysis"></div>
+
+Note that several algorithms in this plugin use **H3 (Hexagonal hierarchical geospatial indexing system)**. This is an incredibly fast algorithm for generating hexagon density maps, but requires installation of the **H3 python library**. The H3 package can be installed by running the OSGeo4W shell as system administrator and running 'pip install h3' or whatever method you use to install python packages. If H3 is not installed, the rest of the algorithms will still work, but you will not be able to run the H3 algorithms. In one test using the QGIS ***Create grid*** processing algorithm, followed by ***Count points in a polygon*** algorithm took 63.18 seconds to process spatially indexed point data. To do the same thing with H3 only took 3.79 seconds.
 
 Many of the default parameters in the algorithms can be set from the settings dialog found in ***Plugins->Density analysis->Settings***. This allows the user to customize these settings one time.
 
@@ -43,17 +47,24 @@ These are the Advanced Parameters.
 * ***Color ramp mode*** - Select one of Equal Count (Quantile), Equal Interval, Logarithmic scale ,Natural Breaks (Jenks), Pretty Breaks, or Standard Deviation. The default value change be changed in ***Settings***.
 * ***No feature outlines*** - If checked, it will not draw grid cell outlines.
 
-## <img src="icons/geohash.png" alt="Geohash map" width="24" height="24"> Styled geohash density map
+## Geohash density algorithms
+
+There are four geohash density algorithm variations. Two are automatically styled and two of them work with multiple vector layers.
+
+### <img src="icons/geohash.png" alt="Styled geohash density map" width="24" height="24"> Styled geohash density map
 
 This algorithm iterates through every point indexing them using a geohash with a count of the number of times each geohash has been seen. The bounds of each geohash cell is then created as a polygon. Depending on the resolution these polygon are either a square or rectangle. Here is an example.
 
 <div style="text-align:center"><img src="help/geohash_example.png" alt="Geohash Density Map"></div>
 
-This shows the algorithm dialog.
+This shows the algorithm's dialog.
 
 <div style="text-align:center"><img src="help/geohash_alg.png" alt="Geohash Density Map Algorithm"></div>
 
-The parameters are the same as the above algorithm with the resolution determined by ***Geohash resolution*** as follows:
+These are the input parameters:
+
+* ***Input point vector layer*** - Select one of your point vector layers.
+* ***Geohash resolution*** - This is the resolution or size of each of the grid cells as follows:
 
 <table style="margin-left: auto; margin-right: auto;">
 <tr>
@@ -110,16 +121,49 @@ The parameters are the same as the above algorithm with the resolution determine
 </tr>
 </table>
 
-## Geohash density grid
+* ***Select color ramp*** - This is a list of the QGIS color ramps (default Reds) that will be applied to the layer. The default value can be changed in ***Settings***.
+* ***Invert color ramp*** - When checked, the ordering of the color ramp is inverted.
 
-This is the same as ***Styled geohash density map***, but without the styling. The algorithm iterates through every point of the input layer indexing them using a geohash with a count of the number of times each geohash has been seen and added to the **NUMPOINTS** attribute. The bounds of each geohash cell is then created as a polygon. Depending on the resolution these polygon are either a square or rectangle.
+These are the Advanced Parameters.
 
-## <img src="icons/h3.png" alt="H3 density map" width="24" height="24"> Styled H3 density map
+* ***Weight field*** - An optional weight field can be used to assign weights to each point. If set, the count generated will be the sum of the weight field for each point contained by the polygon.
+* ***Number of gradient colors*** - This specifies the number of gradient categories that are going to be used. This example uses a value of 15. 
+* ***Color ramp mode*** - Select one of Equal Count (Quantile), Equal Interval, Logarithmic scale ,Natural Breaks (Jenks), Pretty Breaks, or Standard Deviation. The default value change be changed in ***Settings***.
+* ***No feature outlines*** - If checked, it will not draw grid cell outlines.
 
-This algorithm uses the H3 (Hexagonal hierarchical geospatial indexing system) library for fast density map generation. It iterates through every point using H3 indexing with a count of the number of times each H3 index has been seen. Each H3 cell is then created as a polygon. The polygons are in a hexagon shape. 
+The output geohash table contains a unique identifier **ID**, geoshash string **GEOHASH** and the count of number of points or weighted count of the number points within the geohash cell **NUMPOINTS**.
+
+<div style="text-align:center"><img src="help/geohash_attributes.jpg" alt="Geohash attributes"></div>
+
+### <img src="help/geohashdensity.png" alt="Geohash density grid" width="24" height="24"> Geohash density grid
+
+This is the same as ***Styled geohash density map***, but without the styling. The algorithm iterates through every point of the input layer indexing them using a geohash with a count of the number of times each geohash has been seen and saved to the **NUMPOINTS** attribute. The bounds of each geohash cell is then created as a polygon. Depending on the resolution these polygon are either a square or rectangle.
+
+<div style="text-align:center"><img src="help/gh_density_alg.jpg" alt="Geohash Density Grid Algorithm"></div>
+
+
+### <img src="icons/ml_geohash.png" alt="Styled geohash multi-layer density map" width="24" height="24"> Styled geohash multi-layer density map
+
+This is the same as the ***Styled geohash density map*** algorithm with the exception that it supports multiple input point vector layers which contribute to the output density map. If a ***Weight field*** is used, then all selected layers must contain the same weight attribute field. To select the input layers, click on the **"..."** button on the right and it will give a dialog with all of the point vector layers that are available to be included in the output density map.
+
+<div style="text-align:center"><img src="help/ml_gh_density_map.jpg" alt="Multi-layer geohash"></div>
+
+### <img src="help/geohashmultidensity.png" alt="Geohash multi-layer density grid" width="24" height="24"> Geohash multi-layer density grid
+
+This is the same as ***Styled multi-layer geohash density map***, but without the styling. The algorithm iterates through every selected point vector layer and every point within the layer, indexing them using a geohash with a count of the number of times each geohash has been seen. The bounds of each geohash cell is then created as a polygon. Depending on the resolution these polygon are either a square or rectangle.
+
+## H3 density algorithms
+
+There are four H3 density algorithm variations. Two are automatically styled and two of them work with multiple vector layers.
+
+These algorithms use the **H3 (Hexagonal hierarchical geospatial indexing system)** library for fast density map generation. They iterate through every point using H3 indexing with a count of the number of times each H3 index has been seen. Each H3 cell is then created as a polygon. The polygons are in a hexagon shape. 
 
 To create H3 density maps you will need to install the H3 Library (<a href="https://h3geo.org/">https://h3geo.org/</a>).
 The H3 package can be installed by running the OSGeo4W shell as system administrator and running 'pip install h3' or whatever method you use to install python packages. The H3 algorithms will give a warning message if H3 has not been installed.
+
+### <img src="icons/h3.png" alt="H3 density map" width="24" height="24"> Styled H3 density map
+
+This algorithm generates a styled H3 density map from a point vector layer.
 
 Here is an example.
 
@@ -129,7 +173,10 @@ This shows the algorithm dialog.
 
 <div style="text-align:center"><img src="help/h3_alg.png" alt="H3 Density Map Algorithm"></div>
 
-The parameters are the same as the ***Styled density map*** algorithm with ***H3 resolution*** ranging from 0 to 15 as follows:
+The parameters are as follows:
+
+* ***Input point vector layer*** - Select one of your point vector layers.
+* ***H3 resolution*** - This is the resolution or size of each of the grid cells and ranges from 0 to 15 as follows:
 
 <table style="margin-left: auto; margin-right: auto;">
 <tr>
@@ -202,11 +249,34 @@ The parameters are the same as the ***Styled density map*** algorithm with ***H3
 </tr>
 </table>
 
-## H3 density grid
+* ***Select color ramp*** - This is a list of the QGIS color ramps (default Reds) that will be applied to the layer. The default value can be changed in ***Settings***.
+* ***Invert color ramp*** - When checked, the ordering of the color ramp is inverted.
 
-This is the same as ***Styled H3 density map***, but without the styling. This algorithm uses the H3 (Hexagonal hierarchical geospatial indexing system) library for fast density map generation. It iterates through every point of the input layer using H3 indexing with a count of the number of times each H3 index has been seen. Each H3 cell is then created as a polygon. The polygons are in a hexagon shape. 
+These are the Advanced Parameters.
 
-To create H3 density maps you will need to install the H3 Library (<a href="https://h3geo.org/">https://h3geo.org/</a>).
+* ***Weight field*** - An optional weight field can be used to assign weights to each point. If set, the count generated will be the sum of the weight field for each point contained by the polygon.
+* ***Number of gradient colors*** - This specifies the number of gradient categories that are going to be used. This example uses a value of 15. 
+* ***Color ramp mode*** - Select one of Equal Count (Quantile), Equal Interval, Logarithmic scale ,Natural Breaks (Jenks), Pretty Breaks, or Standard Deviation. The default value change be changed in ***Settings***.
+* ***No feature outlines*** - If checked, it will not draw grid cell outlines.
+
+### <img src="help/h3density.png" alt="H3 density map" width="30" height="24"> H3 density grid
+
+This is the same as ***Styled H3 density map***, but without the styling. 
+
+<div style="text-align:center"><img src="help/h3densitygridalg.jpg" alt="H3 Density Grid Algorithm"></div>
+
+### <img src="icons/ml_h3.png" alt="Styled H3 multi-layer density map" width="30" height="24"> Styled H3 multi-layer density map
+This is the same as the ***Styled H3 density map*** algorithm with the exception that it supports multiple input point vector layers which contribute to the output density map. If a Weight field is used, then all selected layers must contain the same weight attribute field. To select the input layers, click on the "..." button on the right and it will give a dialog with all of the point vector layers that are available to be included in the output density map.
+
+<div style="text-align:center"><img src="help/h3_styled_multi_density.jpg" alt="Styled H3 multi-layer density map Algorithm"></div>
+
+### <img src="help/h3multidensitygrid.png" alt="H3 multi-layer density grid" width="26" height="24"> H3 multi-layer density grid
+
+This is the same as ***Styled multi-layer H3 density map***, but without the styling. The algorithm iterates through every selected vector layer and every point within the layer, indexing them using a H3 geohash index with a count of the number of times each index has been seen. The bounds of each geohash index cell is then created as a polygon.
+
+### <img src="help/h3grid.png" alt="H3 grid" width="24" height="24"> H3 grid
+
+This will create a grid of H3 polygons based on the extent of a layer, canvas, or user drawn extent. ***H3 Resolution*** is a value between 0 and 15 specifying the resolution of the H3 grid. 
 
 ## <img src="help/densityexplorer.png" alt="Density explorer tool" width="25" height="24"> Density map analysis tool
 
@@ -325,10 +395,6 @@ This achieves some of the functionality you get from right-mouse clicking on a s
 * ***Interpolation*** - Options are Discrete, Linear, and Exact.
 * ***Mode*** - Options are Continuous, Equal Interval, and Quantile.
 * ***Number of gradient colors*** - Specifies the number of gradient color class divisions.
-
-## <img src="help/h3grid.png" alt="H3 grid" width="24" height="24"> H3 grid
-
-This will create a grid of H3 polygons based on the extent of a layer, canvas, or user drawn extent. ***H3 Resolution*** is a value between 0 and 15 specifying the resolution of the H3 grid. 
 
 ## <img src="help/settings.png" alt="Settings" width="26" height="24"> Settings
 
