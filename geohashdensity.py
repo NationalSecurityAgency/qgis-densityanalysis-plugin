@@ -174,14 +174,20 @@ class GeohashDensityAlgorithm(QgsProcessingAlgorithm):
                 feedback.setProgress(int(cnt * total)+85)
         return {'OUTPUT': dest_id}
 
+    def group(self):
+        return 'Geohash density'
+
+    def groupId(self):
+        return 'geohashdensity'
+
     def name(self):
         return 'geohashdensity'
 
     def displayName(self):
         return 'Geohash density grid'
 
-    '''def icon(self):
-        return QIcon(os.path.join(os.path.dirname(__file__), 'icons/geohash.png'))'''
+    def icon(self):
+        return QIcon(os.path.join(os.path.dirname(__file__), 'icons/geohashdensity.svg'))
 
     def createInstance(self):
         return GeohashDensityAlgorithm()

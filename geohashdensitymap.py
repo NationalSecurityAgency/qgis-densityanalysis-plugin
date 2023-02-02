@@ -190,6 +190,12 @@ class GeohashDensityMapAlgorithm(QgsProcessingAlgorithm):
         processing.run('densityanalysis:gratuatedstyle', alg_params, context=context, feedback=feedback, is_child_algorithm=False)
         return results
 
+    def group(self):
+        return 'Geohash density'
+
+    def groupId(self):
+        return 'geohashdensity'
+
     def name(self):
         return 'geohashdensitymap'
 
