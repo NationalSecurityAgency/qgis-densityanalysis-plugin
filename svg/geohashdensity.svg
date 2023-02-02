@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   height="24"
+   viewBox="0 0 24 24"
+   width="24"
+   version="1.1"
+   id="svg13634"
+   sodipodi:docname="geohashdensity.svg"
+   inkscape:export-filename="..\help\geohashdensity.png"
+   inkscape:export-xdpi="104.75819"
+   inkscape:export-ydpi="104.75819"
+   inkscape:version="1.2.1 (9c6d41e410, 2022-07-14)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs13638" />
+  <sodipodi:namedview
+     id="namedview13636"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     showgrid="false"
+     inkscape:zoom="34.875"
+     inkscape:cx="10.136201"
+     inkscape:cy="12.014337"
+     inkscape:window-width="1920"
+     inkscape:window-height="1017"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg13634" />
+  <g
+     fill="#f8716e"
+     stroke="#fff"
+     stroke-linecap="round"
+     stroke-width=".25"
+     id="g13632">
+    <path
+       d="m1.089784 1.089784h5.157879v5.157879h-5.157879z"
+       id="path13600" />
+    <path
+       d="m6.618327 1.089784h5.157879v5.157879h-5.157879z"
+       id="path13602" />
+    <path
+       d="m12.146871 1.089784h5.157879v5.157879h-5.157879z"
+       id="path13604" />
+    <path
+       d="m17.675413 1.089784h5.157879v5.157879h-5.157879z"
+       id="path13606" />
+    <path
+       d="m1.089784 6.661748h5.157879v5.157879h-5.157879z"
+       id="path13608" />
+    <path
+       d="m6.618327 6.661748h5.157879v5.157879h-5.157879z"
+       id="path13610" />
+    <path
+       d="m12.146871 6.661748h5.157879v5.157879h-5.157879z"
+       id="path13612" />
+    <path
+       d="m17.675413 6.661748h5.157879v5.157879h-5.157879z"
+       id="path13614" />
+    <path
+       d="m1.089784 12.233711h5.157879v5.157879h-5.157879z"
+       id="path13616" />
+    <path
+       d="m6.618327 12.233711h5.157879v5.157879h-5.157879z"
+       id="path13618" />
+    <path
+       d="m12.146871 12.233711h5.157879v5.157879h-5.157879z"
+       id="path13620" />
+    <path
+       d="m17.675413 12.233711h5.157879v5.157879h-5.157879z"
+       id="path13622" />
+    <path
+       d="m1.089784 17.805676h5.157879v5.157879h-5.157879z"
+       id="path13624" />
+    <path
+       d="m6.618327 17.805676h5.157879v5.157879h-5.157879z"
+       id="path13626" />
+    <path
+       d="m12.146871 17.805676h5.157879v5.157879h-5.157879z"
+       id="path13628" />
+    <path
+       d="m17.675413 17.805676h5.157879v5.157879h-5.157879z"
+       id="path13630" />
+  </g>
+</svg>
