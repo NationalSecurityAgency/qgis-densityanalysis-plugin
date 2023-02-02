@@ -212,6 +212,12 @@ class H3DensityMapAlgorithm(QgsProcessingAlgorithm):
         processing.run('densityanalysis:gratuatedstyle', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
         return results
 
+    def group(self):
+        return 'H3 density'
+
+    def groupId(self):
+        return 'h3density'
+
     def name(self):
         return 'h3densitymap'
 

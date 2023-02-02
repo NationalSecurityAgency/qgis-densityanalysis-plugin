@@ -206,14 +206,20 @@ class H3DensityAlgorithm(QgsProcessingAlgorithm):
                 feedback.setProgress(int(cnt * total)+85)
         return {'OUTPUT': dest_id}
 
+    def group(self):
+        return 'H3 density'
+
+    def groupId(self):
+        return 'h3density'
+
     def name(self):
         return 'h3density'
 
     def displayName(self):
         return 'H3 density grid'
 
-    '''def icon(self):
-        return QIcon(os.path.join(os.path.dirname(__file__), 'icons/h3.png'))'''
+    def icon(self):
+        return QIcon(os.path.join(os.path.dirname(__file__), 'icons/h3density.svg'))
 
     def createInstance(self):
         return H3DensityAlgorithm()

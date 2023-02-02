@@ -145,6 +145,12 @@ class StyledPolygonRasterDensityAlgorithm(QgsProcessingAlgorithm):
 
         return results
 
+    def group(self):
+        return 'Raster density'
+
+    def groupId(self):
+        return 'rasterdensity'
+
     def name(self):
         return 'styledpolygondensity'
 

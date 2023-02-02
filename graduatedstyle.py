@@ -124,6 +124,12 @@ class GraduatedStyleAlgorithm(QgsProcessingAlgorithm):
         layer.triggerRepaint()
         return({})
 
+    def group(self):
+        return 'Styles'
+
+    def groupId(self):
+        return 'styles'
+
     def name(self):
         return 'gratuatedstyle'
 

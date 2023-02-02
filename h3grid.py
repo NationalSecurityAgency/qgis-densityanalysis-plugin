@@ -156,6 +156,12 @@ class H3GridAlgorithm(QgsProcessingAlgorithm):
             
         return {'OUTPUT': dest_id}
 
+    def group(self):
+        return 'H3 density'
+
+    def groupId(self):
+        return 'h3density'
+
     def name(self):
         return 'h3grid'
 

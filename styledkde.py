@@ -182,6 +182,12 @@ class StyledKdeAlgorithm(QgsProcessingAlgorithm):
         outputs['Styled'] = processing.run('densityanalysis:rasterstyle', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
         return results
 
+    def group(self):
+        return 'Raster density'
+
+    def groupId(self):
+        return 'rasterdensity'
+
     def name(self):
         return 'styledkde'
 
