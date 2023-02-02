@@ -121,6 +121,12 @@ class PolygonRasterDensityAlgorithm(QgsProcessingAlgorithm):
         results['OUTPUT'] = outputs['Rasterize']['OUTPUT']
         return results
 
+    def group(self):
+        return 'Raster density'
+
+    def groupId(self):
+        return 'rasterdensity'
+
     def name(self):
         return 'polygondensity'
 
