@@ -1,8 +1,7 @@
 import os
 from qgis.PyQt import uic
-from qgis.core import Qgis, QgsStyle, QgsUnitTypes
+from qgis.core import Qgis, QgsStyle, QgsUnitTypes, QgsSettings
 from qgis.PyQt.QtWidgets import QDialog
-from qgis.PyQt.QtCore import QSettings
 from qgis.PyQt.QtGui import QColor
 
 POLYGON_UNIT_LABELS = ["Kilometers", "Meters", "Miles", 'Yards', "Feet", "Nautical Miles", "Degrees", "Dimensions in pixels"]
@@ -56,7 +55,7 @@ class Settings():
         self.ramp_names = style.colorRampNames()
 
     def readSettings(self):
-        qset = QSettings()
+        qset = QgsSettings()
         self.color_ramp = qset.value('/DensityAnalysis/ColorRamp', 'Reds')
         if self.color_ramp not in self.ramp_names:
             self.color_ramp = 'Reds'
@@ -100,7 +99,7 @@ class Settings():
         self.color_ramp = color_ramp
         self.num_ramp_classes = num_ramp_classes
         self.color_ramp_mode = color_ramp_mode
-        qset = QSettings()
+        qset = QgsSettings()
         qset.setValue('/DensityAnalysis/ColorRamp', color_ramp)
         qset.setValue('/DensityAnalysis/NumRampClasses', num_ramp_classes)
         qset.setValue('/DensityAnalysis/ColorRampMode', color_ramp_mode)
@@ -112,7 +111,7 @@ class Settings():
         self.max_image_size = max_image_size
         self.line_flash_width = line_flash_width
         self.line_flash_color = line_flash_color
-        qset = QSettings()
+        qset = QgsSettings()
         qset.setValue('/DensityAnalysis/MeasuementUnit', measurement_unit)
         qset.setValue('/DensityAnalysis/PolyMeasuementUnit', poly_measurement_unit)
         qset.setValue('/DensityAnalysis/DefaultDimension', default_dimension)
