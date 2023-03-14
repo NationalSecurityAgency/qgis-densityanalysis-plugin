@@ -15,6 +15,7 @@ class DensityAnalysis(object):
     heatmap_dialog = None
     style_Layers_dialog = None
     settingsDialog = None
+    h3_installed = False
 
     def __init__(self, iface):
         self.iface = iface
@@ -207,40 +208,38 @@ class DensityAnalysis(object):
     def geohashMultiAlgorithm(self):
         processing.execAlgorithmDialog('densityanalysis:geohashmultidensitymap', {})
 
-    def h3Algorithm(self):
+    def checkForH3(self):
+        if self.h3_installed:
+            return(True)
         try:
             import h3
-            processing.execAlgorithmDialog('densityanalysis:h3densitymap', {})
+            self.h3_installed = True
+            return(True)
         except Exception:
-            QMessageBox.information(self.iface.mainWindow(), 'H3 Install Instructions', h3InstallString)
+            pass
+        # H3 is not available
+        QMessageBox.information(self.iface.mainWindow(), 'H3 Install Instructions', h3InstallString)
+        return(False)
+
+    def h3Algorithm(self):
+        if self.checkForH3():
+            processing.execAlgorithmDialog('densityanalysis:h3densitymap', {})
 
     def h3MultiAlgorithm(self):
-        try:
-            import h3
+        if self.checkForH3():
             processing.execAlgorithmDialog('densityanalysis:h3multidensitymap', {})
-        except Exception:
-            QMessageBox.information(self.iface.mainWindow(), 'H3 Install Instructions', h3InstallString)
     
     def h3DensityGrid(self):
-        try:
-            import h3
+        if self.checkForH3():
             processing.execAlgorithmDialog('densityanalysis:h3density', {})
-        except Exception:
-            QMessageBox.information(self.iface.mainWindow(), 'H3 Install Instructions', h3InstallString)
     
     def h3MultiDensityGrid(self):
-        try:
-            import h3
+        if self.checkForH3():
             processing.execAlgorithmDialog('densityanalysis:h3multidensity', {})
-        except Exception:
-            QMessageBox.information(self.iface.mainWindow(), 'H3 Install Instructions', h3InstallString)
     
     def h3Grid(self):
-        try:
-            import h3
+        if self.checkForH3():
             processing.execAlgorithmDialog('densityanalysis:h3grid', {})
-        except Exception:
-            QMessageBox.information(self.iface.mainWindow(), 'H3 Install Instructions', h3InstallString)
 
     def graduatedStyleAlgorithm(self):
         processing.execAlgorithmDialog('densityanalysis:gratuatedstyle', {})
