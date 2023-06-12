@@ -2,7 +2,7 @@
 name=Density Analysis
 qgisMinimumVersion=3.12
 description=This plugin automates the creation of density heatmaps in QGIS with a heatmap explorer to examine the areas of greatest concentrations. It includes H3, geohash, and polygon density map algorithms along with several styling algorithms. It can paste a style onto all selected layers.
-version=2023.5.4
+version=2023.6.12
 author=C Hamilton
 email=adenaculture@gmail.com
 about=This plugin adds six new density heatmap algorithms to QGIS including geohash, H3, and polygon density maps. It adds a vector density heatmap explorer to examine the areas of greatest concentrations. It wraps the QGIS Heatmap algorithm into a new version that automatically styles the layer and allows the user to specify the cell size in various units of measure and not just the units of the layer's CRS. It provides an algorithm to create a raster density map of polygons. It has three processing algorithms to create a gradient style, random style, and raster pseudocolor style so that they can be used in QGIS models. Another tool allows a copied style or a .qml file to be pasted onto all selected layers. The plugin can be extended by installing the H3 library for blazing fast hexagon density maps.
@@ -16,6 +16,7 @@ hasProcessingProvider=yes
 experimental=False
 deprecated=False
 changelog=
+    2023.6.12 - Remove undessary code
     2023.5.4 - Fix to allow qgis_process to function correctly.
     2023.3.13 - Replace QSettings with QgsSettings
     2023.2.2 - Added multi layer input to geohash and H3 algorithms and rearranged algorithms.

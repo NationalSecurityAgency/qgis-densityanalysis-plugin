@@ -170,17 +170,7 @@ class DensityAnalysis(object):
         self.iface.removePluginMenu("Density analysis", self.helpAction)
         if self.heatmap_dialog:
             self.iface.removeDockWidget(self.heatmap_dialog)
-        # Remove Toolbar Icons
-        self.iface.removeToolBarIcon(self.densityGridAction)
-        self.iface.removeToolBarIcon(self.geohashToolbar)
-        self.iface.removeToolBarIcon(self.h3Toolbar)
-        self.iface.removeToolBarIcon(self.kdeAction)
-        self.iface.removeToolBarIcon(self.heatmapAction)
-        self.iface.removeToolBarIcon(self.style2layersAction)
-        self.iface.removeToolBarIcon(self.graduatedStyleAction)
-        self.iface.removeToolBarIcon(self.randomStyleAction)
-        self.iface.removeToolBarIcon(self.styledPolyDensityAction)
-        self.iface.removeToolBarIcon(self.rasterStyleAction)
+        # Remove Toolbar
         del self.toolbar
         """Remove the provider."""
         QgsApplication.processingRegistry().removeProvider(self.provider)
