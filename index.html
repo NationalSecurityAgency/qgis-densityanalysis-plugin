@@ -37,7 +37,7 @@ code {
 </head>
 <body>
 <h1>QGIS Density Analysis Plugin</h1>
-<p>This plugin adds  new density heatmap algorithms to QGIS including geohash, H3, styled heatmap, and polygon density maps. It adds a vector density heatmap explorer to examine hotspot areas of greatest concentrations. It wraps the QGIS Heatmap (Kernel Density Estimation) algorithm into a new version that automatically styles the layer and allows the user to specify the cell size in various units of measure and not just the units of the layer's CRS. It provides an algorithm to create a raster density map of polygons. It has processing algorithms to create a gradient style, random style, and raster pseudocolor style so that they can be used in QGIS models. Another tool allows a copied style or a .qml file to be pasted onto all selected layers. Once installed, the plugin is located under <strong><em>Plugins-&gt;Density analysis</em></strong> in the QGIS menu, on the toolbar, and can be found in the <em>Processing Toolbox</em> under <em>Density analysis</em>. This shows plugin from the main menu with <strong><em>Geohash density algorithms</em></strong> expanded.</p>
+<p>This plugin adds new density heatmap algorithms to QGIS including geohash, H3, styled heatmap, and polygon density maps. It adds a vector density heatmap explorer to examine hotspot areas of greatest concentrations. It wraps the QGIS Heatmap (Kernel Density Estimation) algorithm into a new version that automatically styles the layer and allows the user to specify the cell size in various units of measure and not just the units of the layer's CRS. It provides an algorithm to create a raster density map of polygons. It has processing algorithms to create a gradient style, random style, and raster pseudocolor style so that they can be used in QGIS models. Another tool allows a copied style or a .qml file to be pasted onto all selected layers. Once installed, the plugin is located under <strong><em>Plugins-&gt;Density analysis</em></strong> in the QGIS menu, on the toolbar, and can be found in the <em>Processing Toolbox</em> under <em>Density analysis</em>. This shows plugin from the main menu with <strong><em>Geohash density algorithms</em></strong> expanded.</p>
 <div style="text-align:center"><img src="help/menu.jpg" alt="Density Analysis"></div>
 
 <p>This shows the expanded <strong><em>H3 density algorithms</em></strong>.</p>
@@ -74,14 +74,14 @@ code {
 <p><div style="text-align:center"><img src="help/values.png" alt="Cell counts"></div></p>
 </li>
 <li>
-<p><strong><em>Color ramp mode</em></strong> - Select one of Equal Count (Quantile), Equal Interval, Logarithmic scale ,Natural Breaks (Jenks), Pretty Breaks, or Standard Deviation. The default value change be changed in <strong><em>Settings</em></strong>.</p>
+<p><strong><em>Color ramp mode</em></strong> - Select one of Equal Count (Quantile), Equal Interval, Logarithmic scale, Natural Breaks (Jenks), Pretty Breaks, or Standard Deviation. The default value change be changed in <strong><em>Settings</em></strong>.</p>
 </li>
 <li><strong><em>No feature outlines</em></strong> - If checked, it will not draw grid cell outlines.</li>
 </ul>
 <h2>Geohash density algorithms</h2>
 <p>There are four geohash density algorithm variations. Two are automatically styled and two of them work with multiple vector layers.</p>
 <h3><img src="icons/geohash.png" alt="Styled geohash density map" width="24" height="24"> Styled geohash density map</h3>
-<p>This algorithm iterates through every point indexing them using a geohash with a count of the number of times each geohash has been seen. The bounds of each geohash cell is then created as a polygon. Depending on the resolution these polygon are either a square or rectangle. Here is an example.</p>
+<p>This algorithm iterates through every point indexing them using a geohash with a count of the number of times each geohash has been seen. The bounds of each geohash cell is then created as a polygon. Depending on the resolution these polygons are either a square or rectangle. Here is an example.</p>
 <div style="text-align:center"><img src="help/geohash_example.png" alt="Geohash Density Map"></div>
 
 <p>This shows the algorithm's dialog.</p>
@@ -155,14 +155,14 @@ code {
 <ul>
 <li><strong><em>Weight field</em></strong> - An optional weight field can be used to assign weights to each point. If set, the count generated will be the sum of the weight field for each point contained by the polygon.</li>
 <li><strong><em>Number of gradient colors</em></strong> - This specifies the number of gradient categories that are going to be used. This example uses a value of 15. </li>
-<li><strong><em>Color ramp mode</em></strong> - Select one of Equal Count (Quantile), Equal Interval, Logarithmic scale ,Natural Breaks (Jenks), Pretty Breaks, or Standard Deviation. The default value change be changed in <strong><em>Settings</em></strong>.</li>
+<li><strong><em>Color ramp mode</em></strong> - Select one of Equal Count (Quantile), Equal Interval, Logarithmic scale, Natural Breaks (Jenks), Pretty Breaks, or Standard Deviation. The default value change be changed in <strong><em>Settings</em></strong>.</li>
 <li><strong><em>No feature outlines</em></strong> - If checked, it will not draw grid cell outlines.</li>
 </ul>
 <p>The output geohash table contains a unique identifier <strong>ID</strong>, geoshash string <strong>GEOHASH</strong> and the count of number of points or weighted count of the number points within the geohash cell <strong>NUMPOINTS</strong>.</p>
 <div style="text-align:center"><img src="help/geohash_attributes.jpg" alt="Geohash attributes"></div>
 
 <h3><img src="help/geohashdensity.png" alt="Geohash density grid" width="24" height="24"> Geohash density grid</h3>
-<p>This is the same as <strong><em>Styled geohash density map</em></strong>, but without the styling. The algorithm iterates through every point of the input layer indexing them using a geohash with a count of the number of times each geohash has been seen and saved to the <strong>NUMPOINTS</strong> attribute. The bounds of each geohash cell is then created as a polygon. Depending on the resolution these polygon are either a square or rectangle.</p>
+<p>This is the same as <strong><em>Styled geohash density map</em></strong>, but without the styling. The algorithm iterates through every point of the input layer indexing them using a geohash with a count of the number of times each geohash has been seen and saved to the <strong>NUMPOINTS</strong> attribute. The bounds of each geohash cell is then created as a polygon. Depending on the resolution these polygons are either a square or rectangle.</p>
 <div style="text-align:center"><img src="help/gh_density_alg.jpg" alt="Geohash Density Grid Algorithm"></div>
 
 <h3><img src="icons/ml_geohash.png" alt="Styled geohash multi-layer density map" width="24" height="24"> Styled geohash multi-layer density map</h3>
@@ -170,7 +170,7 @@ code {
 <div style="text-align:center"><img src="help/ml_gh_density_map.jpg" alt="Multi-layer geohash"></div>
 
 <h3><img src="help/geohashmultidensity.png" alt="Geohash multi-layer density grid" width="24" height="24"> Geohash multi-layer density grid</h3>
-<p>This is the same as <strong><em>Styled multi-layer geohash density map</em></strong>, but without the styling. The algorithm iterates through every selected point vector layer and every point within the layer, indexing them using a geohash with a count of the number of times each geohash has been seen. The bounds of each geohash cell is then created as a polygon. Depending on the resolution these polygon are either a square or rectangle.</p>
+<p>This is the same as <strong><em>Styled multi-layer geohash density map</em></strong>, but without the styling. The algorithm iterates through every selected point vector layer and every point within the layer, indexing them using a geohash with a count of the number of times each geohash has been seen. The bounds of each geohash cell is then created as a polygon. Depending on the resolution these polygons are either a square or rectangle.</p>
 <h2>H3 density algorithms</h2>
 <p>There are four H3 density algorithm variations. Two are automatically styled and two of them work with multiple vector layers.</p>
 <p>These algorithms use the <strong>H3 (Hexagonal hierarchical geospatial indexing system)</strong> library for fast density map generation. They iterate through every point using H3 indexing with a count of the number of times each H3 index has been seen. Each H3 cell is then created as a polygon. The polygons are in a hexagon shape. </p>
@@ -268,7 +268,7 @@ The H3 package can be installed by running the OSGeo4W shell as system administr
 <ul>
 <li><strong><em>Weight field</em></strong> - An optional weight field can be used to assign weights to each point. If set, the count generated will be the sum of the weight field for each point contained by the polygon.</li>
 <li><strong><em>Number of gradient colors</em></strong> - This specifies the number of gradient categories that are going to be used. This example uses a value of 15. </li>
-<li><strong><em>Color ramp mode</em></strong> - Select one of Equal Count (Quantile), Equal Interval, Logarithmic scale ,Natural Breaks (Jenks), Pretty Breaks, or Standard Deviation. The default value change be changed in <strong><em>Settings</em></strong>.</li>
+<li><strong><em>Color ramp mode</em></strong> - Select one of Equal Count (Quantile), Equal Interval, Logarithmic scale, Natural Breaks (Jenks), Pretty Breaks, or Standard Deviation. The default value change be changed in <strong><em>Settings</em></strong>.</li>
 <li><strong><em>No feature outlines</em></strong> - If checked, it will not draw grid cell outlines.</li>
 </ul>
 <h3><img src="help/h3density.png" alt="H3 density map" width="30" height="24"> H3 density grid</h3>
@@ -284,14 +284,14 @@ The H3 package can be installed by running the OSGeo4W shell as system administr
 <h3><img src="help/h3grid.png" alt="H3 grid" width="24" height="24"> H3 grid</h3>
 <p>This will create a grid of H3 polygons based on the extent of a layer, canvas, or user drawn extent. <strong><em>H3 Resolution</em></strong> is a value between 0 and 15 specifying the resolution of the H3 grid. </p>
 <h2><img src="help/densityexplorer.png" alt="Density explorer tool" width="25" height="24"> Density map analysis tool</h2>
-<p>With this tool you can quickly look at the top scoring values. Select the original point layer and the density heatmap polygon layer generated by the above algorithms. <strong><em>ID</em></strong> should be should be set to a unique identifier, and <strong><em>Score</em></strong> should be set to the histogram count attribute. If the selected heatmap vector layer has the attributes <strong><em>id</em></strong> and <strong><em>NUMPOINTS</em></strong>, these will be automatically selected.</p>
+<p>With this tool you can quickly look at the top scoring values. Select the original point layer and the density heatmap polygon layer generated by the above algorithms. <strong><em>ID</em></strong> should be set to a unique identifier, and <strong><em>Score</em></strong> should be set to the histogram count attribute. If the selected heatmap vector layer has the attributes <strong><em>id</em></strong> and <strong><em>NUMPOINTS</em></strong>, these will be automatically selected.</p>
 <div style="text-align:center"><img src="help/densityanalysis.png" alt="Heatmap density analysis"></div>
 
 <p>Once the parameters have been set, click on <strong><em>Display Density Values</em></strong> and the top scores will be listed. If you click on any of entries only that grid cell will be display. A drop down set of actions selects what happens when clicking on one or more of the score entries.</p>
 <ul>
 <li><strong><em>No action</em></strong> - No action is taken.</li>
 <li><strong><em>Auto pan</em></strong> - The density map polygon layer will only display the selected polygons and hide all the rest. The QGIS canvas will pan to the center of all the selected features. You can click and drag to select more than one entry, or Ctrl-click to add or subtract from the selection.</li>
-<li><strong><em>Pan+flash</em></strong> - All of the polygons in the density map polygon layer will be displayed. Only a single row can be selected at a time and the canvas will pan to the center of the selected polygon and will flash lines showing where it is located at.</li>
+<li><strong><em>Pan+flash</em></strong> - All of the polygons in the density map polygon layer will be displayed. Only a single row can be selected at a time and the canvas will pan to the center of the selected polygon and will flash lines showing where it is located.</li>
 <li><strong><em>Auto zoom</em></strong> - The density map polygon layer will only display the selected polygons and hide all the rest.  The QGIS canvas will zoom to the center of all the selected features. You can click and drag to select more than one entry, or Ctrl-click to add or subtract from the selection.</li>
 </ul>
 <p>You can then examine the features within the grid cell. Here is an example view.</p>
@@ -330,7 +330,7 @@ The H3 package can be installed by running the OSGeo4W shell as system administr
 <li><strong><em>Grid extent (defaults to layer extent)</em></strong> - Select a grid extent. In this case it is not set and defaults to the extent of the input layer.</li>
 <li><strong><em>Cell width in measurement units</em></strong> - If <strong><em>Measurement unit</em></strong> is set to <strong>Dimensions in pixels</strong> then this represents the width of the output image that will be created to span the extent of the polygon data; otherwise, each pixel cell represents the width in terms of <strong><em>Measurement unit</em></strong>. For example if <strong><em>Measurement unit</em></strong> is set to Kilometers and this value is set to 2, then every pixel represents a width of 2 kilometers.</li>
 <li><strong><em>Cell height in measurement units</em></strong> - If <strong><em>Measurement unit</em></strong> is set to <strong>Dimensions in pixels</strong> then this represents the height of the output image that will be created to span the extent of the polygon data; otherwise, each pixel represents the height in terms of <strong><em>Measurement unit</em></strong>. For example if <strong><em>Measurement unit</em></strong> is set to Meters and this value is set to 20, then every pixel represents a height of 20 meters.</li>
-<li><strong><em>Measurement unit</em></strong> - This specifies what the values represent in <strong><em>Cell width in measurement units</em></strong> and <strong><em>Cell height in measurement units</em></strong>. The values are <strong>Kilometers</strong>, <strong>Meters</strong>, <strong>Miles</strong>, <strong>Yards</strong>, <strong>Feet</strong>, <strong>Nautical Miles</strong>, <strong>Degrees</strong>, and  <strong>Dimensions in pixels</strong>.</li>
+<li><strong><em>Measurement unit</em></strong> - This specifies what the values represent in <strong><em>Cell width in measurement units</em></strong> and <strong><em>Cell height in measurement units</em></strong>. The values are <strong>Kilometers</strong>, <strong>Meters</strong>, <strong>Miles</strong>, <strong>Yards</strong>, <strong>Feet</strong>, <strong>Nautical Miles</strong>, <strong>Degrees</strong>, and <strong>Dimensions in pixels</strong>.</li>
 <li><strong><em>Select color ramp</em></strong> - This is a list of the QGIS color ramps that will be applied to the layer.</li>
 <li><strong><em>Invert color ramp</em></strong> - When checked, the ordering of the color ramp is inverted.</li>
 </ul>
@@ -352,7 +352,7 @@ The H3 package can be installed by running the OSGeo4W shell as system administr
 <li><strong><em>Grid extent (defaults to layer extent)</em></strong> - Select a grid extent. In this case it is not set and defaults to the extent of the input layer.</li>
 <li><strong><em>Cell width in measurement units</em></strong> - If <strong><em>Measurement unit</em></strong> is set to <strong>Dimensions in pixels</strong> then this represents the width of the output image that will be created to span the extent of the polygon data; otherwise, each pixel cell represents the width in terms of <strong><em>Measurement unit</em></strong>. For example if <strong><em>Measurement unit</em></strong> is set to Kilometers and this value is set to 2, then every pixel represents a width of 2 kilometers.</li>
 <li><strong><em>Cell height in measurement units</em></strong> - If <strong><em>Measurement unit</em></strong> is set to <strong>Dimensions in pixels</strong> then this represents the height of the output image that will be created to span the extent of the polygon data; otherwise, each pixel represents the height in terms of <strong><em>Measurement unit</em></strong>. For example if <strong><em>Measurement unit</em></strong> is set to Meters and this value is set to 20, then every pixel represents a height of 20 meters.</li>
-<li><strong><em>Measurement unit</em></strong> - This specifies what the values represent in <strong><em>Cell width in measurement units</em></strong> and <strong><em>Cell height in measurement units</em></strong>. The values are <strong>Kilometers</strong>, <strong>Meters</strong>, <strong>Miles</strong>, <strong>Yards</strong>, <strong>Feet</strong>, <strong>Nautical Miles</strong>, <strong>Degrees</strong>, and  <strong>Dimensions in pixels</strong>.</li>
+<li><strong><em>Measurement unit</em></strong> - This specifies what the values represent in <strong><em>Cell width in measurement units</em></strong> and <strong><em>Cell height in measurement units</em></strong>. The values are <strong>Kilometers</strong>, <strong>Meters</strong>, <strong>Miles</strong>, <strong>Yards</strong>, <strong>Feet</strong>, <strong>Nautical Miles</strong>, <strong>Degrees</strong>, and <strong>Dimensions in pixels</strong>.</li>
 <li><strong><em>Maximum width or height dimensions for output image</em></strong> - Because it would be easy to create an astronomically large image if inappropriate values are used above, this provides a check to make sure they are reasonable. It will error out if the width or height of the resulting output image were to exceed this value.</li>
 </ul>
 <h2><img src="help/applystyles.png" alt="Apply style to selected layers" width="28" height="28"> Apply style to selected layers</h2>
@@ -397,7 +397,7 @@ The H3 package can be installed by running the OSGeo4W shell as system administr
 <li><strong><em>Maximum allowed density image width or height</em></strong> - This default parameter is used by the algorithms that create image based density maps. It specifies the maximum width or height of the output image. If the algorithms exceed the value an error will be returned. This provides a check to make sure the algorithm settings are reasonable.</li>
 <li><strong><em>Default color ramp</em></strong> - This setting will be used by the algorithms for the default color ramp.</li>
 <li><strong><em>Default number of color ramp classes</em></strong>  - This is the default number of color ramp colors or classes that are used by the algorithms.</li>
-<li><strong><em>Default color ramp mode</em></strong> - This is the default color ramp mode used by the vector density maps for styling the output layer. The options are Equal Count (Quantile), Equal Interval, Logarithmic scale ,Natural Breaks (Jenks), Pretty Breaks, or Standard Deviation.</li>
+<li><strong><em>Default color ramp mode</em></strong> - This is the default color ramp mode used by the vector density maps for styling the output layer. The options are Equal Count (Quantile), Equal Interval, Logarithmic scale, Natural Breaks (Jenks), Pretty Breaks, or Standard Deviation.</li>
 <li><strong><em>Line flash width</em></strong> - This is the width of the line flash marker lines used by the density hotspot explorer.</li>
 <li><strong><em>Line flash color</em></strong> - This is the color of the line flash marker lines used by the density hotspot explorer.</li>
 </ul></body>
