@@ -44,7 +44,7 @@ These are the Advanced Parameters.
 
     <div style="text-align:center"><img src="help/values.png" alt="Cell counts"></div>
 
-* ***Color ramp mode*** - Select one of Equal Count (Quantile), Equal Interval, Logarithmic scale ,Natural Breaks (Jenks), Pretty Breaks, or Standard Deviation. The default value change be changed in ***Settings***.
+* ***Color ramp mode*** - Select one of Equal Count (Quantile), Equal Interval, Logarithmic scale, Natural Breaks (Jenks), Pretty Breaks, or Standard Deviation. The default value change be changed in ***Settings***.
 * ***No feature outlines*** - If checked, it will not draw grid cell outlines.
 
 ## Geohash density algorithms
@@ -53,7 +53,7 @@ There are four geohash density algorithm variations. Two are automatically style
 
 ### <img src="icons/geohash.png" alt="Styled geohash density map" width="24" height="24"> Styled geohash density map
 
-This algorithm iterates through every point indexing them using a geohash with a count of the number of times each geohash has been seen. The bounds of each geohash cell is then created as a polygon. Depending on the resolution these polygon are either a square or rectangle. Here is an example.
+This algorithm iterates through every point indexing them using a geohash with a count of the number of times each geohash has been seen. The bounds of each geohash cell is then created as a polygon. Depending on the resolution these polygons are either a square or rectangle. Here is an example.
 
 <div style="text-align:center"><img src="help/geohash_example.png" alt="Geohash Density Map"></div>
 
@@ -128,7 +128,7 @@ These are the Advanced Parameters.
 
 * ***Weight field*** - An optional weight field can be used to assign weights to each point. If set, the count generated will be the sum of the weight field for each point contained by the polygon.
 * ***Number of gradient colors*** - This specifies the number of gradient categories that are going to be used. This example uses a value of 15. 
-* ***Color ramp mode*** - Select one of Equal Count (Quantile), Equal Interval, Logarithmic scale ,Natural Breaks (Jenks), Pretty Breaks, or Standard Deviation. The default value change be changed in ***Settings***.
+* ***Color ramp mode*** - Select one of Equal Count (Quantile), Equal Interval, Logarithmic scale, Natural Breaks (Jenks), Pretty Breaks, or Standard Deviation. The default value change be changed in ***Settings***.
 * ***No feature outlines*** - If checked, it will not draw grid cell outlines.
 
 The output geohash table contains a unique identifier **ID**, geoshash string **GEOHASH** and the count of number of points or weighted count of the number points within the geohash cell **NUMPOINTS**.
@@ -137,7 +137,7 @@ The output geohash table contains a unique identifier **ID**, geoshash string **
 
 ### <img src="help/geohashdensity.png" alt="Geohash density grid" width="24" height="24"> Geohash density grid
 
-This is the same as ***Styled geohash density map***, but without the styling. The algorithm iterates through every point of the input layer indexing them using a geohash with a count of the number of times each geohash has been seen and saved to the **NUMPOINTS** attribute. The bounds of each geohash cell is then created as a polygon. Depending on the resolution these polygon are either a square or rectangle.
+This is the same as ***Styled geohash density map***, but without the styling. The algorithm iterates through every point of the input layer indexing them using a geohash with a count of the number of times each geohash has been seen and saved to the **NUMPOINTS** attribute. The bounds of each geohash cell is then created as a polygon. Depending on the resolution these polygons are either a square or rectangle.
 
 <div style="text-align:center"><img src="help/gh_density_alg.jpg" alt="Geohash Density Grid Algorithm"></div>
 
@@ -150,7 +150,7 @@ This is the same as the ***Styled geohash density map*** algorithm with the exce
 
 ### <img src="help/geohashmultidensity.png" alt="Geohash multi-layer density grid" width="24" height="24"> Geohash multi-layer density grid
 
-This is the same as ***Styled multi-layer geohash density map***, but without the styling. The algorithm iterates through every selected point vector layer and every point within the layer, indexing them using a geohash with a count of the number of times each geohash has been seen. The bounds of each geohash cell is then created as a polygon. Depending on the resolution these polygon are either a square or rectangle.
+This is the same as ***Styled multi-layer geohash density map***, but without the styling. The algorithm iterates through every selected point vector layer and every point within the layer, indexing them using a geohash with a count of the number of times each geohash has been seen. The bounds of each geohash cell is then created as a polygon. Depending on the resolution these polygons are either a square or rectangle.
 
 ## H3 density algorithms
 
@@ -256,7 +256,7 @@ These are the Advanced Parameters.
 
 * ***Weight field*** - An optional weight field can be used to assign weights to each point. If set, the count generated will be the sum of the weight field for each point contained by the polygon.
 * ***Number of gradient colors*** - This specifies the number of gradient categories that are going to be used. This example uses a value of 15. 
-* ***Color ramp mode*** - Select one of Equal Count (Quantile), Equal Interval, Logarithmic scale ,Natural Breaks (Jenks), Pretty Breaks, or Standard Deviation. The default value change be changed in ***Settings***.
+* ***Color ramp mode*** - Select one of Equal Count (Quantile), Equal Interval, Logarithmic scale, Natural Breaks (Jenks), Pretty Breaks, or Standard Deviation. The default value change be changed in ***Settings***.
 * ***No feature outlines*** - If checked, it will not draw grid cell outlines.
 
 ### <img src="help/h3density.png" alt="H3 density map" width="30" height="24"> H3 density grid
@@ -280,7 +280,7 @@ This will create a grid of H3 polygons based on the extent of a layer, canvas, o
 
 ## <img src="help/densityexplorer.png" alt="Density explorer tool" width="25" height="24"> Density map analysis tool
 
-With this tool you can quickly look at the top scoring values. Select the original point layer and the density heatmap polygon layer generated by the above algorithms. ***ID*** should be should be set to a unique identifier, and ***Score*** should be set to the histogram count attribute. If the selected heatmap vector layer has the attributes ***id*** and ***NUMPOINTS***, these will be automatically selected.
+With this tool you can quickly look at the top scoring values. Select the original point layer and the density heatmap polygon layer generated by the above algorithms. ***ID*** should be set to a unique identifier, and ***Score*** should be set to the histogram count attribute. If the selected heatmap vector layer has the attributes ***id*** and ***NUMPOINTS***, these will be automatically selected.
 
 <div style="text-align:center"><img src="help/densityanalysis.png" alt="Heatmap density analysis"></div>
 
@@ -288,7 +288,7 @@ Once the parameters have been set, click on ***Display Density Values*** and the
 
 * ***No action*** - No action is taken.
 * ***Auto pan*** - The density map polygon layer will only display the selected polygons and hide all the rest. The QGIS canvas will pan to the center of all the selected features. You can click and drag to select more than one entry, or Ctrl-click to add or subtract from the selection.
-* ***Pan+flash*** - All of the polygons in the density map polygon layer will be displayed. Only a single row can be selected at a time and the canvas will pan to the center of the selected polygon and will flash lines showing where it is located at.
+* ***Pan+flash*** - All of the polygons in the density map polygon layer will be displayed. Only a single row can be selected at a time and the canvas will pan to the center of the selected polygon and will flash lines showing where it is located.
 * ***Auto zoom*** - The density map polygon layer will only display the selected polygons and hide all the rest.  The QGIS canvas will zoom to the center of all the selected features. You can click and drag to select more than one entry, or Ctrl-click to add or subtract from the selection.
 
 You can then examine the features within the grid cell. Here is an example view.
@@ -332,7 +332,7 @@ The parameters in dialog box are as follows:
 * ***Grid extent (defaults to layer extent)*** - Select a grid extent. In this case it is not set and defaults to the extent of the input layer.
 * ***Cell width in measurement units*** - If ***Measurement unit*** is set to **Dimensions in pixels** then this represents the width of the output image that will be created to span the extent of the polygon data; otherwise, each pixel cell represents the width in terms of ***Measurement unit***. For example if ***Measurement unit*** is set to Kilometers and this value is set to 2, then every pixel represents a width of 2 kilometers.
 * ***Cell height in measurement units*** - If ***Measurement unit*** is set to **Dimensions in pixels** then this represents the height of the output image that will be created to span the extent of the polygon data; otherwise, each pixel represents the height in terms of ***Measurement unit***. For example if ***Measurement unit*** is set to Meters and this value is set to 20, then every pixel represents a height of 20 meters.
-* ***Measurement unit*** - This specifies what the values represent in ***Cell width in measurement units*** and ***Cell height in measurement units***. The values are **Kilometers**, **Meters**, **Miles**, **Yards**, **Feet**, **Nautical Miles**, **Degrees**, and  **Dimensions in pixels**.
+* ***Measurement unit*** - This specifies what the values represent in ***Cell width in measurement units*** and ***Cell height in measurement units***. The values are **Kilometers**, **Meters**, **Miles**, **Yards**, **Feet**, **Nautical Miles**, **Degrees**, and **Dimensions in pixels**.
 * ***Select color ramp*** - This is a list of the QGIS color ramps that will be applied to the layer.
 * ***Invert color ramp*** - When checked, the ordering of the color ramp is inverted.
 
@@ -356,7 +356,7 @@ The parameters in dialog box are as follows:
 * ***Grid extent (defaults to layer extent)*** - Select a grid extent. In this case it is not set and defaults to the extent of the input layer.
 * ***Cell width in measurement units*** - If ***Measurement unit*** is set to **Dimensions in pixels** then this represents the width of the output image that will be created to span the extent of the polygon data; otherwise, each pixel cell represents the width in terms of ***Measurement unit***. For example if ***Measurement unit*** is set to Kilometers and this value is set to 2, then every pixel represents a width of 2 kilometers.
 * ***Cell height in measurement units*** - If ***Measurement unit*** is set to **Dimensions in pixels** then this represents the height of the output image that will be created to span the extent of the polygon data; otherwise, each pixel represents the height in terms of ***Measurement unit***. For example if ***Measurement unit*** is set to Meters and this value is set to 20, then every pixel represents a height of 20 meters.
-* ***Measurement unit*** - This specifies what the values represent in ***Cell width in measurement units*** and ***Cell height in measurement units***. The values are **Kilometers**, **Meters**, **Miles**, **Yards**, **Feet**, **Nautical Miles**, **Degrees**, and  **Dimensions in pixels**.
+* ***Measurement unit*** - This specifies what the values represent in ***Cell width in measurement units*** and ***Cell height in measurement units***. The values are **Kilometers**, **Meters**, **Miles**, **Yards**, **Feet**, **Nautical Miles**, **Degrees**, and **Dimensions in pixels**.
 * ***Maximum width or height dimensions for output image*** - Because it would be easy to create an astronomically large image if inappropriate values are used above, this provides a check to make sure they are reasonable. It will error out if the width or height of the resulting output image were to exceed this value.
 
 ## <img src="help/applystyles.png" alt="Apply style to selected layers" width="28" height="28"> Apply style to selected layers
@@ -408,6 +408,6 @@ The settings are found in the QGIS menu under ***Plugins->Density Analysis->Sett
 * ***Maximum allowed density image width or height*** - This default parameter is used by the algorithms that create image based density maps. It specifies the maximum width or height of the output image. If the algorithms exceed the value an error will be returned. This provides a check to make sure the algorithm settings are reasonable.
 * ***Default color ramp*** - This setting will be used by the algorithms for the default color ramp.
 * ***Default number of color ramp classes***  - This is the default number of color ramp colors or classes that are used by the algorithms.
-* ***Default color ramp mode*** - This is the default color ramp mode used by the vector density maps for styling the output layer. The options are Equal Count (Quantile), Equal Interval, Logarithmic scale ,Natural Breaks (Jenks), Pretty Breaks, or Standard Deviation.
+* ***Default color ramp mode*** - This is the default color ramp mode used by the vector density maps for styling the output layer. The options are Equal Count (Quantile), Equal Interval, Logarithmic scale, Natural Breaks (Jenks), Pretty Breaks, or Standard Deviation.
 * ***Line flash width*** - This is the width of the line flash marker lines used by the density hotspot explorer.
 * ***Line flash color*** - This is the color of the line flash marker lines used by the density hotspot explorer.
