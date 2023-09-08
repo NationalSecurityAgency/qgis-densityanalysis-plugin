@@ -131,7 +131,7 @@ class GraduatedStyleAlgorithm(QgsProcessingAlgorithm):
         return 'styles'
 
     def name(self):
-        return 'gratuatedstyle'
+        return 'graduatedstyle'
 
     def displayName(self):
         return 'Apply graduated style'
