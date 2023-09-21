@@ -237,7 +237,7 @@ class StyledDensityGridAlgorithm(QgsProcessingAlgorithm):
             'MODE': ramp_mode,  # Equal Count (Quantile)
             'RAMP_NAMES': ramp_name
         }
-        outputs['GraduatedStyle'] = processing.run('densityanalysis:gratuatedstyle', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
+        outputs['GraduatedStyle'] = processing.run('densityanalysis:graduatedstyle', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
         return results
 
     def name(self):

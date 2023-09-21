@@ -187,7 +187,7 @@ class GeohashMultiLayerDensityMapAlgorithm(QgsProcessingAlgorithm):
             'MODE': ramp_mode,
             'RAMP_NAMES': ramp_name
         }
-        processing.run('densityanalysis:gratuatedstyle', alg_params, context=context, feedback=feedback, is_child_algorithm=False)
+        processing.run('densityanalysis:graduatedstyle', alg_params, context=context, feedback=feedback, is_child_algorithm=False)
         return results
 
     def group(self):

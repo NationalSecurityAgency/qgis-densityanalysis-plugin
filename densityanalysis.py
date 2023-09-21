@@ -232,7 +232,7 @@ class DensityAnalysis(object):
             processing.execAlgorithmDialog('densityanalysis:h3grid', {})
 
     def graduatedStyleAlgorithm(self):
-        processing.execAlgorithmDialog('densityanalysis:gratuatedstyle', {})
+        processing.execAlgorithmDialog('densityanalysis:graduatedstyle', {})
 
     def showRandomStyleDialog(self):
         processing.execAlgorithmDialog('densityanalysis:randomstyle', {})

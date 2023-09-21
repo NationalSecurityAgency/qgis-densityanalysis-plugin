@@ -209,7 +209,7 @@ class H3DensityMapAlgorithm(QgsProcessingAlgorithm):
             'MODE': ramp_mode,
             'RAMP_NAMES': ramp_name
         }
-        processing.run('densityanalysis:gratuatedstyle', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
+        processing.run('densityanalysis:graduatedstyle', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
         return results
 
     def group(self):
