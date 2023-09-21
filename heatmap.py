@@ -55,6 +55,7 @@ class HeatmapAnalysis(QDockWidget, FORM_CLASS):
         layer = self.densityHeatmapComboBox.currentLayer()
         if layer:
             layer.setSubsetString('')
+        QDockWidget.closeEvent(self, e)
 
     def fieldChanged(self, fieldName):
         self.layerChanged()
