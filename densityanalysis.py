@@ -91,7 +91,7 @@ class DensityAnalysis(object):
         self.densityGridAction.triggered.connect(self.densityGridAlgorithm)
         self.toolbar.addAction(self.densityGridAction)
         self.iface.addPluginToMenu("Density analysis", self.densityGridAction)
-        
+
         icon = QIcon(os.path.dirname(__file__) + '/icons/densityexplorer.svg')
         self.heatmapAction = QAction(icon, "Density map analysis tool", self.iface.mainWindow())
         self.heatmapAction.triggered.connect(self.showHeatmapDialog)
@@ -102,37 +102,47 @@ class DensityAnalysis(object):
         self.kdeAction = QAction(icon, "Styled heatmap (Kernel density estimation)", self.iface.mainWindow())
         self.kdeAction.triggered.connect(self.kdeAlgorithm)
         self.toolbar.addAction(self.kdeAction)
+
         self.iface.addPluginToMenu("Density analysis", self.kdeAction)
-        
         icon = QIcon(os.path.dirname(__file__) + '/icons/styledrasterdensity.png')
-        self.styledPolyDensityAction = QAction(icon, "Styled polygon density map", self.iface.mainWindow())
+        self.styledPolyDensityAction = QAction(icon, "Styled polygon density (raster)", self.iface.mainWindow())
         self.styledPolyDensityAction.triggered.connect(self.styledPolyDensityDialog)
         self.toolbar.addAction(self.styledPolyDensityAction)
         self.iface.addPluginToMenu("Density analysis", self.styledPolyDensityAction)
-        
+
         icon = QIcon(os.path.dirname(__file__) + '/icons/polydensity.png')
-        self.polyDensityAction = QAction(icon, "Polygon density map", self.iface.mainWindow())
+        self.polyDensityAction = QAction(icon, "Polygon density (raster)", self.iface.mainWindow())
         self.polyDensityAction.triggered.connect(self.polyDensityDialog)
         self.iface.addPluginToMenu("Density analysis", self.polyDensityAction)
+
+        icon = QIcon(os.path.dirname(__file__) + '/icons/vecpolydensity.png')
+        self.styledPolyVecDensityAction = QAction(icon, "Styled polygon density (vector)", self.iface.mainWindow())
+        self.styledPolyVecDensityAction.triggered.connect(self.styledPolyVecDensityDialog)
+        self.iface.addPluginToMenu("Density analysis", self.styledPolyVecDensityAction)
+
+        icon = QIcon(os.path.dirname(__file__) + '/icons/polydensity.png')
+        self.polyVecDensityAction = QAction(icon, "Polygon density (vector)", self.iface.mainWindow())
+        self.polyVecDensityAction.triggered.connect(self.polyVecDensityDialog)
+        self.iface.addPluginToMenu("Density analysis", self.polyVecDensityAction)
 
         icon = QIcon(os.path.dirname(__file__) + '/icons/applystyles.svg')
         self.style2layersAction = QAction(icon, "Apply style to selected layers", self.iface.mainWindow())
         self.style2layersAction.triggered.connect(self.style2layers)
         self.toolbar.addAction(self.style2layersAction)
         self.iface.addPluginToMenu("Density analysis", self.style2layersAction)
-        
+
         icon = QIcon(os.path.dirname(__file__) + '/icons/gradient.png')
         self.graduatedStyleAction = QAction(icon, "Apply graduated style", self.iface.mainWindow())
         self.graduatedStyleAction.triggered.connect(self.graduatedStyleAlgorithm)
         self.toolbar.addAction(self.graduatedStyleAction)
         self.iface.addPluginToMenu("Density analysis", self.graduatedStyleAction)
-        
+
         icon = QIcon(os.path.dirname(__file__) + '/icons/random.png')
         self.randomStyleAction = QAction(icon, "Apply random categorized style", self.iface.mainWindow())
         self.randomStyleAction.triggered.connect(self.showRandomStyleDialog)
         self.toolbar.addAction(self.randomStyleAction)
         self.iface.addPluginToMenu("Density analysis", self.randomStyleAction)
-        
+
         icon = QIcon(os.path.dirname(__file__) + '/icons/styleraster.png')
         self.rasterStyleAction = QAction(icon, "Apply pseudocolor raster style", self.iface.mainWindow())
         self.rasterStyleAction.triggered.connect(self.rasterStyleDialog)
@@ -150,7 +160,7 @@ class DensityAnalysis(object):
         self.helpAction = QAction(icon, "Help", self.iface.mainWindow())
         self.helpAction.triggered.connect(self.help)
         self.iface.addPluginToMenu('Density analysis', self.helpAction)
-        
+
         # Add the processing provider
         QgsApplication.processingRegistry().addProvider(self.provider)
 
@@ -161,6 +171,8 @@ class DensityAnalysis(object):
         self.iface.removePluginMenu('Density analysis', self.kdeAction)
         self.iface.removePluginMenu('Density analysis', self.graduatedStyleAction)
         self.iface.removePluginMenu('Density analysis', self.randomStyleAction)
+        self.iface.removePluginMenu('Density analysis', self.styledPolyVecDensityAction)
+        self.iface.removePluginMenu('Density analysis', self.polyVecDensityAction)
         self.iface.removePluginMenu('Density analysis', self.styledPolyDensityAction)
         self.iface.removePluginMenu('Density analysis', self.polyDensityAction)
         self.iface.removePluginMenu('Density analysis', self.heatmapAction)
@@ -239,6 +251,12 @@ class DensityAnalysis(object):
 
     def polyDensityDialog(self):
         processing.execAlgorithmDialog('densityanalysis:polygondensity', {})
+
+    def styledPolyVecDensityDialog(self):
+        processing.execAlgorithmDialog('densityanalysis:styledpolygonvectordensity', {})
+
+    def polyVecDensityDialog(self):
+        processing.execAlgorithmDialog('densityanalysis:polygonvectordensity', {})
 
     def styledPolyDensityDialog(self):
         processing.execAlgorithmDialog('densityanalysis:styledpolygondensity', {})

@@ -16,7 +16,9 @@ from .h3multidensitymap import H3MultiLayerDensityMapAlgorithm
 from .polygondensity import PolygonRasterDensityAlgorithm
 from .styledpolygondensity import StyledPolygonRasterDensityAlgorithm
 from .rasterstyle import RasterStyleAlgorithm
-from . styledkde import StyledKdeAlgorithm
+from .styledkde import StyledKdeAlgorithm
+from .polyvectordensity import PolygonVectorDensityAlgorithm
+from .styledpolyvectordensity import StyledPolygonVectorDensityAlgorithm
 
 class DensityAnalysisProvider(QgsProcessingProvider):
 
@@ -38,7 +40,9 @@ class DensityAnalysisProvider(QgsProcessingProvider):
         self.addAlgorithm(H3MultiLayerDensityMapAlgorithm())
         self.addAlgorithm(RasterStyleAlgorithm())
         self.addAlgorithm(PolygonRasterDensityAlgorithm())
+        self.addAlgorithm(PolygonVectorDensityAlgorithm())
         self.addAlgorithm(StyledPolygonRasterDensityAlgorithm())
+        self.addAlgorithm(StyledPolygonVectorDensityAlgorithm())
         self.addAlgorithm(StyledKdeAlgorithm())
 
     def icon(self):
