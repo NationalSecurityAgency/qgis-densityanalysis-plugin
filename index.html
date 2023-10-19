@@ -37,7 +37,7 @@ code {
 </head>
 <body>
 <h1>QGIS Density Analysis Plugin</h1>
-<p>This plugin adds additional density heatmap algorithms to QGIS including geohash, H3, styled heatmap, and polygon density maps. It adds a vector density heatmap explorer to examine hotspot areas of greatest concentrations. It wraps the QGIS Heatmap (Kernel Density Estimation) algorithm into a new version that automatically styles the layer and allows the user to specify the cell size in various units of measure and not just the units of the layer's CRS. It provides an algorithm to create a raster density map of polygons. It has processing algorithms to create a gradient style, random style, and raster pseudocolor style so that they can be used in QGIS models. Another tool allows a copied style or a .qml file to be pasted onto all selected layers. Once installed, the plugin is located under <strong><em>Plugins-&gt;Density analysis</em></strong> in the QGIS menu, on the toolbar, and can be found in the <em>Processing Toolbox</em> under <em>Density analysis</em>. This shows plugin from the main menu with <strong><em>Geohash density algorithms</em></strong> expanded.</p>
+<p>This plugin adds additional density heatmap algorithms to QGIS including geohash, H3, styled heatmap, and polygon density maps. It adds a vector density heatmap explorer to examine hotspot areas of greatest concentrations. It wraps the QGIS Heatmap (Kernel Density Estimation) algorithm into a new version that automatically styles the layer and allows the user to specify the cell size in various units of measure and not just the units of the layer's CRS. It provides an algorithm to create a raster density of polygons. It has processing algorithms to create a gradient style, random style, and raster pseudocolor style so that they can be used in QGIS models. Another tool allows a copied style or a .qml file to be pasted onto all selected layers. Once installed, the plugin is located under <strong><em>Plugins-&gt;Density analysis</em></strong> in the QGIS menu, on the toolbar, and can be found in the <em>Processing Toolbox</em> under <em>Density analysis</em>. This shows plugin from the main menu with <strong><em>Geohash density algorithms</em></strong> expanded.</p>
 <div style="text-align:center"><img src="help/menu.jpg" alt="Density Analysis"></div>
 
 <p>This shows the expanded <strong><em>H3 density algorithms</em></strong>.</p>
@@ -319,12 +319,12 @@ The H3 package can be installed by running the OSGeo4W shell as system administr
 <li><strong><em>Mode</em></strong> - Options are Continuous, Equal Interval, and Quantile.</li>
 <li><strong><em>Number of gradient colors</em></strong> - Specifies the number of gradient color classes.</li>
 </ul>
-<h2><img src="icons/styledrasterdensity.png" alt="Styled Polygon density map" width="28" height="28"> Styled polygon density map</h2>
+<h2><img src="icons/styledrasterdensity.png" alt="Styled Polygon density (raster)" width="28" height="28"> Styled polygon density (raster)</h2>
 <p>Like the <strong><em>Styled Heatmap</em></strong>, this algorithm uses a raster image to accumulate the summation of rasterized polygon layers and then automatically style the results. Here is an example of the result of summing a cluster of polygons.</p>
-<div style="text-align:center"><img src="help/styledpolygondensity.jpg" alt="Styled polygon density map"></div>
+<div style="text-align:center"><img src="help/styledpolygondensity.jpg" alt="Styled polygon density (raster)"></div>
 
 <p>The parameters in dialog box are as follows:</p>
-<div style="text-align:center"><img src="help/styledpolygondensitymap.jpg" alt="Styled polygon density map"></div>
+<div style="text-align:center"><img src="help/styledpolygondensitymap.jpg" alt="Styled polygon density (raster)"></div>
 
 <ul>
 <li><strong><em>Grid extent (defaults to layer extent)</em></strong> - Select a grid extent. In this case it is not set and defaults to the extent of the input layer.</li>
@@ -341,12 +341,12 @@ The H3 package can be installed by running the OSGeo4W shell as system administr
 <li><strong><em>Mode</em></strong> - Options are Continuous, Equal Interval, and Quantile.</li>
 <li><strong><em>Number of gradient colors</em></strong> - Specifies the number of gradient color class divisions.</li>
 </ul>
-<h2><img src="icons/polydensity.png" alt="Polygon density map" width="28" height="28"> Polygon density map</h2>
-<p>This is the same as the <strong><em>Styled density map</em></strong>, but without the styling. It uses a raster image to accumulate the summation of rasterized polygon layers. Here is an example of the result of summing a cluster of polygons.</p>
-<div style="text-align:center"><img src="help/polygondensity.jpg" alt="Polygon density map"></div>
+<h2><img src="icons/polydensity.png" alt="Polygon density (raster)" width="28" height="28"> Polygon density (raster)</h2>
+<p>This is the same as the <strong><em>Styled density (raster)</em></strong>, but without the styling. It uses a raster image to accumulate the summation of rasterized polygon layers. Here is an example of the result of summing a cluster of polygons.</p>
+<div style="text-align:center"><img src="help/polygondensity.jpg" alt="Polygon density"></div>
 
 <p>The parameters in dialog box are as follows:</p>
-<div style="text-align:center"><img src="help/polygondensitymap.png" alt="Polygon density map"></div>
+<div style="text-align:center"><img src="help/polygondensitymap.png" alt="Polygon density"></div>
 
 <ul>
 <li><strong><em>Grid extent (defaults to layer extent)</em></strong> - Select a grid extent. In this case it is not set and defaults to the extent of the input layer.</li>
@@ -355,6 +355,16 @@ The H3 package can be installed by running the OSGeo4W shell as system administr
 <li><strong><em>Measurement unit</em></strong> - This specifies what the values represent in <strong><em>Cell width in measurement units</em></strong> and <strong><em>Cell height in measurement units</em></strong>. The values are <strong>Kilometers</strong>, <strong>Meters</strong>, <strong>Miles</strong>, <strong>Yards</strong>, <strong>Feet</strong>, <strong>Nautical Miles</strong>, <strong>Degrees</strong>, and <strong>Dimensions in pixels</strong>.</li>
 <li><strong><em>Maximum width or height dimensions for output image</em></strong> - Because it would be easy to create an astronomically large image if inappropriate values are used above, this provides a check to make sure they are reasonable. It will error out if the width or height of the resulting output image were to exceed this value.</li>
 </ul>
+<h2><img src="icons/vecpolydensity.png" alt="Styled Polygon density (vector)" width="28" height="28"> Styled polygon density (vector)</h2>
+<p>This is similar to the <strong><em>Polygon density (raster)</em></strong> with the exception that it is vector and not raster based. It calls the QGIS <strong><em>Vector-&gt;Geoprocessing Tools-&gt;Union</em></strong> algorithm to break up the polygons wherever they overlap. It then runs the QGIS <strong><em>Aggregate</em></strong> algorithm to count the number of polygons that have the same geometry effectively returning the density of each polygon area.</p>
+<p>WARNING: There appears to be a bug in the QGIS <strong><em>Union</em></strong> algorithm which I am guessing occurs when a polygon is broken up so small that it not a polygon. If you seen an error message with this algorithm, try running just the <strong><em>Union</em></strong> algorithm on your data without an overlay layer. If that fails report the <strong><em>Union</em></strong> error to the QGIS development team. If you get an error message, you will need to use the raster version of the polygon density algorithm. Here is an example of the output.</p>
+<div style="text-align:center"><img src="help/styledpolygondensityvector.jpg" alt="Styled polygon density"></div>
+
+<p>The parameters in dialog box are as follows:</p>
+<div style="text-align:center"><img src="help/styledpolygondensityvectoralg.jpg" alt="Styled Polygon density vector density algorithm"></div>
+
+<h2><img src="icons/polydensity.png" alt="Polygon density (vector)" width="28" height="28"> Polygon density (vector)</h2>
+<p>This is the same as the <strong><em>Styled density (vector)</em></strong>, but without the styling.</p>
 <h2><img src="help/applystyles.png" alt="Apply style to selected layers" width="28" height="28"> Apply style to selected layers</h2>
 <p>QGIS lacks a function to paste a style to more than one layer so this tool was developed to fix that lack in capability. If you have a .qml style or have a style copied on the clipboard you can apply it to all the selected layers. </p>
 <div style="text-align:center"><img src="help/applystyle.png" alt="Apply style to selected layers"></div>
