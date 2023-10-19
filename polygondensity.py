@@ -1,4 +1,5 @@
 import os
+from qgis.PyQt.QtCore import QUrl
 from qgis.PyQt.QtGui import QIcon
 from qgis.core import QgsCoordinateTransform, QgsProject
 from .settings import settings, POLYGON_UNIT_LABELS, conversionToCrsUnits, conversionFromCrsUnits
@@ -131,10 +132,16 @@ class PolygonRasterDensityAlgorithm(QgsProcessingAlgorithm):
         return 'polygondensity'
 
     def displayName(self):
-        return 'Polygon density'
+        return 'Polygon density (raster)'
 
     def icon(self):
         return QIcon(os.path.join(os.path.dirname(__file__), 'icons/polydensity.png'))
+
+    def helpUrl(self):
+        file = os.path.dirname(__file__) + '/index.html'
+        if not os.path.exists(file):
+            return ''
+        return QUrl.fromLocalFile(file).toString(QUrl.FullyEncoded)
 
     def createInstance(self):
         return PolygonRasterDensityAlgorithm()

@@ -1,4 +1,5 @@
 import os
+from qgis.PyQt.QtCore import QUrl
 from qgis.PyQt.QtGui import QIcon
 
 from qgis.core import (
@@ -117,7 +118,7 @@ class PolygonVectorDensityAlgorithm(QgsProcessingAlgorithm):
         return 'polygonvectordensity'
 
     def displayName(self):
-        return 'Polygon density'
+        return 'Polygon density (vector)'
 
     def icon(self):
         return QIcon(os.path.join(os.path.dirname(__file__), 'icons/polydensity.png'))
@@ -129,6 +130,12 @@ class PolygonVectorDensityAlgorithm(QgsProcessingAlgorithm):
         with open(file) as helpf:
             help = helpf.read()
         return help
+
+    def helpUrl(self):
+        file = os.path.dirname(__file__) + '/index.html'
+        if not os.path.exists(file):
+            return ''
+        return QUrl.fromLocalFile(file).toString(QUrl.FullyEncoded)
 
     def createInstance(self):
         return PolygonVectorDensityAlgorithm()

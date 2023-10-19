@@ -1,6 +1,6 @@
 import os
 from qgis.PyQt.QtGui import QIcon
-from qgis.PyQt.QtCore import QVariant
+from qgis.PyQt.QtCore import QVariant, QUrl
 from qgis.core import Qgis, QgsWkbTypes, QgsFields, QgsField, QgsCoordinateTransform, QgsCoordinateReferenceSystem,  QgsFeature, QgsGeometry, QgsPointXY, QgsProject
 
 from qgis.core import (
@@ -229,6 +229,12 @@ class H3MultiLayerDensityAlgorithm(QgsProcessingAlgorithm):
 
     def icon(self):
         return QIcon(os.path.join(os.path.dirname(__file__), 'icons/h3multidensity.svg'))
+
+    def helpUrl(self):
+        file = os.path.dirname(__file__) + '/index.html'
+        if not os.path.exists(file):
+            return ''
+        return QUrl.fromLocalFile(file).toString(QUrl.FullyEncoded)
 
     def createInstance(self):
         return H3MultiLayerDensityAlgorithm()

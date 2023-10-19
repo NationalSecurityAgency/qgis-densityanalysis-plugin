@@ -1,4 +1,5 @@
 import os
+from qgis.PyQt.QtCore import QUrl
 from qgis.PyQt.QtGui import QIcon
 from qgis.core import Qgis, QgsStyle
 
@@ -155,10 +156,16 @@ class StyledPolygonRasterDensityAlgorithm(QgsProcessingAlgorithm):
         return 'styledpolygondensity'
 
     def displayName(self):
-        return 'Styled polygon density map'
+        return 'Styled polygon density (raster)'
 
     def icon(self):
         return QIcon(os.path.join(os.path.dirname(__file__), 'icons/styledrasterdensity.png'))
+
+    def helpUrl(self):
+        file = os.path.dirname(__file__) + '/index.html'
+        if not os.path.exists(file):
+            return ''
+        return QUrl.fromLocalFile(file).toString(QUrl.FullyEncoded)
 
     def createInstance(self):
         return StyledPolygonRasterDensityAlgorithm()
