@@ -37,7 +37,7 @@ class StyledPolygonVectorDensityAlgorithm(QgsProcessingAlgorithm):
         )
         self.addParameter(
             QgsProcessingParameterNumber('FILTER', 'Keep polygons with overlap counts >= to this',
-                type=QgsProcessingParameterNumber.Integer, defaultValue=2, minValue=1, optional=False)
+                type=QgsProcessingParameterNumber.Integer, defaultValue=1, minValue=1, optional=False)
         )
 
         if Qgis.QGIS_VERSION_INT >= 32200:

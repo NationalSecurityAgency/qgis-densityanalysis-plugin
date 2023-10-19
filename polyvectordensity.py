@@ -33,7 +33,7 @@ class PolygonVectorDensityAlgorithm(QgsProcessingAlgorithm):
         )
         self.addParameter(
             QgsProcessingParameterNumber('FILTER', 'Keep polygons with overlap counts >= to this',
-                type=QgsProcessingParameterNumber.Integer, defaultValue=2, minValue=1, optional=False)
+                type=QgsProcessingParameterNumber.Integer, defaultValue=1, minValue=1, optional=False)
         )
         self.addParameter(
             QgsProcessingParameterFeatureSink('OUTPUT', 'Output polygon density',
