@@ -1,5 +1,5 @@
 This creates a density map of overlapping polygon features by splitting the polygons along their boundaries.
 
-WARNING: If there are dense clusters of polygons, this can create a huge set of polygon fragments which could potentially cause the algorithm to fail. In this case, run the raster versions of the "Polygon density" algorithms.
+WARNING: There appears to be a bug in the QGIS "Union" algorithm which this algorithm uses. It probably occurs when a polygon is broken up so small that it is not a polygon. If you seen an error message with this algorithm, try running just the "Union" algorithm on your data without an overlay layer. If that fails report the "Union" error to the QGIS development team.
 
 The advantage of the vector "Polygon density" algorithm is that it produces a set of vector polygons that include attributes for the number of overlaps and if selected, the source polygons that contributed to the polygon fragments.

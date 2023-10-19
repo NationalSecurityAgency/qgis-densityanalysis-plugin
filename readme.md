@@ -1,6 +1,6 @@
 # QGIS Density Analysis Plugin
 
-This plugin adds additional density heatmap algorithms to QGIS including geohash, H3, styled heatmap, and polygon density maps. It adds a vector density heatmap explorer to examine hotspot areas of greatest concentrations. It wraps the QGIS Heatmap (Kernel Density Estimation) algorithm into a new version that automatically styles the layer and allows the user to specify the cell size in various units of measure and not just the units of the layer's CRS. It provides an algorithm to create a raster density map of polygons. It has processing algorithms to create a gradient style, random style, and raster pseudocolor style so that they can be used in QGIS models. Another tool allows a copied style or a .qml file to be pasted onto all selected layers. Once installed, the plugin is located under ***Plugins->Density analysis*** in the QGIS menu, on the toolbar, and can be found in the *Processing Toolbox* under *Density analysis*. This shows plugin from the main menu with ***Geohash density algorithms*** expanded.
+This plugin adds additional density heatmap algorithms to QGIS including geohash, H3, styled heatmap, and polygon density maps. It adds a vector density heatmap explorer to examine hotspot areas of greatest concentrations. It wraps the QGIS Heatmap (Kernel Density Estimation) algorithm into a new version that automatically styles the layer and allows the user to specify the cell size in various units of measure and not just the units of the layer's CRS. It provides an algorithm to create a raster density of polygons. It has processing algorithms to create a gradient style, random style, and raster pseudocolor style so that they can be used in QGIS models. Another tool allows a copied style or a .qml file to be pasted onto all selected layers. Once installed, the plugin is located under ***Plugins->Density analysis*** in the QGIS menu, on the toolbar, and can be found in the *Processing Toolbox* under *Density analysis*. This shows plugin from the main menu with ***Geohash density algorithms*** expanded.
 
 <div style="text-align:center"><img src="help/menu.jpg" alt="Density Analysis"></div>
 
@@ -319,15 +319,15 @@ These are ***Advanced Parameters***.
 * ***Mode*** - Options are Continuous, Equal Interval, and Quantile.
 * ***Number of gradient colors*** - Specifies the number of gradient color classes.
 
-## <img src="icons/styledrasterdensity.png" alt="Styled Polygon density map" width="28" height="28"> Styled polygon density map
+## <img src="icons/styledrasterdensity.png" alt="Styled Polygon density (raster)" width="28" height="28"> Styled polygon density (raster)
 
 Like the ***Styled Heatmap***, this algorithm uses a raster image to accumulate the summation of rasterized polygon layers and then automatically style the results. Here is an example of the result of summing a cluster of polygons.
 
-<div style="text-align:center"><img src="help/styledpolygondensity.jpg" alt="Styled polygon density map"></div>
+<div style="text-align:center"><img src="help/styledpolygondensity.jpg" alt="Styled polygon density (raster)"></div>
 
 The parameters in dialog box are as follows:
 
-<div style="text-align:center"><img src="help/styledpolygondensitymap.jpg" alt="Styled polygon density map"></div>
+<div style="text-align:center"><img src="help/styledpolygondensitymap.jpg" alt="Styled polygon density (raster)"></div>
 
 * ***Grid extent (defaults to layer extent)*** - Select a grid extent. In this case it is not set and defaults to the extent of the input layer.
 * ***Cell width in measurement units*** - If ***Measurement unit*** is set to **Dimensions in pixels** then this represents the width of the output image that will be created to span the extent of the polygon data; otherwise, each pixel cell represents the width in terms of ***Measurement unit***. For example if ***Measurement unit*** is set to Kilometers and this value is set to 2, then every pixel represents a width of 2 kilometers.
@@ -343,21 +343,37 @@ These are the ***Advanced Parameters***.
 * ***Mode*** - Options are Continuous, Equal Interval, and Quantile.
 * ***Number of gradient colors*** - Specifies the number of gradient color class divisions.
 
-## <img src="icons/polydensity.png" alt="Polygon density map" width="28" height="28"> Polygon density map
+## <img src="icons/polydensity.png" alt="Polygon density (raster)" width="28" height="28"> Polygon density (raster)
 
-This is the same as the ***Styled density map***, but without the styling. It uses a raster image to accumulate the summation of rasterized polygon layers. Here is an example of the result of summing a cluster of polygons.
+This is the same as the ***Styled density (raster)***, but without the styling. It uses a raster image to accumulate the summation of rasterized polygon layers. Here is an example of the result of summing a cluster of polygons.
 
-<div style="text-align:center"><img src="help/polygondensity.jpg" alt="Polygon density map"></div>
+<div style="text-align:center"><img src="help/polygondensity.jpg" alt="Polygon density"></div>
 
 The parameters in dialog box are as follows:
 
-<div style="text-align:center"><img src="help/polygondensitymap.png" alt="Polygon density map"></div>
+<div style="text-align:center"><img src="help/polygondensitymap.png" alt="Polygon density"></div>
 
 * ***Grid extent (defaults to layer extent)*** - Select a grid extent. In this case it is not set and defaults to the extent of the input layer.
 * ***Cell width in measurement units*** - If ***Measurement unit*** is set to **Dimensions in pixels** then this represents the width of the output image that will be created to span the extent of the polygon data; otherwise, each pixel cell represents the width in terms of ***Measurement unit***. For example if ***Measurement unit*** is set to Kilometers and this value is set to 2, then every pixel represents a width of 2 kilometers.
 * ***Cell height in measurement units*** - If ***Measurement unit*** is set to **Dimensions in pixels** then this represents the height of the output image that will be created to span the extent of the polygon data; otherwise, each pixel represents the height in terms of ***Measurement unit***. For example if ***Measurement unit*** is set to Meters and this value is set to 20, then every pixel represents a height of 20 meters.
 * ***Measurement unit*** - This specifies what the values represent in ***Cell width in measurement units*** and ***Cell height in measurement units***. The values are **Kilometers**, **Meters**, **Miles**, **Yards**, **Feet**, **Nautical Miles**, **Degrees**, and **Dimensions in pixels**.
 * ***Maximum width or height dimensions for output image*** - Because it would be easy to create an astronomically large image if inappropriate values are used above, this provides a check to make sure they are reasonable. It will error out if the width or height of the resulting output image were to exceed this value.
+
+## <img src="icons/vecpolydensity.png" alt="Styled Polygon density (vector)" width="28" height="28"> Styled polygon density (vector)
+
+This is similar to the ***Polygon density (raster)*** with the exception that it is vector and not raster based. It calls the QGIS ***Vector->Geoprocessing Tools->Union*** algorithm to break up the polygons wherever they overlap. It then runs the QGIS ***Aggregate*** algorithm to count the number of polygons that have the same geometry effectively returning the density of each polygon area.
+
+WARNING: There appears to be a bug in the QGIS ***Union*** algorithm which I am guessing occurs when a polygon is broken up so small that it not a polygon. If you seen an error message with this algorithm, try running just the ***Union*** algorithm on your data without an overlay layer. If that fails report the ***Union*** error to the QGIS development team. If you get an error message, you will need to use the raster version of the polygon density algorithm. Here is an example of the output.
+
+<div style="text-align:center"><img src="help/styledpolygondensityvector.jpg" alt="Styled polygon density"></div>
+
+The parameters in dialog box are as follows:
+
+<div style="text-align:center"><img src="help/styledpolygondensityvectoralg.jpg" alt="Styled Polygon density vector density algorithm"></div>
+
+## <img src="icons/polydensity.png" alt="Polygon density (vector)" width="28" height="28"> Polygon density (vector)
+
+This is the same as the ***Styled density (vector)***, but without the styling.
 
 ## <img src="help/applystyles.png" alt="Apply style to selected layers" width="28" height="28"> Apply style to selected layers
 
